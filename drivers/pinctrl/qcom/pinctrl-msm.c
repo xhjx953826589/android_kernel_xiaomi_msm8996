@@ -804,7 +804,8 @@ static struct irq_desc *gpio_irq_desc;
 static unsigned int gpio_irq;
 extern int msm_show_resume_irq_mask;
 
-static void msm_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
+bool msm_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
+
 {
 	struct gpio_chip *gc = irq_desc_get_handler_data(desc);
 	const struct msm_pingroup *g;
@@ -814,6 +815,7 @@ static void msm_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 	int handled = 0;
 	u32 val;
 	int i;
+	bool ret;
 
 	if (msm_show_resume_irq_mask) {
 		gpio_irq_desc = desc;
@@ -835,11 +837,13 @@ static void msm_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 		}
 	}
 
+	ret = (handled != 0);
 	/* No interrupts were flagged */
 	if (handled == 0)
-		handle_bad_irq(irq, desc);
+		ret = handle_bad_irq(irq, desc);
 
 	chained_irq_exit(chip, desc);
+	return ret;
 }
 
 /*
