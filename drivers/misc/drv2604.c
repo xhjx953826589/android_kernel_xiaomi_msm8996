@@ -1,7 +1,7 @@
 /*
 ** =============================================================================
-** Copyright (c) 2014  Texas Instruments Inc.
-** Copyright (C) 2018 XiaoMi, Inc.
+** Copyright (C) 2014 Texas Instruments Inc.
+** Copyright (C) 2016 XiaoMi, Inc.
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/firmware.h>
-#include "drv2604.h"
+#include <drv2604.h>
 
 static struct drv2604_platform_data  drv2604_plat_data = {
 	.GpioEnable = 0,
@@ -56,8 +56,8 @@ static struct drv2604_platform_data  drv2604_plat_data = {
 	.BIDIRInput = BiDirectional,
 	.actuator = {
 		.device_type = LRA,
-		.rated_vol = 0x30,/*0x30 is 1.2Vrms,but rated_vol <=over_drive_vol=0.9Vrms.*/
-		.over_drive_vol = 0x40,/*decrease  the overdrive voltage to 0.9Vrms*/
+		.rated_vol = 0x30,	/*0x30 is 1.2Vrms,but rated_vol <=over_drive_vol=0.9Vrms.*/
+		.over_drive_vol = 0x40,	/*decrease  the overdrive voltage to 0.9Vrms*/
 		.LRAFreq = 240,
 	},
 };
@@ -72,6 +72,7 @@ static const unsigned char effect[] = {
 	0x2f, 0x02, 0x4f, 0x04
 };
 
+static int vibe_strength = DEF_VIBE_STRENGTH;
 
 static struct drv2604_data *pDRV2604data;
 
@@ -92,17 +93,15 @@ static ssize_t waveform_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
-	struct drv2604_data *pDrv2604data = container_of(timed_dev, struct drv2604_data,
-			to_dev);
-	short arry[8] = {};
-	int save_count = 0;
-	int i;
-	pr_debug("%s, %d \n", buf, (int)count);
+	struct drv2604_data *pDrv2604data = container_of(timed_dev, struct drv2604_data, to_dev);
+	short array[8] = {};
+	int save_count = 0, i;
+
+	pr_debug("%s,%d \n", buf, (int)count);
 	save_count = sscanf(buf, "%hd %hd %hd %hd %hd %hd %hd %hd",
-			arry, arry+1, arry+2 , arry+3 , arry+4 , arry+5 , arry+6 , arry+7);
-	for (i = 0; i < 8; i++) {
-		pDrv2604data->sequence[i] = (unsigned char)arry[i];
-	}
+			array, array+1, array+2, array+3, array+4, array+5, array+6, array+7);
+	for (i = 0; i < 8; i++)
+		pDrv2604data->sequence[i] = (unsigned char)array[i];
 	return count;
 }
 
@@ -110,8 +109,7 @@ static ssize_t waveform_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
-	struct drv2604_data *pDrv2604data = container_of(timed_dev, struct drv2604_data,
-			to_dev);
+	struct drv2604_data *pDrv2604data = container_of(timed_dev, struct drv2604_data, to_dev);
 	int count = 0, i;
 
 	for (i = 0; i < 8 ; i++) {
@@ -134,22 +132,94 @@ static struct device_attribute waveform_attrs[] = {
 			waveform_store),
 };
 
-static int drv2604_reg_write(struct drv2604_data *pDrv2604data, unsigned char reg, char val)
+static ssize_t drv2604_vib_min_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n", MIN_VIBE_STRENGTH);
+}
+
+static ssize_t drv2604_vib_max_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n", MAX_VIBE_STRENGTH);
+}
+
+static ssize_t drv2604_vib_level_default_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n", DEF_VIBE_STRENGTH);
+}
+
+static ssize_t drv2604_vib_level_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n", vibe_strength);
+}
+
+static ssize_t drv2604_vib_level_store(struct device *dev,
+		struct device_attribute *attr,
+		const char *buf, size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc) {
+		pr_err("%s: error getting level\n", __func__);
+		return -EINVAL;
+	}
+
+	if (val < MIN_VIBE_STRENGTH) {
+		pr_err("%s: level %d not in range (%d - %d), using min.\n",
+				__func__, val, MIN_VIBE_STRENGTH, MAX_VIBE_STRENGTH);
+		val = MIN_VIBE_STRENGTH;
+	} else if (val > MAX_VIBE_STRENGTH) {
+		pr_err("%s: level %d not in range (%d - %d), using max.\n",
+				__func__, val, MIN_VIBE_STRENGTH, MAX_VIBE_STRENGTH);
+		val = MAX_VIBE_STRENGTH;
+	}
+
+	vibe_strength = val;
+
+	return strnlen(buf, count);
+}
+
+static DEVICE_ATTR(vtg_min, S_IRUGO, drv2604_vib_min_show, NULL);
+static DEVICE_ATTR(vtg_max, S_IRUGO, drv2604_vib_max_show, NULL);
+static DEVICE_ATTR(vtg_level_default, S_IRUGO, drv2604_vib_level_default_show, NULL);
+static DEVICE_ATTR(vtg_level, S_IRUGO | S_IWUSR, drv2604_vib_level_show, drv2604_vib_level_store);
+
+static struct attribute *timed_dev_attrs[] = {
+	&dev_attr_vtg_min.attr,
+	&dev_attr_vtg_max.attr,
+	&dev_attr_vtg_level_default.attr,
+	&dev_attr_vtg_level.attr,
+	NULL,
+};
+
+static struct attribute_group timed_dev_attr_group = {
+	.attrs = timed_dev_attrs,
+};
+
+static int drv2604_reg_write(struct drv2604_data *pDrv2604data,
+		unsigned char reg, char val)
 {
 	return regmap_write(pDrv2604data->regmap, reg, val);
 }
 
-static int drv2604_bulk_read(struct drv2604_data *pDrv2604data, unsigned char reg, unsigned int count, u8 *buf)
+static int drv2604_bulk_read(struct drv2604_data *pDrv2604data,
+		unsigned char reg, unsigned int count, u8 *buf)
 {
 	return regmap_bulk_read(pDrv2604data->regmap, reg, buf, count);
 }
 
-static int drv2604_bulk_write(struct drv2604_data *pDrv2604data, unsigned char reg, unsigned int count, const u8 *buf)
+static int drv2604_bulk_write(struct drv2604_data *pDrv2604data,
+		unsigned char reg, unsigned int count, const u8 *buf)
 {
 	return regmap_bulk_write(pDrv2604data->regmap, reg, buf, count);
 }
 
-static int drv2604_set_bits(struct drv2604_data *pDrv2604data, unsigned char reg, unsigned char mask, unsigned char val)
+static int drv2604_set_bits(struct drv2604_data *pDrv2604data,
+		unsigned char reg, unsigned char mask, unsigned char val)
 {
 	return regmap_update_bits(pDrv2604data->regmap, reg, mask, val);
 }
@@ -161,8 +231,8 @@ static int drv2604_set_go_bit(struct drv2604_data *pDrv2604data, unsigned char v
 
 static void drv2604_poll_go_bit(struct drv2604_data *pDrv2604data)
 {
-    while (drv2604_reg_read(pDrv2604data, GO_REG) == GO)
-      schedule_timeout_interruptible(msecs_to_jiffies(GO_BIT_POLL_INTERVAL));
+	while (drv2604_reg_read(pDrv2604data, GO_REG) == GO)
+			schedule_timeout_interruptible(msecs_to_jiffies(GO_BIT_POLL_INTERVAL));
 }
 
 static int drv2604_set_rtp_val(struct drv2604_data *pDrv2604data, char value)
@@ -171,9 +241,11 @@ static int drv2604_set_rtp_val(struct drv2604_data *pDrv2604data, char value)
 	return drv2604_reg_write(pDrv2604data, REAL_TIME_PLAYBACK_REG, value);
 }
 
-static int drv2604_set_waveform_sequence(struct drv2604_data *pDrv2604data, unsigned char *seq, unsigned int size)
+static int drv2604_set_waveform_sequence(struct drv2604_data *pDrv2604data,
+		unsigned char *seq, unsigned int size)
 {
-	return drv2604_bulk_write(pDrv2604data, WAVEFORM_SEQUENCER_REG, (size > WAVEFORM_SEQUENCER_MAX)?WAVEFORM_SEQUENCER_MAX:size, seq);
+	return drv2604_bulk_write(pDrv2604data, WAVEFORM_SEQUENCER_REG,
+			(size > WAVEFORM_SEQUENCER_MAX)?WAVEFORM_SEQUENCER_MAX:size, seq);
 }
 
 static void drv2604_change_mode(struct drv2604_data *pDrv2604data, char work_mode, char dev_mode)
@@ -193,7 +265,7 @@ static void drv2604_change_mode(struct drv2604_data *pDrv2604data, char work_mod
 		pDrv2604data->work_mode = WORK_IDLE;
 	} else if (dev_mode == DEV_READY) {
 		if ((work_mode != pDrv2604data->work_mode)
-			 || (dev_mode != pDrv2604data->dev_mode)) {
+				|| (dev_mode != pDrv2604data->dev_mode)) {
 			pDrv2604data->work_mode = work_mode;
 			pDrv2604data->dev_mode = dev_mode;
 			if ((pDrv2604data->work_mode == WORK_VIBRATOR)
@@ -203,7 +275,7 @@ static void drv2604_change_mode(struct drv2604_data *pDrv2604data, char work_mod
 				drv2604_reg_write(pDrv2604data, MODE_REG, MODE_REAL_TIME_PLAYBACK);
 			} else if (pDrv2604data->work_mode == WORK_CALIBRATION) {
 				drv2604_reg_write(pDrv2604data, MODE_REG, AUTO_CALIBRATION);
-			} else{
+			} else {
 				drv2604_reg_write(pDrv2604data, MODE_REG, MODE_INTERNAL_TRIGGER);
 			}
 
@@ -221,7 +293,8 @@ static void play_effect(struct drv2604_data *pDrv2604data)
 	drv2604_set_go_bit(pDrv2604data, GO);
 
 	pr_debug("play_effect  begin  \n");
-	while ((drv2604_reg_read(pDrv2604data, GO_REG) == GO) && (pDrv2604data->should_stop == NO)) {
+	while ((drv2604_reg_read(pDrv2604data, GO_REG) == GO) &&
+			(pDrv2604data->should_stop == NO)) {
 		schedule_timeout_interruptible(msecs_to_jiffies(GO_BIT_POLL_INTERVAL));
 	}
 
@@ -244,8 +317,8 @@ static void vibrator_off(struct drv2604_data *pDrv2604data)
 		pDrv2604data->vibrator_is_playing = NO;
 		drv2604_set_go_bit(pDrv2604data, STOP);
 		do {
-		drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_STANDBY);
-		mode = drv2604_reg_read(pDrv2604data, MODE_REG) & DRV2604_MODE_MASK;
+			drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_STANDBY);
+			mode = drv2604_reg_read(pDrv2604data, MODE_REG) & DRV2604_MODE_MASK;
 		} while ((MODE_REAL_TIME_PLAYBACK == mode) && (--iTimeout > 0));
 
 		if (iTimeout <= 0) {
@@ -268,7 +341,7 @@ static void drv2604_stop(struct drv2604_data *pDrv2604data)
 				|| (pDrv2604data->work_mode == WORK_RTP)) {
 			vibrator_off(pDrv2604data);
 		} else if (pDrv2604data->work_mode == WORK_SEQ_PLAYBACK) {
-		} else{
+		} else {
 			printk("%s, err mode=%d \n", __FUNCTION__, pDrv2604data->work_mode);
 		}
 	}
@@ -307,29 +380,31 @@ static void vibrator_enable(struct timed_output_dev *dev, int value)
 			printk(KERN_INFO "drv2604: Register values reset.\n");
 			drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_READY);
 			schedule_timeout_interruptible(msecs_to_jiffies(STANDBY_WAKE_DELAY));
-			pDrv2604data->OTP = drv2604_reg_read(pDrv2604data, AUTOCAL_MEM_INTERFACE_REG) & AUTOCAL_MEM_INTERFACE_REG_OTP_MASK;
+			pDrv2604data->OTP = drv2604_reg_read(pDrv2604data, AUTOCAL_MEM_INTERFACE_REG) &
+					AUTOCAL_MEM_INTERFACE_REG_OTP_MASK;
 			dev_init_platform_data(pDrv2604data);
 		}
 
-		drv2604_set_rtp_val(pDrv2604data, 0x7f);
+		drv2604_set_rtp_val(pDrv2604data, vibe_strength);
 		drv2604_change_mode(pDrv2604data, WORK_VIBRATOR, DEV_READY);
 		pDrv2604data->vibrator_is_playing = YES;
 		switch_set_state(&pDrv2604data->sw_dev, SW_STATE_RTP_PLAYBACK);
 
 		value = (value > MAX_TIMEOUT)?MAX_TIMEOUT:value;
-		 hrtimer_start(&pDrv2604data->timer, ns_to_ktime((u64)value * NSEC_PER_MSEC), HRTIMER_MODE_REL);
+		hrtimer_start(&pDrv2604data->timer,
+				ns_to_ktime((u64)value * NSEC_PER_MSEC), HRTIMER_MODE_REL);
 	} else if (value < 0 && value >= -3) {
 
-		if (value == -1){
-			pDrv2604data->sequence[0] = 1;}
-		else if (value == -2){
-			pDrv2604data->sequence[0] = 3;}
-		else
-			{pDrv2604data->sequence[0] = 2;
+	if (value == -1)
+		pDrv2604data->sequence[0] = 1;
+	else if (value == -2)
+		pDrv2604data->sequence[0] = 3;
+	else
+		pDrv2604data->sequence[0] = 2;
 		wake_lock(&pDrv2604data->wklock);
 		pDrv2604data->should_stop = NO;
 		drv2604_change_mode(pDrv2604data, WORK_SEQ_PLAYBACK, DEV_IDLE);
-		schedule_work(&pDrv2604data->vibrator_work);}
+		schedule_work(&pDrv2604data->vibrator_work);
 	}
 
 	mutex_unlock(&pDrv2604data->lock);
@@ -356,9 +431,6 @@ static void vibrator_work_routine(struct work_struct *work)
 	} else if (pDrv2604data->work_mode == WORK_SEQ_PLAYBACK) {
 		play_effect(pDrv2604data);
 
-
-
-
 	}
 	mutex_unlock(&pDrv2604data->lock);
 }
@@ -373,7 +445,7 @@ static int fw_chksum(const struct firmware *fw)
 	for (i = 0; i < size; i++) {
 		if ((i > 11) && (i < 16)) {
 
-		} else{
+		} else {
 			sum += pBuf[i];
 		}
 	}
@@ -391,7 +463,6 @@ static int fw_chksum(const struct firmware *fw)
  *
  *
  */
-
 static void drv2604_firmware_load(const struct firmware *fw, void *context)
 {
 	struct drv2604_data *pDrv2604data = context;
@@ -408,7 +479,8 @@ static void drv2604_firmware_load(const struct firmware *fw, void *context)
 				|| (pDrv2604data->fw_header.fw_chksum != fw_chksum(fw))) {
 			printk("%s, ERROR!! firmware not right:Magic=0x%x,Size=%d,chksum=0x%x\n",
 					__FUNCTION__, pDrv2604data->fw_header.fw_magic,
-					pDrv2604data->fw_header.fw_size, pDrv2604data->fw_header.fw_chksum);
+					pDrv2604data->fw_header.fw_size,
+					pDrv2604data->fw_header.fw_chksum);
 		} else {
 			printk("%s, firmware good\n", __FUNCTION__);
 
@@ -426,22 +498,21 @@ static void drv2604_firmware_load(const struct firmware *fw, void *context)
 			drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_STANDBY);
 		}
 	} else {
-		printk("%s : firmware not found,use default settings.\n", __FUNCTION__);
-		drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_READY);
-		drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_UPPER_BYTE, 0);
-		drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_LOWER_BYTE, 0);
-		for (i = 0; i < sizeof(effect); i++) {
-			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_DATA, effect[i]);
-		}
-	drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_STANDBY);
+			printk("%s : firmware not found,use default settings.\n", __FUNCTION__);
+			drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_READY);
+			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_UPPER_BYTE, 0);
+			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_LOWER_BYTE, 0);
+			for (i = 0; i < sizeof(effect); i++) {
+				drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_DATA, effect[i]);
+			}
+			drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_STANDBY);
 	}
 }
 
 static int dev2604_open (struct inode *i_node, struct file *filp)
 {
-	if (pDRV2604data == NULL) {
+	if (pDRV2604data == NULL)
 		return -ENODEV;
-	}
 
 	filp->private_data = pDRV2604data;
 	return 0;
@@ -454,22 +525,20 @@ static ssize_t dev2604_read(struct file *filp, char *buff, size_t length, loff_t
 
 	if (pDrv2604data->ReadLen > 0) {
 		ret = copy_to_user(buff, pDrv2604data->ReadBuff, pDrv2604data->ReadLen);
-		if (ret != 0) {
+		if (ret != 0)
 			pr_debug("%s, copy_to_user err=%d \n", __FUNCTION__, ret);
-		} else {
+		else
 			ret = pDrv2604data->ReadLen;
-		}
 		pDrv2604data->ReadLen = 0;
-	} else {
+	} else
 		pr_debug("%s, nothing to read\n", __FUNCTION__);
-	}
 
 	return ret;
 }
 
 static bool isforDebug(int cmd)
 {
-	return (cmd == HAPTIC_CMDID_REG_WRITE
+	return ((cmd == HAPTIC_CMDID_REG_WRITE)
 		|| (cmd == HAPTIC_CMDID_REG_READ)
 		|| (cmd == HAPTIC_CMDID_REG_SETBIT));
 }
@@ -478,8 +547,7 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 {
 	struct drv2604_data *pDrv2604data = (struct drv2604_data *)filp->private_data;
 
-	if (isforDebug(buff[0])) {
-	} else {
+	if (!isforDebug(buff[0])) {
 		pDrv2604data->should_stop = YES;
 		hrtimer_cancel(&pDrv2604data->timer);
 		cancel_work_sync(&pDrv2604data->vibrator_work);
@@ -487,8 +555,7 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 
 	mutex_lock(&pDrv2604data->lock);
 
-	if (isforDebug(buff[0])) {
-	} else {
+	if (!isforDebug(buff[0])) {
 		drv2604_stop(pDrv2604data);
 	}
 
@@ -507,10 +574,10 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 			schedule_work(&pDrv2604data->vibrator_work);
 		}
 		break;
-		 }
+	}
 	case HAPTIC_CMDID_STOP:
 	{
-			break;
+		break;
 	}
 
 	case HAPTIC_CMDID_UPDATE_FIRMWARE:
@@ -520,14 +587,15 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 		int result = -1;
 
 		if (fw_buffer != NULL) {
-			fw.size = len-1;
+			fw.size = len - 1;
 
 			wake_lock(&pDrv2604data->wklock);
 			result = copy_from_user(fw_buffer, &buff[1], fw.size);
 			if (result == 0) {
-				pr_debug("%s, fwsize=%lu, f:%x, l:%x\n", __FUNCTION__, fw.size, buff[1], buff[len-1]);
-					fw.data = (const unsigned char *)fw_buffer;
-					drv2604_firmware_load(&fw, (void *)pDrv2604data);
+				pr_debug("%s, fwsize=%lu, f:%x, l:%x\n",
+						__FUNCTION__, fw.size, buff[1], buff[len-1]);
+				fw.data = (const unsigned char *)fw_buffer;
+				drv2604_firmware_load(&fw, (void *)pDrv2604data);
 			}
 			wake_unlock(&pDrv2604data->wklock);
 
@@ -543,17 +611,18 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 			pDrv2604data->ReadLen = 1;
 			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_UPPER_BYTE, buff[2]);
 			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_LOWER_BYTE, buff[1]);
-			pDrv2604data->ReadBuff[0] = drv2604_reg_read(pDrv2604data, DRV2604_REG_RAM_DATA);
+			pDrv2604data->ReadBuff[0] = drv2604_reg_read(pDrv2604data,
+					DRV2604_REG_RAM_DATA);
 		} else if (len == 4) {
 			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_UPPER_BYTE, buff[2]);
 			drv2604_reg_write(pDrv2604data, DRV2604_REG_RAM_ADDR_LOWER_BYTE, buff[1]);
-			pDrv2604data -> ReadLen = (buff[3] > MAX_READ_BYTES)?MAX_READ_BYTES:buff[3];
-			for (i = 0; i < pDrv2604data -> ReadLen; i++) {
-				pDrv2604data->ReadBuff[i] = drv2604_reg_read(pDrv2604data, DRV2604_REG_RAM_DATA);
+			pDrv2604data->ReadLen = (buff[3] > MAX_READ_BYTES)?MAX_READ_BYTES:buff[3];
+			for (i = 0; i < pDrv2604data->ReadLen; i++) {
+				pDrv2604data->ReadBuff[i] = drv2604_reg_read(pDrv2604data,
+						DRV2604_REG_RAM_DATA);
 			}
-		} else {
-			printk("%s, read fw len error\n", __FUNCTION__);
-		}
+		} else
+			pr_debug("%s, read fw len error\n", __FUNCTION__);
 		break;
 	}
 
@@ -563,38 +632,38 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 			pDrv2604data->ReadLen = 1;
 			pDrv2604data->ReadBuff[0] = drv2604_reg_read(pDrv2604data, buff[1]);
 		} else if (len == 3) {
-			pDrv2604data -> ReadLen = (buff[2] > MAX_READ_BYTES)?MAX_READ_BYTES:buff[2];
-			drv2604_bulk_read(pDrv2604data, buff[1], pDrv2604data -> ReadLen, pDrv2604data -> ReadBuff);
-		} else {
+			pDrv2604data->ReadLen = (buff[2] > MAX_READ_BYTES)?MAX_READ_BYTES:buff[2];
+			drv2604_bulk_read(pDrv2604data, buff[1], pDrv2604data->ReadLen,
+				pDrv2604data->ReadBuff);
+		} else
 			pr_debug("%s, reg_read len error\n", __FUNCTION__);
-		}
 		break;
 	}
 
 	case HAPTIC_CMDID_REG_WRITE:
 	{
-		if ((len-1) == 2) {
+		if ((len-1) == 2)
 			drv2604_reg_write(pDrv2604data, buff[1], buff[2]);
-		} else if ((len-1) > 2) {
+		else if ((len-1) > 2) {
 			unsigned char *data = (unsigned char *)kzalloc(len-2, GFP_KERNEL);
 			if (data != NULL) {
-				if (copy_from_user(data, &buff[2], len-2) != 0) {
+				if (copy_from_user(data, &buff[2], len-2) != 0)
 					pr_debug("%s, reg copy err\n", __FUNCTION__);
-				} else {
+				else
 					drv2604_bulk_write(pDrv2604data, buff[1], len-2, data);
-				}
+
 				kfree(data);
 			}
-		} else {
+		} else
 			pr_debug("%s, reg_write len error\n", __FUNCTION__);
-		}
+
 		break;
 	}
 
 	case HAPTIC_CMDID_REG_SETBIT:
 	{
 		int i = 1;
-		for (i = 1; i < len; ) {
+		for (i = 1; i < len;) {
 			drv2604_set_bits(pDrv2604data, buff[i], buff[i+1], buff[i+2]);
 			i += 3;
 		}
@@ -610,12 +679,12 @@ static ssize_t dev2604_write(struct file *filp, const char *buff, size_t len, lo
 	return len;
 }
 
-
 static struct file_operations fops = {
 	.open = dev2604_open,
 	.read = dev2604_read,
 	.write = dev2604_write,
 };
+
 static int Haptics_init(struct drv2604_data *pDrv2604data)
 {
 	int reval = -ENOMEM;
@@ -633,7 +702,8 @@ static int Haptics_init(struct drv2604_data *pDrv2604data)
 		goto fail1;
 	}
 
-	pDrv2604data->device = device_create(pDrv2604data->class, NULL, pDrv2604data->version, NULL, HAPTICS_DEVICE_NAME);
+	pDrv2604data->device = device_create(pDrv2604data->class, NULL,
+			pDrv2604data->version, NULL, HAPTICS_DEVICE_NAME);
 	if (!pDrv2604data->device) {
 		printk(KERN_ALERT"drv2604: error creating device 2604\n");
 		goto fail2;
@@ -663,12 +733,14 @@ static int Haptics_init(struct drv2604_data *pDrv2604data)
 		printk(KERN_ALERT"drv2604: fail to create timed output dev\n");
 		goto fail3;
 	}
-	if (sysfs_create_file(&pDrv2604data->to_dev.dev->kobj,
-			&waveform_attrs[0].attr) < 0) {
+	if (sysfs_create_file(&pDrv2604data->to_dev.dev->kobj, &waveform_attrs[0].attr) < 0) {
 		printk(KERN_ALERT"drv2604: fail to create sysfs\n");
 		goto fail3;
 	}
-
+	if (sysfs_create_group(&pDrv2604data->to_dev.dev->kobj, &timed_dev_attr_group)) {
+		printk(KERN_ALERT"drv2604: fail to create strength tunables\n");
+		goto fail3;
+	}
 
 	hrtimer_init(&pDrv2604data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	pDrv2604data->timer.function = vibrator_timer_func;
@@ -706,15 +778,16 @@ static void dev_init_platform_data(struct drv2604_data *pDrv2604data)
 		}
 
 		if (actuator.over_drive_vol != 0) {
-			drv2604_reg_write(pDrv2604data, OVERDRIVE_CLAMP_VOLTAGE_REG, actuator.over_drive_vol);
+			drv2604_reg_write(pDrv2604data, OVERDRIVE_CLAMP_VOLTAGE_REG,
+					actuator.over_drive_vol);
 		} else {
 			printk("%s, ERROR OverDriveVol ZERO\n", __FUNCTION__);
 		}
 
 		drv2604_set_bits(pDrv2604data,
-						FEEDBACK_CONTROL_REG,
-						FEEDBACK_CONTROL_DEVICE_TYPE_MASK,
-						(actuator.device_type == LRA)?FEEDBACK_CONTROL_MODE_LRA:FEEDBACK_CONTROL_MODE_ERM);
+				FEEDBACK_CONTROL_REG, FEEDBACK_CONTROL_DEVICE_TYPE_MASK,
+				(actuator.device_type == LRA) ?
+					FEEDBACK_CONTROL_MODE_LRA : FEEDBACK_CONTROL_MODE_ERM);
 	} else {
 		printk("%s, OTP programmed\n", __FUNCTION__);
 	}
@@ -731,17 +804,13 @@ static void dev_init_platform_data(struct drv2604_data *pDrv2604data)
 
 	if (actuator.device_type == LRA) {
 		unsigned char DriveTime = 5*(1000 - actuator.LRAFreq)/actuator.LRAFreq;
-		drv2604_set_bits(pDrv2604data,
-				Control1_REG,
-				Control1_REG_DRIVE_TIME_MASK,
-				DriveTime);
+		drv2604_set_bits(pDrv2604data, Control1_REG,
+				Control1_REG_DRIVE_TIME_MASK, DriveTime);
 		printk("%s, LRA = %d, DriveTime=0x%x\n", __FUNCTION__, actuator.LRAFreq, DriveTime);
 	}
 
-	drv2604_set_bits(pDrv2604data,
-			Control2_REG,
-			Control2_REG_BIDIR_INPUT_MASK,
-			temp);
+	drv2604_set_bits(pDrv2604data, Control2_REG,
+			Control2_REG_BIDIR_INPUT_MASK, temp);
 
 	if ((pDrv2604Platdata->loop == OPEN_LOOP) && (actuator.device_type == LRA)) {
 		temp = LRA_OpenLoop_Enabled;
@@ -751,7 +820,8 @@ static void dev_init_platform_data(struct drv2604_data *pDrv2604data)
 		temp = ERM_OpenLoop_Disable|LRA_OpenLoop_Disable;
 	}
 
-	if ((pDrv2604Platdata->loop == CLOSE_LOOP) && (pDrv2604Platdata->BIDIRInput == UniDirectional)) {
+	if ((pDrv2604Platdata->loop == CLOSE_LOOP) &&
+			(pDrv2604Platdata->BIDIRInput == UniDirectional)) {
 		temp |= RTP_FORMAT_UNSIGNED;
 		drv2604_reg_write(pDrv2604data, REAL_TIME_PLAYBACK_REG, 0xff);
 	} else {
@@ -764,10 +834,8 @@ static void dev_init_platform_data(struct drv2604_data *pDrv2604data)
 		}
 	}
 
-	drv2604_set_bits(pDrv2604data,
-			Control3_REG,
-			Control3_REG_LOOP_MASK|Control3_REG_FORMAT_MASK,
-			temp);
+	drv2604_set_bits(pDrv2604data, Control3_REG,
+			Control3_REG_LOOP_MASK | Control3_REG_FORMAT_MASK, temp);
 	drv2604_reg_write(pDrv2604data, AUTO_CALI_RESULT_REG, 0x08);
 	drv2604_reg_write(pDrv2604data, AUTO_CALI_BACK_EMF_RESULT_REG, 0x8e);
 	drv2604_set_bits(pDrv2604data, FEEDBACK_CONTROL_REG, 0x03, 0x01);
@@ -781,13 +849,11 @@ static int dev_auto_calibrate(struct drv2604_data *pDrv2604data)
 	drv2604_change_mode(pDrv2604data, WORK_CALIBRATION, DEV_READY);
 	drv2604_set_go_bit(pDrv2604data, GO);
 
-
 	drv2604_poll_go_bit(pDrv2604data);
 
 	status = drv2604_reg_read(pDrv2604data, STATUS_REG);
 
 	printk("%s, calibration status =0x%x\n", __FUNCTION__, status);
-
 
 	drv2604_reg_read(pDrv2604data, AUTO_CALI_RESULT_REG);
 	drv2604_reg_read(pDrv2604data, AUTO_CALI_BACK_EMF_RESULT_REG);
@@ -857,7 +923,7 @@ static int drv2604_probe(struct i2c_client *client, const struct i2c_device_id *
 	if (err < 0) {
 		printk("%s, i2c bus fail (%d)\n", __FUNCTION__, err);
 		goto exit_gpio_request_failed;
-	} else{
+	} else {
 		printk("%s, i2c status (0x%x)\n", __FUNCTION__, err);
 		status = err;
 	}
@@ -889,20 +955,17 @@ static int drv2604_probe(struct i2c_client *client, const struct i2c_device_id *
 				__FUNCTION__, status, pDrv2604data->device_id);
 		goto exit_gpio_request_failed;
 	} else {
-		err = request_firmware_nowait(THIS_MODULE,
-				FW_ACTION_HOTPLUG,
-				"drv2604.bin",
-				&(client->dev),
-				GFP_KERNEL,
-				pDrv2604data,
-				HapticsFirmwareLoad);
+		err = request_firmware_nowait(THIS_MODULE, FW_ACTION_HOTPLUG,
+				"drv2604.bin", &(client->dev), GFP_KERNEL,
+				pDrv2604data, HapticsFirmwareLoad);
 
 	}
 
 	drv2604_change_mode(pDrv2604data, WORK_IDLE, DEV_READY);
 	schedule_timeout_interruptible(msecs_to_jiffies(STANDBY_WAKE_DELAY));
 
-	pDrv2604data->OTP = drv2604_reg_read(pDrv2604data, AUTOCAL_MEM_INTERFACE_REG) & AUTOCAL_MEM_INTERFACE_REG_OTP_MASK;
+	pDrv2604data->OTP = drv2604_reg_read(pDrv2604data, AUTOCAL_MEM_INTERFACE_REG) &
+			AUTOCAL_MEM_INTERFACE_REG_OTP_MASK;
 
 	dev_init_platform_data(pDrv2604data);
 

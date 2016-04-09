@@ -2,8 +2,8 @@
 #define __DRV2604_H__
 /*
 ** =============================================================================
-** Copyright (c)2014  Texas Instruments Inc.
-** Copyright (C) 2018 XiaoMi, Inc.
+** Copyright (C) 2014 Texas Instruments Inc.
+** Copyright (C) 2016 XiaoMi, Inc.
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
@@ -252,7 +252,7 @@
 
 #define BIDIR_INPUT_MASK           0x80
 #define UNIDIRECT_INPUT            (0 << 7)
-#define BRAKE_STABLIZER   (1<<6)
+#define BRAKE_STABLIZER            (1 << 6)
 #define BIDIRECT_INPUT             (1 << 7)
 
 /*
@@ -291,29 +291,33 @@
 
 #define	DRV2604_REG_RAM_ADDR_UPPER_BYTE	0xfd
 #define	DRV2604_REG_RAM_ADDR_LOWER_BYTE	0xfe
-#define	DRV2604_REG_RAM_DATA			0xff
+#define	DRV2604_REG_RAM_DATA		0xff
 
-#define MAX_TIMEOUT 	10000 /* 10s */
-#define	MAX_READ_BYTES	0xff
+#define	MAX_VIBE_STRENGTH		0x7f
+#define	MIN_VIBE_STRENGTH		0x0C
+#define	DEF_VIBE_STRENGTH		MAX_VIBE_STRENGTH
 
-#define SW_STATE_IDLE				0x00
-#define SW_STATE_AUDIO2HAPTIC			0x01
-#define SW_STATE_SEQUENCE_PLAYBACK		0x02
-#define SW_STATE_RTP_PLAYBACK			0x04
+#define MAX_TIMEOUT 			10000 /* 10s */
+#define	MAX_READ_BYTES			0xff
 
-#define DEV_IDLE	                0
-#define DEV_STANDBY					1
-#define DEV_READY					2
+#define SW_STATE_IDLE			0x00
+#define SW_STATE_AUDIO2HAPTIC		0x01
+#define SW_STATE_SEQUENCE_PLAYBACK	0x02
+#define SW_STATE_RTP_PLAYBACK		0x04
 
-#define	WORK_IDLE					0x00
-#define WORK_RTP			      	0x06
-#define WORK_CALIBRATION	      	0x07
-#define WORK_VIBRATOR		      	0x08
-#define	WORK_PATTERN_RTP_ON			0x09
-#define WORK_PATTERN_RTP_OFF      	0x0a
-#define WORK_SEQ_RTP_ON		      	0x0b
-#define WORK_SEQ_RTP_OFF    	  	0x0c
-#define WORK_SEQ_PLAYBACK    	  	0x0d
+#define DEV_IDLE			0
+#define DEV_STANDBY			1
+#define DEV_READY			2
+
+#define WORK_IDLE			0x00
+#define WORK_RTP			0x06
+#define WORK_CALIBRATION		0x07
+#define WORK_VIBRATOR			0x08
+#define WORK_PATTERN_RTP_ON		0x09
+#define WORK_PATTERN_RTP_OFF		0x0a
+#define WORK_SEQ_RTP_ON			0x0b
+#define WORK_SEQ_RTP_OFF		0x0c
+#define WORK_SEQ_PLAYBACK		0x0d
 
 #define YES 1
 #define NO  0
@@ -340,15 +344,15 @@ enum BIDIR_Input {
 
 struct actuator_data {
 	enum actuator_type device_type;
-	unsigned char 	rated_vol;
-	unsigned char 	over_drive_vol;
-	unsigned char   LRAFreq;
+	unsigned char rated_vol;
+	unsigned char over_drive_vol;
+	unsigned char LRAFreq;
 };
 
 struct drv2604_platform_data {
-	int				GpioEnable;
-	int 			GpioTrigger;
-	enum loop_type	loop;
+	int GpioEnable;
+	int GpioTrigger;
+	enum loop_type loop;
 	enum RTP_Format RTPFormat;
 	enum BIDIR_Input BIDIRInput;
 	struct actuator_data actuator;
@@ -405,9 +409,6 @@ struct drv2604_data {
 	unsigned char sequence[WAVEFORM_SEQUENCER_MAX];
 	volatile int should_stop;
 	struct timed_output_dev to_dev;
-
-
-
 
 	struct drv2604_fw_header fw_header;
 };
