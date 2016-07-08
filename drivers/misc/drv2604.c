@@ -45,7 +45,7 @@
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/firmware.h>
-#include <drv2604.h>
+#include "drv2604.h"
 
 static struct drv2604_platform_data  drv2604_plat_data = {
 	.GpioEnable = 0,
@@ -144,7 +144,7 @@ static ssize_t drv2604_vib_max_show(struct device *dev,
 	return scnprintf(buf, PAGE_SIZE, "%d\n", MAX_VIBE_STRENGTH);
 }
 
-static ssize_t drv2604_vib_level_default_show(struct device *dev,
+static ssize_t drv2604_vib_default_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	return scnprintf(buf, PAGE_SIZE, "%d\n", DEF_VIBE_STRENGTH);
@@ -185,13 +185,13 @@ static ssize_t drv2604_vib_level_store(struct device *dev,
 
 static DEVICE_ATTR(vtg_min, S_IRUGO, drv2604_vib_min_show, NULL);
 static DEVICE_ATTR(vtg_max, S_IRUGO, drv2604_vib_max_show, NULL);
-static DEVICE_ATTR(vtg_level_default, S_IRUGO, drv2604_vib_level_default_show, NULL);
+static DEVICE_ATTR(vtg_default, S_IRUGO, drv2604_vib_default_show, NULL);
 static DEVICE_ATTR(vtg_level, S_IRUGO | S_IWUSR, drv2604_vib_level_show, drv2604_vib_level_store);
 
 static struct attribute *timed_dev_attrs[] = {
 	&dev_attr_vtg_min.attr,
 	&dev_attr_vtg_max.attr,
-	&dev_attr_vtg_level_default.attr,
+	&dev_attr_vtg_default.attr,
 	&dev_attr_vtg_level.attr,
 	NULL,
 };
@@ -395,16 +395,16 @@ static void vibrator_enable(struct timed_output_dev *dev, int value)
 				ns_to_ktime((u64)value * NSEC_PER_MSEC), HRTIMER_MODE_REL);
 	} else if (value < 0 && value >= -3) {
 
-	if (value == -1)
-		pDrv2604data->sequence[0] = 1;
-	else if (value == -2)
-		pDrv2604data->sequence[0] = 3;
+	if (value == -1){
+		pDrv2604data->sequence[0] = 1;}
+	else if (value == -2){
+		pDrv2604data->sequence[0] = 3;}
 	else
-		pDrv2604data->sequence[0] = 2;
+		{pDrv2604data->sequence[0] = 2;
 		wake_lock(&pDrv2604data->wklock);
 		pDrv2604data->should_stop = NO;
 		drv2604_change_mode(pDrv2604data, WORK_SEQ_PLAYBACK, DEV_IDLE);
-		schedule_work(&pDrv2604data->vibrator_work);
+		schedule_work(&pDrv2604data->vibrator_work);}
 	}
 
 	mutex_unlock(&pDrv2604data->lock);
