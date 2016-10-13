@@ -13,7 +13,6 @@
 #include <linux/suspend.h>
 #include <linux/syscore_ops.h>
 #include <linux/wakeup_reason.h>
-
 #include "internals.h"
 
 void pm_get_wakeup_interrupt(struct irq_desc *desc)
@@ -36,6 +35,10 @@ bool irq_pm_check_wakeup(struct irq_desc *desc)
 		desc->depth++;
 		irq_disable(desc);
 		pm_get_wakeup_interrupt(desc);
+		log_suspend_abort_reason("Wakeup IRQ %d %s pending",
+					 desc->irq_data.irq,
+					 (desc->action && desc->action->name) ?
+						 desc->action->name : "");
 		pm_system_wakeup();
 		return true;
 	}
