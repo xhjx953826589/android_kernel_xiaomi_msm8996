@@ -2368,7 +2368,7 @@ retry_find_task:
 		    !uid_eq(cred->euid, GLOBAL_SYSTEM_UID) &&
 		    !uid_eq(cred->euid, tcred->uid) &&
 		    !uid_eq(cred->euid, tcred->suid) &&
-		    !ns_capable(tcred->user_ns, CAP_SYS_NICE)) {
+		    !ns_capable(tcred->user_ns, CAP_SYS_RESOURCE)) {
 			rcu_read_unlock();
 			ret = -EACCES;
 			goto out_unlock_cgroup;
