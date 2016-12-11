@@ -41,6 +41,10 @@ static const struct platform_freeze_ops *freeze_ops;
 static DECLARE_WAIT_QUEUE_HEAD(suspend_freeze_wait_head);
 static bool suspend_freeze_wake;
 
+#ifdef CONFIG_QUICK_THAW_FINGERPRINTD
+extern void thaw_fingerprintd(void);
+#endif
+
 void freeze_set_ops(const struct platform_freeze_ops *ops)
 {
 	lock_system_sleep();
@@ -161,7 +165,12 @@ static int platform_suspend_prepare_noirq(suspend_state_t state)
 static void platform_resume_noirq(suspend_state_t state)
 {
 	if (state != PM_SUSPEND_FREEZE && suspend_ops->wake)
+	{
 		suspend_ops->wake();
+		#ifdef CONFIG_QUICK_THAW_FINGERPRINTD
+			thaw_fingerprintd();
+		#endif
+	}
 }
 
 static void platform_resume_early(suspend_state_t state)
