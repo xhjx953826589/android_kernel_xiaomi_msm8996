@@ -75,6 +75,8 @@ struct fpc1020_data {
 	struct workqueue_struct *reset_workqueue;
 #endif
 
+	bool screen_on;
+	int proximity_state; /* 0:far 1:near */
 };
 
 enum {
@@ -83,6 +85,23 @@ enum {
 	FP_ID_FLOAT_2,
 	FP_ID_UNKNOWN
 };
+
+static void config_irq(struct fpc1020_data *fpc1020, bool enabled)
+{
+	if (enabled != fpc1020->irq_enabled) {
+		if (enabled)
+			enable_irq(gpio_to_irq(fpc1020->irq_gpio));
+		else
+			disable_irq(gpio_to_irq(fpc1020->irq_gpio));
+
+		dev_info(fpc1020->dev, "%s: %s fpc irq ---\n", __func__,
+			enabled ?  "enable" : "disable");
+		fpc1020->irq_enabled = enabled;
+	} else {
+		dev_info(fpc1020->dev, "%s: dual config irq status: %s\n", __func__,
+			enabled ?  "true" : "false");
+	}
+}
 
 #ifdef CONFIG_FB
 static int fpc1020_fb_notifier_cb(struct notifier_block *self,
@@ -95,25 +114,22 @@ static int fpc1020_fb_notifier_cb(struct notifier_block *self,
 			fb_notifier);
 
 	if (evdata && evdata->data && fpc1020) {
+		transition = evdata->data;
 		if (event == FB_EVENT_BLANK) {
-			transition = evdata->data;
 			if (*transition == FB_BLANK_POWERDOWN) {
-				if ((0 == fpc1020->wakeup_enabled)) {
-					if (true == fpc1020->irq_enabled) {
-						disable_irq(gpio_to_irq(fpc1020->irq_gpio));
-						fpc1020->irq_enabled = false;
-					}
-				}
+				fpc1020->screen_on = false;
+
+				/* Disable IRQ when screen turns off,
+				   only if fingerprint wake up is disabled */
+				if (fpc1020->wakeup_enabled == 0)
+					config_irq(fpc1020, false);
 			}
 		} else if (event == FB_EARLY_EVENT_BLANK) {
-			transition = evdata->data;
-			if (*transition == FB_BLANK_UNBLANK) {
-				if (0 == fpc1020->wakeup_enabled) {
-					if (false == fpc1020->irq_enabled) {
-						enable_irq(gpio_to_irq(fpc1020->irq_gpio));
-						fpc1020->irq_enabled = true;
-					}
-				}
+			if (*transition == FB_BLANK_UNBLANK || *transition == FB_BLANK_NORMAL) {
+				fpc1020->screen_on = true;
+
+				/* Unconditionally enable IRQ when screen turns on */
+				config_irq(fpc1020, true);
 			}
 		}
 	}
@@ -141,6 +157,7 @@ static int fpc1020_request_named_gpio(struct fpc1020_data *fpc1020,
 	return 0;
 }
 
+/* -------------------------------------------------------------------- */
 static int fpc1020_pinctrl_init_tee(struct fpc1020_data *fpc1020)
 {
 	int ret = 0;
@@ -177,6 +194,7 @@ err:
 	return ret;
 }
 
+/* -------------------------------------------------------------------- */
 static int fpc1020_pinctrl_select_tee(struct fpc1020_data *fpc1020, bool on)
 {
 	int ret = 0;
@@ -204,8 +222,8 @@ static int fpc1020_pinctrl_select_tee(struct fpc1020_data *fpc1020, bool on)
  * handler should perform sysf_notify to allow userland to poll the node.
  */
 static ssize_t irq_get(struct device *device,
-		struct device_attribute *attribute,
-		char *buffer)
+			     struct device_attribute *attribute,
+			     char *buffer)
 {
 	struct fpc1020_data *fpc1020 = dev_get_drvdata(device);
 	int irq = gpio_get_value(fpc1020->irq_gpio);
@@ -218,8 +236,8 @@ static ssize_t irq_get(struct device *device,
  * and return success, used for latency measurement.
  */
 static ssize_t irq_ack(struct device *device,
-		struct device_attribute *attribute,
-		const char *buffer, size_t count)
+			     struct device_attribute *attribute,
+			     const char *buffer, size_t count)
 {
 	struct fpc1020_data *fpc1020 = dev_get_drvdata(device);
 	dev_dbg(fpc1020->dev, "%s\n", __func__);
@@ -237,7 +255,6 @@ static ssize_t enable_wakeup_show(struct device *dev,
 	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
 }
 
-
 static ssize_t enable_wakeup_store(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
 {
@@ -250,17 +267,44 @@ static ssize_t enable_wakeup_store(struct device *dev,
 		dev_info(dev, "%s\n", i ? "wakeup enabled" : "wakeup disabled");
 		return count;
 	} else {
-		dev_info(dev, "wakeup_enabled write error\n");
+		dev_info(dev, "%s: wakeup_enabled write error\n", __func__);
 		return -EINVAL;
 	}
 }
 static DEVICE_ATTR(enable_wakeup, S_IWUSR | S_IRUSR, enable_wakeup_show,
-		enable_wakeup_store);
+		   enable_wakeup_store);
 
+static ssize_t proximity_state_set(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct fpc1020_data *fpc1020 = dev_get_drvdata(dev);
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	fpc1020->proximity_state = !!val;
+
+	if (!fpc1020->screen_on) {
+		if (fpc1020->proximity_state == 1) {
+			/* Disable IRQ when screen is off and proximity sensor is covered */
+			config_irq(fpc1020, false);
+		} else if (fpc1020->wakeup_enabled == 1) {
+			/* Enable IRQ when screen is off and proximity sensor is uncovered,
+			   but only if fingerprint wake up is enabled */
+			config_irq(fpc1020, true);
+		}
+	}
+
+	return count;
+}
+static DEVICE_ATTR(proximity_state, S_IWUSR, NULL, proximity_state_set);
 
 static struct attribute *attributes[] = {
 	&dev_attr_irq.attr,
 	&dev_attr_enable_wakeup.attr,
+	&dev_attr_proximity_state.attr,
 	NULL
 };
 
@@ -279,6 +323,7 @@ static irqreturn_t fpc1020_irq_handler(int irq, void *handle)
 
 	if (fpc1020->wakeup_enabled) {
 		wake_lock_timeout(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
+		dev_dbg(fpc1020->dev, "%s - wake_lock_timeout\n", __func__);
 	}
 
 	sysfs_notify(&fpc1020->dev->kobj, NULL, dev_attr_irq.attr.name);
@@ -306,11 +351,11 @@ static int fpc1020_get_fp_id_tee(struct fpc1020_data *fpc1020)
 
 	if (gpio_is_valid(fpc1020->fp_id_gpio)) {
 		error = devm_gpio_request_one(fpc1020->dev, fpc1020->fp_id_gpio,
-				GPIOF_IN, "fpc1020_fp_id");
+					      GPIOF_IN, "fpc1020_fp_id");
 		if (error < 0) {
 			dev_err(dev,
-					"Failed to request fpc fp_id_gpio %d, error %d\n",
-					fpc1020->fp_id_gpio, error);
+				"Failed to request fpc fp_id_gpio %d, error %d\n",
+				fpc1020->fp_id_gpio, error);
 			return fp_id;
 		}
 
@@ -324,7 +369,7 @@ static int fpc1020_get_fp_id_tee(struct fpc1020_data *fpc1020)
 		error = gpio_direction_input(fpc1020->fp_id_gpio);
 		if (error) {
 			dev_err(fpc1020->dev,
-					"gpio_direction_input (fp_id_gpio) failed.\n");
+				"gpio_direction_input (fp_id_gpio) failed.\n");
 			return fp_id;
 		}
 		usleep_range(2000, 3000); /* 2000us abs min. */
@@ -333,14 +378,14 @@ static int fpc1020_get_fp_id_tee(struct fpc1020_data *fpc1020)
 		error = gpio_direction_output(fpc1020->fp_id_gpio, 0);
 		if (error) {
 			dev_err(fpc1020->dev,
-					"gpio_direction_output (fp_id_gpio = 0) failed.\n");
+				"gpio_direction_output (fp_id_gpio = 0) failed.\n");
 			return fp_id;
 		}
 		usleep_range(2000, 3000); /* 2000us abs min. */
 		error = gpio_direction_input(fpc1020->fp_id_gpio);
 		if (error) {
 			dev_err(fpc1020->dev,
-					"gpio_direction_input (fp_id_gpio) failed.\n");
+				"gpio_direction_input (fp_id_gpio) failed.\n");
 			return fp_id;
 		}
 		usleep_range(2000, 3000); /* 2000us abs min. */
@@ -387,7 +432,6 @@ static int fpc1020_tee_probe(struct platform_device *pdev)
 
 	fpc1020->dev = dev;
 	dev_set_drvdata(dev, fpc1020);
-
 
 	if (!np) {
 		dev_err(dev, "no of node found\n");
