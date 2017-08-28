@@ -325,8 +325,6 @@ config SUSPEND_TIME
 	  Prints the time spent in suspend in the kernel log, and
 	  keeps statistics on the time spent in suspend in
 	  /sys/kernel/debug/suspend_time
-<<<<<<< HEAD
-=======
 
 config DEDUCE_WAKEUP_REASONS
 	bool
@@ -349,4 +347,8 @@ config POWERSUSPEND_DEBUG
 	depends on POWERSUSPEND
 	help
 	  Output debugging info in dmesg
->>>>>>> 9e20ca3... power : power_suspend 1.7 - credits : Paul Reioux | Jean-Pierre Rasquin
+
+config	BOEFFLA_WL_BLOCKER
+	bool "Boeffla generic wakelock blocker driver"
+	depends on PM
+ 	default y
