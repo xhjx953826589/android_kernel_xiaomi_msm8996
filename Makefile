@@ -737,7 +737,7 @@ KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly) \
 		   $(call cc-option,-fno-var-tracking)
 endif
 
-ifdef CONFIG_FUNCTION_TRACER
+#ifdef CONFIG_FUNCTION_TRACER
 #ifdef CONFIG_HAVE_FENTRY
 #CC_USING_FENTRY	:= $(call cc-option, -mfentry -DCC_USING_FENTRY)
 #endif
