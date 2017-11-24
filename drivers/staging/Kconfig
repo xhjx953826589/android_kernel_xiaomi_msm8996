@@ -108,4 +108,11 @@ source "drivers/staging/skein/Kconfig"
 
 source "drivers/staging/unisys/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/staging/qcacld-2.0/Kconfig"
+
+source "drivers/staging/snappy/Kconfig"
+
+>>>>>>> 62b6547... staging: Google Snappy
 endif # STAGING
