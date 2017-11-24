@@ -626,6 +626,10 @@ KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 endif
 ifdef CONFIG_CC_OPTIMIZE_DEFAULT
 KBUILD_CFLAGS  += -O2
+KBUILD_CFLAGS += $(call cc-disable-warning,maybe-uninitialized)
+KBUILD_CFLAGS += $(call cc-disable-warning,array-bounds)
+KBUILD_CFLAGS += $(call cc-disable-warning,unused-function)
+KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
 endif
 ifdef CONFIG_CC_OPTIMIZE_ALOT
 KBUILD_CFLAGS  += -O3
