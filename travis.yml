@@ -13,7 +13,7 @@ script:
 # Toolchain select here is Linaro 6.4.1
 - export ntoolchainbranch="master"
 - export ntoolchainchoice="2"
-- git clone -b "${ntoolchainbranch}" "https://github.com/JonasCardoso/toolchain_aarch64" "../Toolchain"
+- git clone -b "${ntoolchainbranch}" "https://bitbucket.org/jonascardoso/toolchain_aarch64" "../Toolchain"
 
 # This will call build.sh with following parameters inside ${nbasebuildsh}:
 #
