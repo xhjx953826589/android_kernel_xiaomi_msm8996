@@ -217,6 +217,7 @@ int ce_aes_expandkey(struct crypto_aes_ctx *ctx, const u8 *in_key,
 	kernel_neon_end();
 	return 0;
 }
+
 EXPORT_SYMBOL(ce_aes_expandkey);
 
 int ce_aes_setkey(struct crypto_tfm *tfm, const u8 *in_key,
