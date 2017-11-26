@@ -28,6 +28,8 @@
 #include <asm/uaccess.h>
 #include <linux/mdss_io_util.h>
 
+#include <linux/display_state.h>
+
 #include "mdss_dsi.h"
 #include "mdss_dba_utils.h"
 #include "mdss_livedisplay.h"
@@ -71,7 +73,14 @@ EXPORT_SYMBOL(mdss_dsi_ulps_suspend_enable);
 #ifdef CONFIG_LAZYPLUG
 extern void lazyplug_enter_lazy(bool enter, bool video);
 #endif
- 
+
+bool display_on = true;
+
+bool is_display_on()
+{
+	return display_on;
+}
+
 void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 {
 	if (ctrl->pwm_pmi)
@@ -757,6 +766,10 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+	/* Ensure low persistence is disabled */
+	//mdss_dsi_panel_apply_display_setting(pdata, 0);
+
+	display_on = true;
 #ifdef CONFIG_LAZYPLUG
 	lazyplug_enter_lazy(false, false);
 #endif
@@ -867,6 +880,7 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		mdss_dba_utils_hdcp_enable(pinfo->dba_data, false);
 	}
 
+	display_on = false;
 #ifdef CONFIG_LAZYPLUG
 	lazyplug_enter_lazy(true, false);
 #endif

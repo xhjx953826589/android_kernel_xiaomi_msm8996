@@ -951,7 +951,7 @@ void devmgr_unregister_mitigation_client(struct device *dev,
 	if (dev_mgr->update)
 		dev_mgr->update(dev_mgr);
 }
- 
+
 static int  msm_thermal_cpufreq_callback(struct notifier_block *nfb,
 		unsigned long event, void *data)
 {
@@ -5145,8 +5145,6 @@ int msm_thermal_init(struct msm_thermal_data *pdata)
 
 	enabled = 1;
 	polling_enabled = 1;
-	pr_info("%s: polling enabled!\n", KBUILD_MODNAME);
-	polling_enabled = 0;
 	ret = cpufreq_register_notifier(&msm_thermal_cpufreq_notifier,
 			CPUFREQ_POLICY_NOTIFIER);
 	if (ret)
@@ -7117,7 +7115,7 @@ static int msm_thermal_dev_probe(struct platform_device *pdev)
 fail:
 	if (ret)
 		pr_err("Failed reading node=%s, key=%s. err:%d\n",
-			node->full_name, key, ret);		
+			node->full_name, key, ret);
 probe_exit:
 	return ret;
 }
@@ -7252,7 +7250,7 @@ int __init msm_thermal_late_init(void)
 	create_thermal_debugfs();
 	msm_thermal_add_bucket_info_nodes();
 	uio_init(msm_thermal_info.pdev);
-	msm_thermal_add_stat_nodes();
+
 	return 0;
 }
 late_initcall(msm_thermal_late_init);
