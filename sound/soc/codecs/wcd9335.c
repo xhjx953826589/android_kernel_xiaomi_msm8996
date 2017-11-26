@@ -132,6 +132,7 @@
 
 static int cpe_debug_mode;
 
+#ifdef CONFIG_SOUND_CONTROL
 struct sound_control {
 	struct snd_soc_codec *snd_control_codec;
  	int default_headphones_value;
@@ -139,7 +140,8 @@ struct sound_control {
 	int default_mic_value;
 	int default_earpiece_value;
 } soundcontrol;
- 
+#endif
+
 #define TASHA_MAX_MICBIAS 4
 #define DAPM_MICBIAS1_STANDALONE "MIC BIAS1 Standalone"
 #define DAPM_MICBIAS2_STANDALONE "MIC BIAS2 Standalone"
@@ -13063,6 +13065,7 @@ static struct regulator *tasha_codec_find_ondemand_regulator(
 	return NULL;
 }
  
+#ifdef CONFIG_SOUND_CONTROL
 void update_headphones_volume_boost(unsigned int vol_boost)
 {
 	int default_val = soundcontrol.default_headphones_value;
@@ -13140,6 +13143,7 @@ void update_earpiece_gain(int vol_boost)
  		snd_soc_read(soundcontrol.snd_control_codec,
  		WCD9335_CDC_RX0_RX_VOL_CTL));
 }
+#endif
 
 static int tasha_codec_probe(struct snd_soc_codec *codec)
 {
@@ -13150,7 +13154,9 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 	int i, ret;
 	void *ptr = NULL;
 	struct regulator *supply;
+#ifdef CONFIG_SOUND_CONTROL
 	soundcontrol.snd_control_codec = codec;
+#endif
 	control = dev_get_drvdata(codec->dev->parent);
 
 	dev_info(codec->dev, "%s()\n", __func__);
@@ -13335,7 +13341,7 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 	snd_soc_dapm_disable_pin(dapm, "ANC EAR");
 	mutex_unlock(&codec->mutex);
 	snd_soc_dapm_sync(dapm);
- 
+#ifdef CONFIG_SOUND_CONTROL
 	/*
 	 * Get the default values during probe
  	 */
@@ -13347,7 +13353,7 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 		WCD9335_CDC_RX0_RX_VOL_CTL);
  	soundcontrol.default_earpiece_value = snd_soc_read(codec,
  		WCD9335_CDC_RX0_RX_VOL_CTL);
-
+#endif
 	return ret;
 
 err_pdata:
