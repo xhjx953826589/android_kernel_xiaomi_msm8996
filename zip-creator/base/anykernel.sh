@@ -2,19 +2,16 @@
 # osm0sis @ xda-developers
 
 ## AnyKernel setup
-# begin properties
-properties() {
-kernel.string=FloppyKernel by JonasCardoso @ xda-developers
-do.devicecheck=1
-do.modules=0
+# EDIFY properties
+do.devicecheck=0
+do.initd=0
 do.cleanup=1
-do.cleanuponabort=0
-device.name1=gemini
-device.name2=Gemini
-device.name3=MI5
-device.name4=mi5
+do.cleanuponabort=1
+device.name1=
+device.name2=
+device.name3=
+device.name4=
 device.name5=
-} # end properties
 
 # shell variables
 block=/dev/block/bootdevice/by-name/boot;
@@ -30,6 +27,9 @@ chmod -R 755 $ramdisk
 
 ## AnyKernel install
 dump_boot;
+
+# begin ramdisk changes
+insert_line init.qcom.rc "init.floppy.rc" after "import init.target.rc" "import init.floppy.rc";
 
 # end ramdisk changes
 
