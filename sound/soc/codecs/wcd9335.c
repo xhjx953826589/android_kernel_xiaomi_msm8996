@@ -13066,82 +13066,87 @@ static struct regulator *tasha_codec_find_ondemand_regulator(
 }
  
 #ifdef CONFIG_SOUND_CONTROL
-void update_headphones_volume_boost(unsigned int vol_boost)
+void update_headphones_volume_boost(unsigned int vol_headphones_boost)
 {
-	int default_val = soundcontrol.default_headphones_value;
-	int boosted_val = default_val + vol_boost;
+	int default_headphones_val = soundcontrol.default_headphones_value;
+	int boosted_headphones_val = default_headphones_val + vol_headphones_boost;
 
 	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX1_RX_VOL_CTL, boosted_val);
- 	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX1_RX_VOL_MIX_CTL, boosted_val);
- 	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX2_RX_VOL_CTL, boosted_val);
- 	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX2_RX_VOL_MIX_CTL, boosted_val);
+ 		WCD9335_CDC_RX1_RX_VOL_CTL, boosted_headphones_val); 
 
- 		pr_info("Sound Control: Boosted Headphones RX1 value %d\n",
+ 	snd_soc_write(soundcontrol.snd_control_codec,
+ 		WCD9335_CDC_RX1_RX_VOL_MIX_CTL, boosted_headphones_val); 
+
+ 	snd_soc_write(soundcontrol.snd_control_codec,
+ 		WCD9335_CDC_RX2_RX_VOL_CTL, boosted_headphones_val); 
+
+ 	snd_soc_write(soundcontrol.snd_control_codec,
+ 		WCD9335_CDC_RX2_RX_VOL_MIX_CTL, boosted_headphones_val); 
+
+ 	snd_soc_write(soundcontrol.snd_control_codec,
+ 		WCD9335_HPH_L_EN, boosted_headphones_val); 
+
+ 	snd_soc_write(soundcontrol.snd_control_codec,
+ 		WCD9335_HPH_R_EN, boosted_headphones_val); 
+
+	pr_info("Sound Control: Boosted Headphones RX1 value %d\n",
  		snd_soc_read(soundcontrol.snd_control_codec,
  		WCD9335_CDC_RX1_RX_VOL_CTL));
 
- 		pr_info("Sound Control: Boosted Headphones RX2 value %d\n",
+	pr_info("Sound Control: Boosted Headphones RX2 value %d\n",
 		snd_soc_read(soundcontrol.snd_control_codec,
  		WCD9335_CDC_RX2_RX_VOL_CTL));
 
+	pr_info("Sound Control: Boosted Headphones HPH_L value %d\n",
+ 		snd_soc_read(soundcontrol.snd_control_codec,
+ 		WCD9335_HPH_L_EN));
+
+	pr_info("Sound Control: Boosted Headphones HPH_R value %d\n",
+		snd_soc_read(soundcontrol.snd_control_codec,
+ 		WCD9335_HPH_R_EN));
+
 }
 
-void update_speaker_gain(int vol_boost)
+#include "tfa9891_genregs.h"
+struct snd_soc_codec *tfa98xx_codec_ptr;
+
+void update_speaker_volume_boost(int vol_speaker_boost)
 {
-	int default_val = soundcontrol.default_speaker_value;
-	int boosted_val = default_val + vol_boost;
+	int default_speaker_val = soundcontrol.default_speaker_value;
+	int boosted_speaker_val = default_speaker_val + vol_speaker_boost;
 
-	pr_info("Sound Control: Speaker default value %d\n", default_val);
+	snd_soc_write(tfa98xx_codec_ptr,
+ 		TFA98XX_AUDIO_CTR, boosted_speaker_val);
 
-	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX6_RX_VOL_CTL, boosted_val);
- 	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX6_RX_VOL_MIX_CTL, boosted_val);
-
- 	pr_info("Sound Control: Boosted Speaker RX6 value %d\n",
- 		snd_soc_read(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX6_RX_VOL_CTL));
+ 	pr_info("Sound Control: Boosted Speaker TFA98XX value %d\n",
+ 		snd_soc_read(tfa98xx_codec_ptr,
+ 		TFA98XX_AUDIO_CTR));
 }
 
-void update_mic_gain(int vol_boost)
+void update_mic_volume_boost(int vol_mic_boost)
 {
-	int default_val = soundcontrol.default_mic_value;
-	int boosted_val = default_val + vol_boost;
-
-	pr_info("Sound Control: Speaker default value %d\n", default_val);
+	int default_mic_val = soundcontrol.default_mic_value;
+	int boosted_mic_val = default_mic_val + vol_mic_boost;
 
 	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_TX6_TX_VOL_CTL, boosted_val);
-	snd_soc_write(soundcontrol.snd_control_codec,
-		WCD9335_CDC_TX7_TX_VOL_CTL, boosted_val);
+ 		WCD9335_CDC_RX0_RX_VOL_CTL, boosted_mic_val);
 
- 	pr_info("Sound Control: Boosted Primary Mic TX6 value %d\n",
+ 	pr_info("Sound Control: Boosted Primary Mic RX0 value %d\n",
  		snd_soc_read(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_TX6_TX_VOL_CTL));
- 	pr_info("Sound Control: Boosted Secondary Mic TX7 value %d\n",
- 		snd_soc_read(soundcontrol.snd_control_codec,
-		WCD9335_CDC_TX7_TX_VOL_CTL));
+ 		WCD9335_CDC_RX0_RX_VOL_CTL));
 }
 
-void update_earpiece_gain(int vol_boost)
+void update_earpiece_volume_boost(int vol_earpiece_boost)
 {
-	int default_val = soundcontrol.default_earpiece_value;
-	int boosted_val = default_val + vol_boost;
-
-	pr_info("Sound Control: Earpiece default value %d\n", default_val);
+	int default_earpiece_val = soundcontrol.default_earpiece_value;
+	int boosted_earpiece_val = default_earpiece_val + vol_earpiece_boost;
  
-	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX0_RX_VOL_CTL, boosted_val);
  	snd_soc_write(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX0_RX_VOL_MIX_CTL, boosted_val);
+ 		WCD9335_CDC_RX0_RX_VOL_MIX_CTL, boosted_earpiece_val);
 
  	pr_info("Sound Control: Boosted Earpiece RX0 value %d\n",
  		snd_soc_read(soundcontrol.snd_control_codec,
- 		WCD9335_CDC_RX0_RX_VOL_CTL));
+ 		WCD9335_CDC_RX0_RX_VOL_MIX_CTL));
 }
 #endif
 
@@ -13346,13 +13351,13 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 	 * Get the default values during probe
  	 */
 	soundcontrol.default_headphones_value = snd_soc_read(codec,
-		WCD9335_CDC_RX1_RX_VOL_CTL);
+		WCD9335_CDC_RX1_RX_VOL_MIX_CTL);
  	soundcontrol.default_speaker_value = snd_soc_read(codec,
- 		WCD9335_CDC_RX6_RX_VOL_CTL);
+ 		TFA98XX_AUDIO_CTR);
 	soundcontrol.default_mic_value = snd_soc_read(codec,
 		WCD9335_CDC_RX0_RX_VOL_CTL);
  	soundcontrol.default_earpiece_value = snd_soc_read(codec,
- 		WCD9335_CDC_RX0_RX_VOL_CTL);
+ 		WCD9335_CDC_RX0_RX_VOL_MIX_CTL);
 #endif
 	return ret;
 

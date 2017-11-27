@@ -10,33 +10,32 @@
 #include <linux/miscdevice.h>
 
 #define SOUND_CONTROL_MAJOR_VERSION 1
-#define SOUND_CONTROL_MINOR_VERSION 1
+#define SOUND_CONTROL_MINOR_VERSION 2
 
-extern void update_headphones_volume_boost(int vol_boost);
-extern void update_speaker_gain(int vol_boost);
-extern void update_mic_gain(int vol_boost);
-extern void update_earpiece_gain(int vol_boost);
+extern void update_headphones_volume_boost(int vol_headphones_boost);
+extern void update_speaker_volume_boost(int vol_speaker_boost);
+extern void update_mic_volume_boost(int vol_mic_boost);
+extern void update_earpiece_volume_boost(int vol_earpiece_boost);
 
 //Headphones
 int headphones_boost = 0;
-int headphones_boost_limit = 25;
-int headphones_boost_limit_min = -25;
+int headphones_boost_limit_max = 30;
+int headphones_boost_limit_min = -30;
 
 //Speakers
-
 int speaker_boost = 0;
-int speaker_boost_limit = 25;
- int speaker_boost_limit_min = -25;
+int speaker_boost_limit_max = 30;
+int speaker_boost_limit_min = -30;
 
-//Micrphone
-int mic_boost = 5;
-int mic_boost_limit = 25;
-int mic_boost_limit_min = -25;
+//Microphone
+int mic_boost = 0;
+int mic_boost_limit_max = 30;
+int mic_boost_limit_min = -30;
 
 //Earpiece
 int earpiece_boost = 0;
-int earpiece_boost_limit = 25;
-int earpiece_boost_limit_min = -25;
+int earpiece_boost_limit_max = 30;
+int earpiece_boost_limit_min = -30;
 
 static ssize_t headphones_boost_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -55,8 +54,8 @@ static ssize_t headphones_boost_store(struct device *dev,
 		if (new_val <= headphones_boost_limit_min)
 			new_val = headphones_boost_limit_min;
 
-		else if (new_val >= headphones_boost_limit)
-			new_val = headphones_boost_limit;
+		else if (new_val >= headphones_boost_limit_max)
+			new_val = headphones_boost_limit_max;
 
 		pr_info("New headphones_boost: %d\n", new_val);
 
@@ -84,13 +83,13 @@ static ssize_t speaker_boost_store(struct device *dev,
 		if (new_val <= speaker_boost_limit_min)
 			new_val = speaker_boost_limit_min;
 
-		else if (new_val >= speaker_boost_limit)
-			new_val = speaker_boost_limit;
+		else if (new_val >= speaker_boost_limit_max)
+			new_val = speaker_boost_limit_max;
 
 		pr_info("New speaker_boost: %d\n", new_val);
 
 		speaker_boost = new_val;
-		update_speaker_gain(speaker_boost);
+		update_speaker_volume_boost(speaker_boost);
 	}
 
 	return size;
@@ -113,13 +112,13 @@ static ssize_t mic_boost_store(struct device *dev,
 		if (new_val <= mic_boost_limit_min)
 			new_val = mic_boost_limit_min;
 
-		else if (new_val >= mic_boost_limit)
-			new_val = mic_boost_limit;
+		else if (new_val >= mic_boost_limit_max)
+			new_val = mic_boost_limit_max;
 
 		pr_info("New mic_boost: %d\n", new_val);
 
 		mic_boost = new_val;
-		update_mic_gain(mic_boost);
+		update_mic_volume_boost(mic_boost);
 	}
 
 	return size;
@@ -142,13 +141,13 @@ static ssize_t earpiece_boost_store(struct device *dev,
 		if (new_val <= earpiece_boost_limit_min)
 			new_val = earpiece_boost_limit_min;
 
-		else if (new_val >= earpiece_boost_limit)
-			new_val = earpiece_boost_limit;
+		else if (new_val >= earpiece_boost_limit_max)
+			new_val = earpiece_boost_limit_max;
 
 		pr_info("New earpiece_boost: %d\n", new_val);
 
 		earpiece_boost = new_val;
-		update_earpiece_gain(earpiece_boost);
+		update_earpiece_volume_boost(earpiece_boost);
 	}
 
 	return size;
