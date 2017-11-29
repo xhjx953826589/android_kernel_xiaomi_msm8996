@@ -28,7 +28,9 @@ chmod -R 755 $ramdisk
 ## AnyKernel install
 dump_boot;
 
-# begin ramdisk changes
+## begin ramdisk changes
+
+# add floppy script
 insert_line init.qcom.rc "init.floppy.rc" after "import init.target.rc" "import init.floppy.rc";
 
 # end ramdisk changes
