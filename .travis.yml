@@ -26,7 +26,9 @@ script:
 # ${ndevicechoice} is "Number of Choice under Device Choice"
 # ${ntoolchain} = "4" is "Toolchain Choice", 5 is your Toolchain Choice
 # and "o" is to disable/enable output when building kernel
-- ntoolchain="45o"
+- ntoolchain="45"
+# "o" is to disable/enable output when building kernel
+- ntoolchain="o"
 # ${nbuild} = "5" is "Build Kernel" and "6" is "Zip the kernel and Modules"
 - nbuild="56"
 # Last "q" is to Exit of Script
@@ -44,3 +46,4 @@ deploy:
     - "zip-creator/${zipfile0}"
   on:
     tags: true
+
