@@ -21,20 +21,21 @@ script:
 # 'source build.sh <<< "${nbasebuildsh}"'
 # 'export zipfile#="${zipfile}"'
 #
-# ${ndevice} = "2" is "Clean Kernel" and "3" is "Device Choice"
-- ndevice="23"
-# ${ndevicechoice} is "Number of Choice under Device Choice"
-# ${ntoolchain} = "4" is "Toolchain Choice", 5 is your Toolchain Choice
-# and "o" is to disable/enable output when building kernel
+# ${nclean} = Clean zip "1" and "2" is "Clean Kernel" 
+- nclean="12"
+# ${ntoolchain} = "4" is "Toolchain Choice", "5" is your Toolchain Choice Google
 - ntoolchain="45"
 # "o" is to disable/enable output when building kernel
-- ntoolchain="o"
+- noutput="o"
+# "3" is "Device Choice"
+- ndevice="3"
 # ${nbuild} = "5" is "Build Kernel" and "6" is "Zip the kernel and Modules"
 - nbuild="56"
 # Last "q" is to Exit of Script
 # For Xiaomi MI5 | Gemini
+# ${ndevicechoice} is "Number of Choice under Device Choice"
 - export ndevicechoice="0"
-- export nbasebuildsh="${ndevice}${ndevicechoice}${nbuild}q"
+- export nbasebuildsh="${nclean}${ntoolchain}${ndevice}${ndevicechoice}${nbuild}q"
 - source build.sh <<< "${nbasebuildsh}"
 - export zipfile0="${zipfile}"
 deploy:
