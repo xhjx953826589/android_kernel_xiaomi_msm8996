@@ -5,9 +5,6 @@ script:
 - sudo add-apt-repository ppa:nathan-renniewaldock/ppa -y
 - sudo apt-get update
 #
-# Install Required Tools.
-- sudo apt-get install git ccache automake lzop bison gperf build-essential zip curl zlib1g-dev zlib1g-dev:i386 g++-multilib python-networkx libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng git-core python gnupg flex libsdl1.2-dev libesd0-dev libwxgtk2.8-dev libncurses5-dev libxml2  xsltproc libc6-dev lib32z1-dev lib32ncurses5-dev  gcc-multilib liblz4-* android-tools-adb android-tools-fastboot
-- sudo apt-get update
 # Travis CI Script by Caio Oliveira aka Caio99BR <caiooliveirafarias0@gmail.com>
 #
 # Toolchain Choice
@@ -15,7 +12,6 @@ script:
 #
 # Toolchain select here is Google 4.9
 - export ntoolchainbranch="master"
-- export ntoolchainchoice="5"
 - git clone -b "${ntoolchainbranch}" "https://bitbucket.org/jonascardoso/toolchain_aarch64" "../Toolchain"
 
 # This will call build.sh with following parameters inside ${nbasebuildsh}:
@@ -28,9 +24,9 @@ script:
 # ${ndevice} = "2" is "Clean Kernel" and "3" is "Device Choice"
 - ndevice="23"
 # ${ndevicechoice} is "Number of Choice under Device Choice"
-# ${ntoolchain} = "4" is "Toolchain Choice", ${ntoolchainchoice} is your Toolchain Choice
+# ${ntoolchain} = "4" is "Toolchain Choice", 5 is your Toolchain Choice
 # and "o" is to disable/enable output when building kernel
-- ntoolchain="4${ntoolchainchoice}o"
+- ntoolchain="45o"
 # ${nbuild} = "5" is "Build Kernel" and "6" is "Zip the kernel and Modules"
 - nbuild="56"
 # Last "q" is to Exit of Script
