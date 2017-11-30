@@ -11,13 +11,14 @@
 
 # Main Process - Start
 maindevice() {
-clear
+#clear
 echo "-${bldgrn}Device choice${txtrst}-"
 echo
 _name=${name}
 _variant=${variant}
 _defconfig=${defconfig}
 unset name variant defconfig
+clear
 echo "0) ${bldyel}Xiaomi Mi5${txtrst} | Lite/Prime/Pro | Gemini"
 echo
 echo "*) Any other key to Exit"
@@ -37,6 +38,7 @@ else
 	make ${defconfig} &> /dev/null | echo "${x} - ${name} ${variant}, setting..."
 	unset buildprocesscheck zippackagecheck defconfigcheck
 fi
+clear
 }
 
 maintoolchain() {
@@ -73,6 +75,7 @@ if ! [ "${CROSS_COMPILE}" == "" ]
 then
 	unset buildprocesscheck zippackagecheck
 fi
+clear
 }
 # Main Process - End
 
@@ -145,7 +148,7 @@ fi
 
 updatedefconfig(){
 if [ -f .config ]; then
-	clear
+#	clear
 	echo "-${bldgrn}Updating defconfig${txtrst}-"
 	echo
 	if [ $(cat arch/${ARCH}/configs/${defconfig} | grep "Automatically" | wc -l) -ge 1 ]
@@ -210,6 +213,7 @@ then
 else
 	ops
 fi
+clear
 }
 # Zip Process - End
 
@@ -245,12 +249,13 @@ if [ -f zip-creator/${zipfile} ]; then
 else
 	ops
 fi
+clear
 }
 # ADB - End
 
 # Menu - Start
 buildsh() {
-clear
+#clear
 echo "Simple Linux Kernel ${kernelversion}.${kernelpatchlevel}.${kernelsublevel} Build Script ($(date +%d"/"%m"/"%Y))"
 echo "${customkernel} Release $(date +%d"/"%m"/"%Y) Build #${build}"
 echo "-${bldred}Clean Menu${txtrst}-"
@@ -281,8 +286,8 @@ echo "q) Quit"
 echo
 read -n 1 -p "${txtbld}Choice: ${txtrst}" -s x
 case ${x} in
-	1) echo "${x} - Cleaning Zips"; rm -rf zip-creator/*.zip; unset zippackagecheck;;
-	2) echo "${x} - Cleaning Kernel"; make clean mrproper &> /dev/null;rm -rf arch/${ARCH}/boot/dtb ; rm -rf arch/${ARCH}/boot/Image.gz-dtb; rm -rf arch/${ARCH}/boot/zImage; rm -rf arch/${ARCH}/boot/dt.img; unset buildprocesscheck name variant defconfig BUILDTIME;;
+	1) echo "${x} - Cleaning Zips"; rm -rf zip-creator/*.zip; unset zippackagecheck;clear;;
+	2) echo "${x} - Cleaning Kernel"; make clean mrproper &> /dev/null;rm -rf arch/${ARCH}/boot/dtb ; rm -rf arch/${ARCH}/boot/Image.gz-dtb; rm -rf arch/${ARCH}/boot/zImage; rm -rf arch/${ARCH}/boot/dt.img; unset buildprocesscheck name variant defconfig BUILDTIME;clear;;
 	3) maindevice;;
 	4) maintoolchain;;
 	5) buildprocess;;
@@ -387,7 +392,7 @@ elif [ -e build.sh ]; then
 		release=$(date +%d""%m""%Y)
 		build=$(cat .version)
 		#export zipfile="${customkernel}-${name}-${variant}-${release}-${build}.zip"
-		export zipfile="${customkernel}-${name}-${variant}-${release}.zip"
+		export zipfile="${customkernel}-${name}-${variant}-${release}-${ToolchainName}.zip"
 		buildsh
 	done
 else
