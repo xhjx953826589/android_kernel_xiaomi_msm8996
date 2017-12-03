@@ -1,5 +1,8 @@
 /*
- * Copyright 2015 franciscofranco
+ * Author: franciscofranco and JonasCardoso
+ *
+ * Copyright 2017 
+ * Version 1.3.0
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -8,12 +11,9 @@
 #include <linux/init.h>
 #include <linux/device.h>
 #include <linux/miscdevice.h>
-
-#define SOUND_CONTROL_MAJOR_VERSION 1
-#define SOUND_CONTROL_MINOR_VERSION 2
+#include "sound_control.h"
 
 extern void update_headphones_volume_boost(int vol_headphones_boost);
-extern void update_speaker_volume_boost(int vol_speaker_boost);
 extern void update_mic_volume_boost(int vol_mic_boost);
 extern void update_earpiece_volume_boost(int vol_earpiece_boost);
 
@@ -24,23 +24,24 @@ int headphones_boost_limit_min = -30;
 
 //Speakers
 int speaker_boost = 0;
-int speaker_boost_limit_max = 30;
-int speaker_boost_limit_min = -30;
+int speaker_boost_limit_max = 15;
+int speaker_boost_limit_min = -20;
 
 //Microphone
 int mic_boost = 0;
-int mic_boost_limit_max = 30;
-int mic_boost_limit_min = -30;
+int mic_boost_limit_max = 20;
+int mic_boost_limit_min = -20;
 
 //Earpiece
 int earpiece_boost = 0;
-int earpiece_boost_limit_max = 30;
-int earpiece_boost_limit_min = -30;
+int earpiece_boost_limit_max = 20;
+int earpiece_boost_limit_min = -20;
 
 static ssize_t headphones_boost_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%d\n", headphones_boost);
+
 }
 
 static ssize_t headphones_boost_store(struct device *dev,
@@ -89,7 +90,7 @@ static ssize_t speaker_boost_store(struct device *dev,
 		pr_info("New speaker_boost: %d\n", new_val);
 
 		speaker_boost = new_val;
-		update_speaker_volume_boost(speaker_boost);
+		set_speaker_boost(speaker_boost);
 	}
 
 	return size;
@@ -98,6 +99,9 @@ static ssize_t speaker_boost_store(struct device *dev,
 static ssize_t mic_boost_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
+	if (mic_boost > 127)
+		mic_boost = (256 - mic_boost) * -1;
+
 	return sprintf(buf, "%d\n", mic_boost);
 }
 

@@ -136,7 +136,6 @@ static int cpe_debug_mode;
 struct sound_control {
 	struct snd_soc_codec *snd_control_codec;
  	int default_headphones_value;
-	int default_speaker_value;
 	int default_mic_value;
 	int default_earpiece_value;
 } soundcontrol;
@@ -13107,22 +13106,6 @@ void update_headphones_volume_boost(unsigned int vol_headphones_boost)
 
 }
 
-#include "tfa9891_genregs.h"
-struct snd_soc_codec *tfa98xx_codec_ptr;
-
-void update_speaker_volume_boost(int vol_speaker_boost)
-{
-	int default_speaker_val = soundcontrol.default_speaker_value;
-	int boosted_speaker_val = default_speaker_val + vol_speaker_boost;
-
-	snd_soc_write(tfa98xx_codec_ptr,
- 		TFA98XX_AUDIO_CTR, boosted_speaker_val);
-
- 	pr_info("Sound Control: Boosted Speaker TFA98XX value %d\n",
- 		snd_soc_read(tfa98xx_codec_ptr,
- 		TFA98XX_AUDIO_CTR));
-}
-
 void update_mic_volume_boost(int vol_mic_boost)
 {
 	int default_mic_val = soundcontrol.default_mic_value;
@@ -13352,8 +13335,6 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
  	 */
 	soundcontrol.default_headphones_value = snd_soc_read(codec,
 		WCD9335_CDC_RX1_RX_VOL_MIX_CTL);
- 	soundcontrol.default_speaker_value = snd_soc_read(codec,
- 		TFA98XX_AUDIO_CTR);
 	soundcontrol.default_mic_value = snd_soc_read(codec,
 		WCD9335_CDC_RX0_RX_VOL_CTL);
  	soundcontrol.default_earpiece_value = snd_soc_read(codec,
