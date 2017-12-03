@@ -35,6 +35,20 @@ on property:sys.boot_completed=1
     # LMK
     write /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk 0
 
+    #Entropy
+    write /proc/sys/kernel/random/read_wakeup_threshold 64
+    write /proc/sys/kernel/random/write_wakeup_threshold 128
+
+    # Set I/O Scheduler
+    write /sys/block/sda/queue/read_ahead_kb 1024
+    write /sys/block/sde/queue/read_ahead_kb 1024
+    write /sys/block/dm-0/queue/read_ahead_kb 1024
+    write /sys/block/dm-1/queue/read_ahead_kb 1024
+
+    # VM Tweaks
+    write /proc/sys/vm/swappiness 60
+    write /proc/sys/vm/vfs_cache_pressure 50
+
     # Set nice Level to 9
     write /proc/sys/kernel/sched_upmigrate_min_nice 9
     
