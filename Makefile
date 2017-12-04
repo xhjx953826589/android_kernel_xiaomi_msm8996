@@ -302,7 +302,7 @@ else
 HOSTCC       = gcc
 HOSTCXX      = g++
 endif
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -fgcse-las -pipe -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-value
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -fgcse-las -pipe -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-value -std=gnu89
 HOSTCXXFLAGS = -O2 -fgcse-las -pipe
 
 ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
