@@ -277,8 +277,9 @@ static int __init ksysfs_init(void)
 	}
 	error = sysfs_create_group(kernel_kobj, &kernel_attr_group);
 	if (error)
+	{
 		goto kset_exit;
-
+	}
 		sched_features_kobj = kobject_create_and_add("sched", kernel_kobj);
 		error = sysfs_create_group(sched_features_kobj, &sched_features_attr_group);
 
