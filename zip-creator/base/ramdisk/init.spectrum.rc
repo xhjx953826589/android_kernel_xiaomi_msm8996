@@ -177,7 +177,7 @@ on property:persist.spectrum.profile=0
 		write /sys/devices/virtual/block/dm-0/queue/iosched/syn_writec_expire 300
 
 	#VM tweaks
-		write /proc/sys/vm/swappiness 0 
+		write /proc/sys/vm/swappiness 30 
 		write /proc/sys/vm/vfs_cache_pressure 100
 		write /proc/sys/vm/dirty_ratio 80 
 		write /proc/sys/vm/dirty_background_ratio 50
@@ -363,7 +363,7 @@ on property:persist.spectrum.profile=1
 		write /sys/devices/virtual/block/dm-0/queue/iosched/syn_writec_expire 300
 
 	#VM tweaks
-		write /proc/sys/vm/swappiness 0
+		write /proc/sys/vm/swappiness 40
 		write /proc/sys/vm/vfs_cache_pressure 100
 		write /proc/sys/vm/dirty_ratio 80
 		write /proc/sys/vm/dirty_background_ratio 20
@@ -557,7 +557,7 @@ on property:persist.spectrum.profile=2
 		write /sys/devices/virtual/block/dm-0/queue/iosched/syn_writec_expire 300
 
 	#VM tweaks
-		write /proc/sys/vm/swappiness 0
+		write /proc/sys/vm/swappiness 20
 		write /proc/sys/vm/vfs_cache_pressure 100
 		write /proc/sys/vm/dirty_ratio 80
 		write /proc/sys/vm/dirty_background_ratio 20
@@ -725,7 +725,7 @@ on property:persist.spectrum.profile=3
 		write /sys/devices/virtual/block/dm-0/queue/iosched/syn_writec_expire 300
 
 	#VM tweaks
-		write /proc/sys/vm/swappiness 0
+		write /proc/sys/vm/swappiness 50
 		write /proc/sys/vm/vfs_cache_pressure 100
 		write /proc/sys/vm/dirty_ratio 20
 		write /proc/sys/vm/dirty_background_ratio 10
