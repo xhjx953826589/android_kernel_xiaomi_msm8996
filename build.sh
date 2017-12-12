@@ -23,7 +23,9 @@ echo "0) ${bldred}Xiaomi Mi5${txtrst} | Lite/Prime/Pro | Gemini"
 echo
 echo "1) ${bldyel}Xiaomi Mi5S${txtrst} | Lite/Prime/Pro | Capricorn"
 echo
-echo "2) ${bldgrn}Xiaomi Mi Mix${txtrst} | Prime/Pro | Lithium"
+echo "2) ${bldyel}Xiaomi Mi5S Plus${txtrst} | Prime/Pro | Natrium"
+echo
+echo "3) ${bldgrn}Xiaomi Mi Mix${txtrst} | Prime/Pro | Lithium"
 echo
 echo "*) Any other key to Exit"
 echo
@@ -31,7 +33,8 @@ read -p "Choice: " -n 1 -s x
 case "${x}" in
 	0 ) defconfig="gemini_defconfig"; name="Mi5"; variant="Lite-Prime-Pro";;
 	1 ) defconfig="capricorn_defconfig"; name="Mi5S"; variant="Lite-Prime-Pro";;
-	2 ) defconfig="lithium_defconfig"; name="MiMix"; variant="Prime-Pro";;
+	2 ) defconfig="natrium_defconfig"; name="Mi5SPlus"; variant="Prime-Pro";;
+	3 ) defconfig="lithium_defconfig"; name="MiMix"; variant="Prime-Pro";;
 	* ) ;;
 esac
 if [ "${defconfig}" == "" ]
