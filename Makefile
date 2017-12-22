@@ -416,6 +416,7 @@ KBUILD_CFLAGS   := -Werror -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-switch-unreachable \
 		   -Wno-attributes \
 		   -Wno-packed-not-aligned \
+		   -Wno-memset-elt-size \
 		   -Wno-stringop-overflow \
 		   -Wno-format-overflow \
 		   -Wno-incompatible-pointer-types \
