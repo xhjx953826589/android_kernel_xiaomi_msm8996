@@ -210,6 +210,8 @@ then
 		echo "${name}" >> ${zipdirout}/device.prop
 		echo "${variant}" >> ${zipdirout}/device.prop
 		echo "${release}" >> ${zipdirout}/device.prop
+		echo "${ToolchainName}" >> ${zipdirout}/device.prop
+		echo "${romversion}" >> ${zipdirout}/device.prop
 
 		cd ${zipdirout}
 		zip -r ${zipfile} * -x .gitignore &> /dev/null
