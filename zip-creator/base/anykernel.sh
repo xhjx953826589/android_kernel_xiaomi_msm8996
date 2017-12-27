@@ -6,9 +6,9 @@
 properties() {
 kernel.string=
 do.devicecheck=
-do.modules=
-do.cleanup=
-do.cleanuponabort=
+do.modules=0
+do.cleanup=0
+do.cleanuponabort=0
 device.name1=
 device.name2=
 device.name3=
