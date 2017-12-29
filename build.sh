@@ -97,24 +97,44 @@ if [ -f .config ]
 then
 	echo "${x} - Building ${customkernel}"
 
-	if [ -f arch/${ARCH}/boot/zImage ]
-	then
-		rm -rf arch/${ARCH}/boot/zImage 
-	fi
-
 	if [ -f arch/${ARCH}/boot/dt.img ]
 	then
 		rm -rf arch/${ARCH}/boot/dt.img 
 	fi
 
-	if [ -f arch/${ARCH}/boot/Image.gz-dtb ]
+	if [ -f arch/${ARCH}/boot/Image.gz ]
 	then
+		rm -rf arch/${ARCH}/boot/Image.gz
 		rm -rf arch/${ARCH}/boot/Image.gz-dtb
 	fi
 
-	if [ -f arch/${ARCH}/boot/dtb ]
+	if [ -f arch/${ARCH}/boot/Image.lzma ]
 	then
-		rm -rf arch/${ARCH}/boot/dtb 
+		rm -rf arch/${ARCH}/boot/Image.lzma
+		rm -rf arch/${ARCH}/boot/Image.lzma-dtb
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.bzip2 ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.bzip2
+		rm -rf arch/${ARCH}/boot/Image.bzip2-dtb
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.lzo ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.lzo
+		rm -rf arch/${ARCH}/boot/Image.lzo-dtb
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.lz4 ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.lz4
+		rm -rf arch/${ARCH}/boot/Image.lz4-dtb
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image ]
+	then
+		rm -rf arch/${ARCH}/boot/Image
 	fi
 
 	NR_CPUS=$(($(grep -c ^processor /proc/cpuinfo) + 1))
@@ -129,13 +149,11 @@ then
 	fi
 
 	./dtbTool -s 2048 -o arch/arm64/boot/dt.img -p scripts/dtc/ arch/arm/boot/dts/qcom/
-	cp arch/arm64/boot/dt.img arch/arm64/boot/dtb
-	cp arch/arm64/boot/Image.gz arch/arm64/boot/zImage
 
 	END=$(date +"%s")
 	BUILDTIME=$((${END} - ${START}))
 
-	if [ -f arch/${ARCH}/boot/zImage ]
+	if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bzip2 ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
 	then
 		buildprocesscheck="${_d}"
 	else
@@ -151,7 +169,7 @@ LEND=$(date +"%s")
 LBUILDTIME=$((${LEND} - ${START}))
 echo -ne "\r\033[K"
 echo -ne "${bldgrn}Build Time: $((${LBUILDTIME} / 60)) minutes and $((${LBUILDTIME} % 60)) seconds.${txtrst}"
-if ! [ -f arch/${ARCH}/boot/zImage ]
+if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bzip2 ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
 then
 	sleep 1
 	loop
@@ -194,7 +212,7 @@ fi
 zippackage() {
 if ! [ "${defconfig}" == "" ]
 then
-	if [ -f arch/$ARCH/boot/zImage ]
+if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bzip2 ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
 	then
 		echo "${x} - Ziping ${customkernel}"
 
@@ -203,8 +221,25 @@ then
 		mkdir ${zipdirout}
 
 		cp -r zip-creator/base/* ${zipdirout}/
-		cp arch/${ARCH}/boot/zImage ${zipdirout}/
-		cp arch/${ARCH}/boot/dtb ${zipdirout}/
+
+	if [ -f arch/${ARCH}/boot/Image.gz ]; then
+		cp arch/${ARCH}/boot/Image.gz ${zipdirout}/zImage
+
+	elif [ -f arch/${ARCH}/boot/Image.lzma ]; then
+		cp arch/${ARCH}/boot/Image.lzma ${zipdirout}/zImage
+
+	elif [ -f arch/${ARCH}/boot/Image.bzip2 ]; then
+		cp arch/${ARCH}/boot/Image.bzip2 ${zipdirout}/zImage
+
+	elif [ -f arch/${ARCH}/boot/Image.lzo ]; then
+		cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
+
+	elif [ -f arch/${ARCH}/boot/Image.lz4 ]; then
+		cp arch/${ARCH}/boot/Image.lz4 ${zipdirout}/zImage
+
+	fi
+
+		cp arch/${ARCH}/boot/dt.img ${zipdirout}/dt.img
 
 		echo "${customkernel}" >> ${zipdirout}/device.prop
 		echo "${name}" >> ${zipdirout}/device.prop
@@ -301,7 +336,50 @@ echo
 read -n 1 -p "${txtbld}Choice: ${txtrst}" -s x
 case ${x} in
 	1) echo "${x} - Cleaning Zips"; rm -rf zip-creator/*.zip; unset zippackagecheck;clear;;
-	2) echo "${x} - Cleaning Kernel"; make clean mrproper &> /dev/null;rm -rf arch/${ARCH}/boot/dtb ; rm -rf arch/${ARCH}/boot/Image.gz-dtb; rm -rf arch/${ARCH}/boot/zImage; rm -rf arch/${ARCH}/boot/dt.img; unset buildprocesscheck name variant defconfig BUILDTIME;clear;;
+	2) echo "${x} - Cleaning Kernel"; make clean mrproper &> /dev/null;
+
+	if [ -f arch/${ARCH}/boot/dt.img ]
+	then
+		rm -rf arch/${ARCH}/boot/dt.img;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.gz ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.gz;
+		rm -rf arch/${ARCH}/boot/Image.gz-dtb;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.lzma ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.lzma;
+		rm -rf arch/${ARCH}/boot/Image.lzma-dtb;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.bzip2 ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.bzip2;
+		rm -rf arch/${ARCH}/boot/Image.bzip2-dtb;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.lzo ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.lzo;
+		rm -rf arch/${ARCH}/boot/Image.lzo-dtb;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.lz4 ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.lz4;
+		rm -rf arch/${ARCH}/boot/Image.lz4-dtb;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image ]
+	then
+		rm -rf arch/${ARCH}/boot/Image;
+	fi
+
+	unset buildprocesscheck name variant defconfig BUILDTIME;clear;;
+
 	3) maindevice;;
 	4) maintoolchain;;
 	5) buildprocess;;
@@ -406,7 +484,6 @@ elif [ -e build.sh ]; then
 		kernelname=$(cat Makefile | grep NAME | cut -c 8- | head -1)
 		release=$(date +%d""%m""%Y)
 		build=$(cat .version)
-		#export zipfile="${customkernel}-${name}-${variant}-${release}-${build}.zip"
 		export zipfile="${customkernel}-${name}-${variant}-${release}-${ToolchainName}-${romversion}.zip"
 		buildsh
 	done
