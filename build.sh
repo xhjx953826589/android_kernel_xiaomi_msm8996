@@ -239,7 +239,7 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 
 	fi
 
-		cp arch/${ARCH}/boot/dt.img ${zipdirout}/dt.img
+		cp arch/${ARCH}/boot/dt.img ${zipdirout}/dtb
 
 		echo "${customkernel}" >> ${zipdirout}/device.prop
 		echo "${name}" >> ${zipdirout}/device.prop

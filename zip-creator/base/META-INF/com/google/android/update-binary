@@ -120,9 +120,48 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
 
+##########################################################################################
+# Ramdisk patches
+##########################################################################################
+
+[ -z $KEEPVERITY ] && KEEPVERITY=false
+
+if [ -f /tmp/anykernel/dtb ]; then
+  ui_print "Found dtbo image"
+  ui_print " "
+  [ -z $KEEPVERITY ] && KEEPVERITY=true
+fi
+
+if [ -z $KEEPFORCEENCRYPT ]; then
+  if [ "`getprop ro.crypto.state`" = "encrypted" ]; then
+    KEEPFORCEENCRYPT=true
+    ui_print "Encrypted data detected"
+    ui_print " "
+  else
+    KEEPFORCEENCRYPT=false
+  fi
+fi
+
+if [ $KEEPVERITY ] && [ -f /tmp/anykernel/dtb ]; then
+  ./tmp/anykernel/magiskboot --dtb-patch dtb
+  ui_print "Patching fstab in dtb to remove dm-verity"
+  ui_print " "
+fi
+
+# skip_initramfs -> want_initramfs
+./tmp/anykernel/magiskboot --hexpatch kernel \
+736B69705F696E697472616D6673 \
+77616E745F696E697472616D6673
+
+mount -o rw,remount -t auto /cache;
+rm -f /cache/*;
+rm -f /data/dalvik-cache/arm/*;
+rm -f /data/dalvik-cache/arm64/*;
+ui_print "Wiped cache and dalvik cache";
+ui_print " "
+
 umount /system;
 umount /data 2>/dev/null;
-ui_print " ";
 ui_print "Kernel has been successfully loaded on your device!";
 ui_print "FEEL THE POWER AND ENJOY!";
 ui_print " ";
