@@ -114,10 +114,16 @@ then
 		rm -rf arch/${ARCH}/boot/Image.lzma-dtb
 	fi
 
-	if [ -f arch/${ARCH}/boot/Image.bzip2 ]
+	if [ -f arch/${ARCH}/boot/Image.bz2 ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.bzip2
-		rm -rf arch/${ARCH}/boot/Image.bzip2-dtb
+		rm -rf arch/${ARCH}/boot/Image.bz2
+		rm -rf arch/${ARCH}/boot/Image.bz2-dtb
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.xz ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.xz
+		rm -rf arch/${ARCH}/boot/Image.xz-dtb
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.lzo ]
@@ -153,7 +159,7 @@ then
 	END=$(date +"%s")
 	BUILDTIME=$((${END} - ${START}))
 
-	if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bzip2 ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
+	if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bz2 ] || [ -f arch/${ARCH}/boot/Image.xz ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
 	then
 		buildprocesscheck="${_d}"
 	else
@@ -169,7 +175,7 @@ LEND=$(date +"%s")
 LBUILDTIME=$((${LEND} - ${START}))
 echo -ne "\r\033[K"
 echo -ne "${bldgrn}Build Time: $((${LBUILDTIME} / 60)) minutes and $((${LBUILDTIME} % 60)) seconds.${txtrst}"
-if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bzip2 ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
+if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bz2 ] || [ -f arch/${ARCH}/boot/Image.xz ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
 then
 	sleep 1
 	loop
@@ -212,7 +218,7 @@ fi
 zippackage() {
 if ! [ "${defconfig}" == "" ]
 then
-if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bzip2 ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
+if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bz2 ] || [ -f arch/${ARCH}/boot/Image.xz ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
 	then
 		echo "${x} - Ziping ${customkernel}"
 
@@ -228,8 +234,11 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 	elif [ -f arch/${ARCH}/boot/Image.lzma ]; then
 		cp arch/${ARCH}/boot/Image.lzma ${zipdirout}/zImage
 
-	elif [ -f arch/${ARCH}/boot/Image.bzip2 ]; then
-		cp arch/${ARCH}/boot/Image.bzip2 ${zipdirout}/zImage
+	elif [ -f arch/${ARCH}/boot/Image.bz2 ]; then
+		cp arch/${ARCH}/boot/Image.bz2 ${zipdirout}/zImage
+
+	elif [ -f arch/${ARCH}/boot/Image.xz ]; then
+		cp arch/${ARCH}/boot/Image.xz ${zipdirout}/zImage
 
 	elif [ -f arch/${ARCH}/boot/Image.lzo ]; then
 		cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
@@ -355,10 +364,16 @@ case ${x} in
 		rm -rf arch/${ARCH}/boot/Image.lzma-dtb;
 	fi
 
-	if [ -f arch/${ARCH}/boot/Image.bzip2 ]
+	if [ -f arch/${ARCH}/boot/Image.bz2 ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.bzip2;
-		rm -rf arch/${ARCH}/boot/Image.bzip2-dtb;
+		rm -rf arch/${ARCH}/boot/Image.bz2;
+		rm -rf arch/${ARCH}/boot/Image.bz2-dtb;
+	fi
+
+	if [ -f arch/${ARCH}/boot/Image.xz ]
+	then
+		rm -rf arch/${ARCH}/boot/Image.xz;
+		rm -rf arch/${ARCH}/boot/Image.xz-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.lzo ]

@@ -972,24 +972,34 @@ choice
 
 config BUILD_ARM64_KERNEL_GZIP
 	bool "Gzip"
+	select RD_GZIP
 	help
 	  The old and tried gzip compression. It provides a good balance
 	  between compression ratio and decompression speed.
 
 config BUILD_ARM64_KERNEL_LZMA
 	bool "LZMA"
+	select RD_LZMA
 	help
 
 config BUILD_ARM64_KERNEL_BZIP2
 	bool "BZIP2"
+	select RD_BZIP2
+	help
+
+config BUILD_ARM64_KERNEL_XZ
+	bool "XZKERN"
+	select RD_XZ
 	help
 
 config BUILD_ARM64_KERNEL_LZO
 	bool "LZO"
+	select RD_LZO
 	help
 
 config BUILD_ARM64_KERNEL_LZ4
 	bool "LZ4"
+	select RD_LZ4
 	help
 	  LZ4 is an LZ77-type compressor with a fixed, byte-oriented encoding.
 	  A preliminary version of LZ4 de/compression tool is available at
@@ -998,21 +1008,21 @@ config BUILD_ARM64_KERNEL_LZ4
 endchoice
 
 config BUILD_ARM64_APPENDED_DTB_IMAGE
-	bool "Build a concatenated Image.(gz/lzma/bzip2/lzo/lz4)-dtb by default"
+	bool "Build a concatenated Image.(gz/lzma/bzip2/xz/lzo/lz4)-dtb by default"
 	depends on OF
 	help
 	  Enabling this option will cause a concatenated Image.gz, Image.lzma,
 	  Image.bzip2, Image.lzo or Image.lz4 and list of DTBs to 
 	  be built by default (instead of a standalone Image.gz, Image.lzma, 
 	  Image.bzip2, Image.lzo or Image.lz4.)
-	  The image will built in arch/arm64/boot/Image.(gz/lzma/bzip2/lzo/lz4)-dtb
+	  The image will built in arch/arm64/boot/Image.(gz/lzma/bzip2/xz/lzo/lz4)-dtb
 
 config BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES
 	string "Default dtb names"
 	depends on BUILD_ARM64_APPENDED_DTB_IMAGE
 	help
 	  Space separated list of names of dtbs to append when
-	  building a concatenated Image.(gz/lzma/bzip2/lzo/lz4)-dtb.
+	  building a concatenated Image.(gz/lzma/bzip2/xz/lzo/lz4)-dtb.
 
 config DMI
 	bool "Enable support for SMBIOS (DMI) tables"

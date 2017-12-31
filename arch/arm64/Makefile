@@ -73,8 +73,12 @@ KBUILD_COMPRESS_SUFFIX := lzma
 KBUILD_COMPRESS_CMD := lzma
 endif
 ifeq ($(CONFIG_BUILD_ARM64_KERNEL_BZIP2),y)
-KBUILD_COMPRESS_SUFFIX := bzip2
+KBUILD_COMPRESS_SUFFIX := bz2
 KBUILD_COMPRESS_CMD := bzip2
+endif
+ifeq ($(CONFIG_BUILD_ARM64_KERNEL_XZ),y)
+KBUILD_COMPRESS_SUFFIX := xz
+KBUILD_COMPRESS_CMD := xzkern
 endif
 ifeq ($(CONFIG_BUILD_ARM64_KERNEL_LZO),y)
 KBUILD_COMPRESS_SUFFIX := lzo
@@ -132,7 +136,8 @@ archclean:
 define archhelp
   echo  '* Image.gz      - Gzip compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
   echo  '* Image.lzma    - LZMA compressed kernel image (arch/$(ARCH)/boot/Image.lzma)'
-  echo  '* Image.bzip2   - BZIP2 compressed kernel image (arch/$(ARCH)/boot/Image.bzip2)'
+  echo  '* Image.bz2     - BZIP2 compressed kernel image (arch/$(ARCH)/boot/Image.bz2)'
+  echo  '* Image.xz      - XZ compressed kernel image (arch/$(ARCH)/boot/Image.xz)'
   echo  '* Image.lzo     - LZO compressed kernel image (arch/$(ARCH)/boot/Image.lzo)'
   echo  '* Image.lz4     - LZ4 compressed kernel image (arch/$(ARCH)/boot/Image.lz4)'
   echo  '  Image         - Uncompressed kernel image (arch/$(ARCH)/boot/Image)'
