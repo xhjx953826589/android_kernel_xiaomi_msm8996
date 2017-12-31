@@ -228,25 +228,33 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 
 		cp -r zip-creator/base/* ${zipdirout}/
 
-	if [ -f arch/${ARCH}/boot/Image.gz ]; then
-		cp arch/${ARCH}/boot/Image.gz ${zipdirout}/zImage
+		if [ "${compressedimage}" == "${bldyel}ON${txtrst}" ];
+		then
 
-	elif [ -f arch/${ARCH}/boot/Image.lzma ]; then
-		cp arch/${ARCH}/boot/Image.lzma ${zipdirout}/zImage
+			if [ -f arch/${ARCH}/boot/Image.gz ]; then
+				cp arch/${ARCH}/boot/Image.gz ${zipdirout}/zImage
 
-	elif [ -f arch/${ARCH}/boot/Image.bz2 ]; then
-		cp arch/${ARCH}/boot/Image.bz2 ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lzma ]; then
+				cp arch/${ARCH}/boot/Image.lzma ${zipdirout}/zImage
 
-	elif [ -f arch/${ARCH}/boot/Image.xz ]; then
-		cp arch/${ARCH}/boot/Image.xz ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.bz2 ]; then
+				cp arch/${ARCH}/boot/Image.bz2 ${zipdirout}/zImage
 
-	elif [ -f arch/${ARCH}/boot/Image.lzo ]; then
-		cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.xz ]; then
+				cp arch/${ARCH}/boot/Image.xz ${zipdirout}/zImage
 
-	elif [ -f arch/${ARCH}/boot/Image.lz4 ]; then
-		cp arch/${ARCH}/boot/Image.lz4 ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lzo ]; then
+				cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
 
-	fi
+			elif [ -f arch/${ARCH}/boot/Image.lz4 ]; then
+				cp arch/${ARCH}/boot/Image.lz4 ${zipdirout}/zImage
+
+			fi
+
+		else
+			cp arch/${ARCH}/boot/Image ${zipdirout}/zImage
+	
+		fi
 
 		cp arch/${ARCH}/boot/dt.img ${zipdirout}/dtb
 
@@ -333,10 +341,11 @@ if [ -f zip-creator/${zipfile} ]
 then
 	echo "   Zip Saved         | ${bldcya}zip-creator/${zipfile}${txtrst}"
 fi
+echo "7) Compressed image  | ${compressedimage}"
 echo "-${bldblu}Special Device Menu${txtrst}-"
-echo "7) Update Defconfig  | ${bldblu}${defconfigcheck}${txtrst}"
-echo "8) Copy Zip          | ${bldblu}${zipcopycheck}${txtrst}"
-echo "9) Reboot to recovery"
+echo "8) Update Defconfig  | ${bldblu}${defconfigcheck}${txtrst}"
+echo "9) Copy Zip          | ${bldblu}${zipcopycheck}${txtrst}"
+echo "0) Reboot to recovery"
 echo "-${bldmag}Script Options${txtrst}-"
 echo "o) View Build Output | ${buildoutput}"
 echo "g) Git Gui  |  k) GitK  |  s) Git Push  |  l) Git Pull"
@@ -399,9 +408,15 @@ case ${x} in
 	4) maintoolchain;;
 	5) buildprocess;;
 	6) zippackage;;
-	7) updatedefconfig;;
-	8) adbcopy;;
-	9) echo "${x} - Rebooting to Recovery..."; adb reboot recovery;;
+	7)
+	
+	if [ "${compressedimage}" == "${bldyel}ON${txtrst}" ]; 
+	then compressedimage="${bldred}OFF${txtrst}"
+	else compressedimage="${bldyel}ON${txtrst}";fi;;
+
+	8) updatedefconfig;;
+	9) adbcopy;;
+	0) echo "${x} - Rebooting to Recovery..."; adb reboot recovery;;
 	o) if [ "${buildoutput}" == "OFF" ]; then unset buildoutput; else buildoutput="OFF"; fi;;
 	q) echo "${x} - Ok, Bye!"; break;;
 	g) echo "${x} - Opening Git Gui"; git gui;;
@@ -448,6 +463,12 @@ elif [ -e build.sh ]; then
 		then
 			buildoutput="${bldmag}ON${txtrst}"
 		fi
+
+		if [ "${compressedimage}" == "" ]
+		then
+			compressedimage="${bldyel}ON${txtrst}"
+		fi
+
 		if [ "${zippackagecheck}" == "${_d}" ]
 		then
 			zipcopycheck="${_r}"
