@@ -758,9 +758,7 @@ v_U32_t sapweightRssiCount(v_S7_t rssi, v_U16_t count)
 
   SIDE EFFECTS
 ============================================================================*/
-void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
-                              tSapSpectChInfo *spect_ch_strt_addr,
-                              tSapSpectChInfo *spect_ch_end_addr)
+void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh)
 {
     tSapSpectChInfo *pExtSpectCh = NULL;
     v_S31_t rssi;
@@ -776,9 +774,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
     {
         case CHANNEL_1:
             pExtSpectCh = (pSpectCh + 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -791,9 +787,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -806,9 +800,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -821,9 +813,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -839,9 +829,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
 
         case CHANNEL_2:
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -854,9 +842,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -869,9 +855,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -884,9 +868,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -899,9 +881,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -916,9 +896,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
             break;
         case CHANNEL_3:
             pExtSpectCh = (pSpectCh - 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -931,9 +909,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -946,9 +922,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -961,9 +935,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -976,9 +948,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -991,9 +961,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1008,9 +976,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
             break;
         case CHANNEL_4:
             pExtSpectCh = (pSpectCh - 3);
-            if(pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if(pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1023,9 +989,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1038,9 +1002,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1053,9 +1015,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1068,9 +1028,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1083,9 +1041,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1098,9 +1054,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1121,9 +1075,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
         case CHANNEL_9:
         case CHANNEL_10:
             pExtSpectCh = (pSpectCh - 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1136,9 +1088,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1151,9 +1101,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1166,9 +1114,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1181,9 +1127,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1196,9 +1140,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1211,9 +1153,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 3);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1226,9 +1166,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 4);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1244,9 +1182,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
 
         case CHANNEL_11:
             pExtSpectCh = (pSpectCh - 4);
-            if(pExtSpectCh != NULL &&
-               (pExtSpectCh >= spect_ch_strt_addr &&
-                pExtSpectCh < spect_ch_end_addr))
+            if(pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1260,9 +1196,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
             }
 
             pExtSpectCh = (pSpectCh - 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1275,9 +1209,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1290,9 +1222,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1305,9 +1235,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1320,9 +1248,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1335,9 +1261,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 3);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1353,9 +1277,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
 
         case CHANNEL_12:
             pExtSpectCh = (pSpectCh - 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1369,9 +1291,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
             }
 
             pExtSpectCh = (pSpectCh - 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1384,9 +1304,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1399,9 +1317,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1414,9 +1330,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1429,9 +1343,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 2);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1447,9 +1359,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
 
         case CHANNEL_13:
             pExtSpectCh = (pSpectCh - 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1463,9 +1373,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
             }
 
             pExtSpectCh = (pSpectCh - 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1478,9 +1386,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 2);
-            if(pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if(pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1493,9 +1399,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1508,9 +1412,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh + 1);
-            if ((pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr)))
+            if ((pExtSpectCh != NULL) && (pExtSpectCh->chNum <= CHANNEL_14))
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1526,9 +1428,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
 
         case CHANNEL_14:
             pExtSpectCh = (pSpectCh - 1);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1541,9 +1441,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 2);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1556,9 +1454,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 3);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1571,9 +1467,7 @@ void sapInterferenceRssiCount(tSapSpectChInfo *pSpectCh,
                     pExtSpectCh->rssiAgr = SOFTAP_MIN_RSSI;
             }
             pExtSpectCh = (pSpectCh - 4);
-            if (pExtSpectCh != NULL &&
-                (pExtSpectCh >= spect_ch_strt_addr &&
-                 pExtSpectCh < spect_ch_end_addr))
+            if (pExtSpectCh != NULL)
             {
                 ++pExtSpectCh->bssCount;
                 rssi = pSpectCh->rssiAgr +
@@ -1944,8 +1838,7 @@ void sapComputeSpectWeight( tSapChSelSpectInfo* pSpectInfoParams,
 
                 if(operatingBand == eCSR_DOT11_MODE_11g)
                 {
-                     sapInterferenceRssiCount(pSpectCh, pSpectChStartAddr,
-                                              pSpectChEndAddr);
+                     sapInterferenceRssiCount(pSpectCh);
                 }
 
                 VOS_TRACE(VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
