@@ -303,8 +303,8 @@ HOSTCC       = gcc
 HOSTCXX      = g++
 endif
 
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -pipe
-HOSTCXXFLAGS = -O2 -pipe
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
+HOSTCXXFLAGS = -O2
 
 ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
 HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
@@ -408,21 +408,11 @@ LINUXINCLUDE    := \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Werror -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Wno-implicit-function-declaration \
-		   -Wno-duplicate-decl-specifier \
-		   -Wno-bool-operation \
-		   -Wno-switch-unreachable \
-		   -Wno-attributes \
-		   -Wno-packed-not-aligned \
-		   -Wno-memset-elt-size \
-		   -Wno-stringop-overflow \
-		   -Wno-format-overflow \
-		   -Wno-incompatible-pointer-types \
-		   -Wno-int-in-bool-context \
 		   -Wno-format-security \
-		   -Wno-misleading-indentation \
+		   -Wno-packed-not-aligned \
 		   -std=gnu89
 
 KBUILD_AFLAGS_KERNEL :=
@@ -651,6 +641,9 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
 # Disable unused-constant-variable warnings
 KBUILD_CFLAGS	+= $(call cc-disable-warning,unused-const-variable,)
  
+# Disable attributes warnings
+KBUILD_CFLAGS   += $(call cc-disable-warning,attributes,)
+
 # Disable format-truncation warnings
 KBUILD_CFLAGS   += $(call cc-disable-warning,format-truncation,)
  
