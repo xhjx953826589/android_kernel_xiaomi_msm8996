@@ -23,8 +23,8 @@ script:
 #
 # ${nclean} = Clean zip "1" and "2" is "Clean Kernel" 
 - nclean="12"
-# ${ntoolchain} = "4" is "Toolchain Choice", "8" is your Toolchain Choice Google
-- ntoolchain="48"
+# ${ntoolchain} = "4" is "Toolchain Choice", "7" is your Toolchain Choice Google
+- ntoolchain="47"
 # "o" is to disable/enable output when building kernel
 - noutput="o"
 # "3" is "Device Choice"
