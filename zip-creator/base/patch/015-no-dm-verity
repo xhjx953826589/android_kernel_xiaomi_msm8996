@@ -72,6 +72,7 @@ for fstab in fstab.qcom; do
 	' "$temp/$fstab" > "$temp/$fstab-"
 	replace_file "$temp/$fstab" "$temp/$fstab-"
 	found_fstab=true
+	print "Script finished"
 done
 
 $found_fstab || print "Unable to find the fstab!" && print ""

@@ -34,6 +34,7 @@ for fstab in fstab.qcom; do
 		s/\b\(forceencrypt\|forcefdeorfbe\)=/encryptable=/g
 	" "$temp/$fstab"
 	found_fstab=true
+	print "Script finished"
 done
 
 $found_fstab || print "Unable to find the fstab!" && print ""

@@ -102,6 +102,26 @@ dump_boot() {
   unpack_ramdisk;
 }
 
+##########################################################################################
+# Ramdisk patches Start
+##########################################################################################
+
+ramdisk_patch(){
+if [ -f /tmp/anykernel/patch/010-no-force-encrypt ] || [ -f /tmp/anykernel/patch/015-no-dm-verity ]; then
+	$bb chmod -R 755 /tmp/anykernel/ramdisk;
+	find /tmp/anykernel/patch/ -type f | sort > patchfiles
+	while read -r patchfile; do
+		ui_print "Executing: $(basename "$patchfile")"
+		env="/tmp/anykernel/patch/" sh "$patchfile" ||
+			ui_print "Script failed: $(basename "$patchfile")"
+	done < patchfiles
+fi
+}
+
+##########################################################################################
+# Ramdisk patches End
+##########################################################################################
+
 # repack ramdisk then build and write image
 repack_ramdisk() {
   case $ramdisk_compression in

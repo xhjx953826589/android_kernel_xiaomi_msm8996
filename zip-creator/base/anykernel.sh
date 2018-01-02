@@ -6,7 +6,7 @@
 properties() {
 kernel.string=
 do.devicecheck=
-do.modules=0
+do.modules=1
 do.cleanup=0
 do.cleanuponabort=0
 device.name1=
@@ -44,9 +44,11 @@ insert_line init.qcom.rc "init.floppy.rc" after "import init.target.rc" "import 
 # add support for spectrum
 insert_line init.rc "import /init.spectrum.rc" after "import /init.floppy.rc" "import /init.spectrum.rc";
 
+# ramdisk patch
+ramdisk_patch;
+
 ## end ramdisk changes
 
 write_boot;
 
 ## end install
-

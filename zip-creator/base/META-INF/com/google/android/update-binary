@@ -81,49 +81,6 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.devicecheck)" == 1 ]; then
   fi;
 fi;
 
-
-ui_print " ";
-ui_print " ";
-ui_print "============================================";
-ui_print "                FLOPPY KERNEL               ";
-ui_print "============================================";
-ui_print " ";
-ui_print " ";
-ui_print " ";
-ui_print "by JonasCardoso";
-ui_print " ";
-
-for i in $($bb --list); do
-  $bb ln -s $bb /tmp/anykernel/bin/$i;
-done;
-if [ $? != 0 -o -z "$(ls /tmp/anykernel/bin)" ]; then
-  abort "Recovery busybox setup failed. Aborting...";
-fi;
-PATH="/tmp/anykernel/bin:$PATH" $bb ash /tmp/anykernel/anykernel.sh $2;
-if [ $? != "0" ]; then
-  abort;
-fi;
-
-if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
-  ui_print " ";
-  ui_print "Pushing modules...";
-  mount -o rw,remount -t auto /system;
-  $bb cp -rLf /tmp/anykernel/modules/* $root/system/lib/modules/;
-  set_perm_recursive 0 0 0755 0644 $root/system/lib/modules;
-  chcon -R 'u:object_r:system_file:s0' $root/system/lib/modules;
-  mount -o ro,remount -t auto /system;
-fi;
-
-debugging;
-
-if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.cleanup)" == 1 ]; then
-  cleanup;
-fi;
-
-##########################################################################################
-# Ramdisk patches
-##########################################################################################
-
 if [ "$3" ]; then
 	zip=$3
 	console=/proc/$$/fd/$2
@@ -167,17 +124,44 @@ setperm() {
 	find "$3" -type f -exec chmod "$2" {} \;
 }
 
+ui_print " ";
+ui_print " ";
+ui_print "============================================";
+ui_print "                FLOPPY KERNEL               ";
+ui_print "============================================";
+ui_print " ";
+ui_print " ";
+ui_print " ";
+ui_print "by JonasCardoso";
+ui_print " ";
 
+for i in $($bb --list); do
+  $bb ln -s $bb /tmp/anykernel/bin/$i;
+done;
+if [ $? != 0 -o -z "$(ls /tmp/anykernel/bin)" ]; then
+  abort "Recovery busybox setup failed. Aborting...";
+fi;
+PATH="/tmp/anykernel/bin:$PATH" $bb ash /tmp/anykernel/anykernel.sh $2;
+if [ $? != "0" ]; then
+  abort;
+fi;
 
-if [ -f /tmp/anykernel/patch/010-no-force-encrypt ] || [ -f /tmp/anykernel/patch/015-no-dm-verity ]; then
-	$bb chmod -R 755 /tmp/anykernel/ramdisk;
-	find /tmp/anykernel/patch/ -type f | sort > patchfiles
-	while read -r patchfile; do
-		ui_print "Executing: $(basename "$patchfile")"
-		env="/tmp/anykernel/patch/" sh "$patchfile" ||
-			ui_print "Script failed: $(basename "$patchfile")"
-	done < patchfiles
-fi
+if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
+  ui_print " ";
+  ui_print "Pushing modules...";
+  ui_print " ";
+  mount -o rw,remount -t auto /system;
+  $bb cp -rLf /tmp/anykernel/modules/* $root/system/lib/modules/;
+  set_perm_recursive 0 0 0755 0644 $root/system/lib/modules;
+  chcon -R 'u:object_r:system_file:s0' $root/system/lib/modules;
+  mount -o ro,remount -t auto /system;
+fi;
+
+debugging;
+
+if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.cleanup)" == 1 ]; then
+  cleanup;
+fi;
 
 mount -o rw,remount -t auto /cache;
 rm -f /cache/*;
