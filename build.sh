@@ -33,11 +33,11 @@ echo "*) Any other key to Exit"
 echo
 read -p "Choice: " -n 1 -s x
 case "${x}" in
-	0 ) defconfig="gemini_defconfig"; name="Mi5"; variant="Lite-Prime-Pro";;
-	1 ) defconfig="capricorn_defconfig"; name="Mi5S"; variant="Lite-Prime-Pro";;
-	2 ) defconfig="natrium_defconfig"; name="Mi5SPlus"; variant="Prime-Pro";;
-	3 ) defconfig="lithium_defconfig"; name="MiMix"; variant="Prime-Pro";;
-	4 ) defconfig="scorpio_defconfig"; name="MiNote2"; variant="Lite-Prime-Pro";;
+	0 ) defconfig="gemini_defconfig"; name="Mi5"; variant="Lite-Prime-Pro"; name1="Mi 5"; name2="MI5"; name3="gemini"; name4="Gemini";;
+	1 ) defconfig="capricorn_defconfig"; name="Mi5S"; variant="Lite-Prime-Pro"; name1="Mi 5s"; name2="MI5S"; name3="capricorn"; name4="Capricorn";;
+	2 ) defconfig="natrium_defconfig"; name="Mi5SPlus"; variant="Prime-Pro"; name1="Mi 5 Plus"; name2="MI5SPlus"; name3="natrium"; name4="Natrium";;
+	3 ) defconfig="lithium_defconfig"; name="MiMix"; variant="Prime-Pro"; name1="Mi Mix"; name2="MIMix"; name3="lithium"; name4="Lithium";;
+	4 ) defconfig="scorpio_defconfig"; name="MiNote2"; variant="Lite-Prime-Pro"; name1="Mi Note 2"; name2="MINote2"; name3="scorpio"; name4="Scorpio";;
 	* ) ;;
 esac
 if [ "${defconfig}" == "" ]
@@ -258,12 +258,17 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 
 		cp arch/${ARCH}/boot/dt.img ${zipdirout}/dtb
 
-		echo "${customkernel}" >> ${zipdirout}/device.prop
-		echo "${name}" >> ${zipdirout}/device.prop
-		echo "${variant}" >> ${zipdirout}/device.prop
-		echo "${release}" >> ${zipdirout}/device.prop
-		echo "${ToolchainName}" >> ${zipdirout}/device.prop
-		echo "${romversion}" >> ${zipdirout}/device.prop
+		echo "customkernel=${customkernel}" >> ${zipdirout}/device.prop
+		echo "name=${name}" >> ${zipdirout}/device.prop
+		echo "variant=${variant}" >> ${zipdirout}/device.prop
+		echo "release=${release}" >> ${zipdirout}/device.prop
+		echo "releasewithbar=${releasewithbar}" >> ${zipdirout}/device.prop
+		echo "ToolchainName=${ToolchainName}" >> ${zipdirout}/device.prop
+		echo "romversion=${romversion}" >> ${zipdirout}/device.prop
+		echo "name1=${name1}" >> ${zipdirout}/device.prop
+		echo "name2=${name2}" >> ${zipdirout}/device.prop
+		echo "name3=${name3}" >> ${zipdirout}/device.prop
+		echo "name4=${name4}" >> ${zipdirout}/device.prop
 
 		cd ${zipdirout}
 		zip -r ${zipfile} * -x .gitignore &> /dev/null
@@ -519,6 +524,7 @@ elif [ -e build.sh ]; then
 		kernelsublevel=$(cat Makefile | grep SUBLEVEL | cut -c 12- | head -1)
 		kernelname=$(cat Makefile | grep NAME | cut -c 8- | head -1)
 		release=$(date +%d""%m""%Y)
+		releasewithbar=$(date +%d"/"%m"/"%Y)
 		build=$(cat .version)
 		export zipfile="${customkernel}-${name}-${variant}-${release}-${ToolchainName}-${romversion}.zip"
 		buildsh

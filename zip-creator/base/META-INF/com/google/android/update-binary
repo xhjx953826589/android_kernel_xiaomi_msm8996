@@ -68,10 +68,20 @@ test -f /system/system/build.prop && root=/system;
 
 if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.devicecheck)" == 1 ]; then
   ui_print "Checking device...";
-  for i in 1 2 3 4 5; do
-    testname="$(file_getprop /tmp/anykernel/anykernel.sh device.name$i)";
-    if [ "$(getprop ro.product.device)" == "$testname" -o "$(getprop ro.build.product)" == "$testname" ]; then
-      ui_print "$testname";
+  ui_print " ";
+  for i in 1 2 3 4; do
+    testname="$(file_getprop /tmp/anykernel/device.prop name$i)";
+    if [ "$(getprop ro.product.device)" == "$testname" ] || [ "$(getprop ro.build.product)" == "$testname" ] || [ "$(getprop ro.build.name)" == "$testname" ] || [ "$(getprop ro.build.model)" == "$testname" ]; then
+      ui_print "You device are $testname";
+      customkernelname="$(file_getprop /tmp/anykernel/device.prop customkernel)"
+      ui_print "You are installing $customkernelname";
+      releasewithbar="$(file_getprop /tmp/anykernel/device.prop releasewithbar)"
+      ui_print "The date of this version is $releasewithbar";
+      ToolchainName="$(file_getprop /tmp/anykernel/device.prop ToolchainName)"
+      ui_print "This kernel is compiled by $ToolchainName" toolchain;
+      romversion="$(file_getprop /tmp/anykernel/device.prop romversion)"
+      ui_print "You are installing $romversion version";
+      ui_print "";
       match=1;
     fi;
   done;
@@ -167,6 +177,7 @@ mount -o rw,remount -t auto /cache;
 rm -f /cache/*;
 rm -f /data/dalvik-cache/arm/*;
 rm -f /data/dalvik-cache/arm64/*;
+ui_print " "
 ui_print "Wiped cache and dalvik cache";
 ui_print " "
 
