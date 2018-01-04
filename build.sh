@@ -99,48 +99,49 @@ then
 
 	if [ -f arch/${ARCH}/boot/dt.img ]
 	then
-		rm -rf arch/${ARCH}/boot/dt.img 
+		rm -rf arch/${ARCH}/boot/dt.img;
+		rm -rf dtbTool;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.gz ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.gz
-		rm -rf arch/${ARCH}/boot/Image.gz-dtb
+		rm -rf arch/${ARCH}/boot/Image.gz;
+		rm -rf arch/${ARCH}/boot/Image.gz-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.lzma ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.lzma
-		rm -rf arch/${ARCH}/boot/Image.lzma-dtb
+		rm -rf arch/${ARCH}/boot/Image.lzma;
+		rm -rf arch/${ARCH}/boot/Image.lzma-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.bz2 ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.bz2
-		rm -rf arch/${ARCH}/boot/Image.bz2-dtb
+		rm -rf arch/${ARCH}/boot/Image.bz2;
+		rm -rf arch/${ARCH}/boot/Image.bz2-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.xz ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.xz
-		rm -rf arch/${ARCH}/boot/Image.xz-dtb
+		rm -rf arch/${ARCH}/boot/Image.xz;
+		rm -rf arch/${ARCH}/boot/Image.xz-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.lzo ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.lzo
-		rm -rf arch/${ARCH}/boot/Image.lzo-dtb
+		rm -rf arch/${ARCH}/boot/Image.lzo;
+		rm -rf arch/${ARCH}/boot/Image.lzo-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.lz4 ]
 	then
-		rm -rf arch/${ARCH}/boot/Image.lz4
-		rm -rf arch/${ARCH}/boot/Image.lz4-dtb
+		rm -rf arch/${ARCH}/boot/Image.lz4;
+		rm -rf arch/${ARCH}/boot/Image.lz4-dtb;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image ]
 	then
-		rm -rf arch/${ARCH}/boot/Image
+		rm -rf arch/${ARCH}/boot/Image;
 	fi
 
 	NR_CPUS=$(($(grep -c ^processor /proc/cpuinfo) + 1))
@@ -153,13 +154,15 @@ then
 	else
 		make -j${NR_CPUS}
 	fi
+	
+	gcc dtbtool/dtbtool.c -o dtbTool
 
 	./dtbTool -s 2048 -o arch/arm64/boot/dt.img -p scripts/dtc/ arch/arm/boot/dts/qcom/
 
 	END=$(date +"%s")
 	BUILDTIME=$((${END} - ${START}))
 
-	if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bz2 ] || [ -f arch/${ARCH}/boot/Image.xz ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ]
+	if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [ -f arch/${ARCH}/boot/Image.bz2 ] || [ -f arch/${ARCH}/boot/Image.xz ] || [ -f arch/${ARCH}/boot/Image.lzo ] || [ -f arch/${ARCH}/boot/Image.lz4 ] && [ -f arch/${ARCH}/boot/dt.img ] && [ -f dtbTool ]
 	then
 		buildprocesscheck="${_d}"
 	else
@@ -364,6 +367,7 @@ case ${x} in
 	if [ -f arch/${ARCH}/boot/dt.img ]
 	then
 		rm -rf arch/${ARCH}/boot/dt.img;
+		rm -rf dtbTool;
 	fi
 
 	if [ -f arch/${ARCH}/boot/Image.gz ]
