@@ -2,11 +2,11 @@
 # Original Live by cybojenix <anthonydking@gmail.com>
 # New Live/Menu by Caio Oliveira aka Caio99BR <caiooliveirafarias0@gmail.com>
 # Colors by Aidas Lukošius aka aidasaidas75 <aidaslukosius75@yahoo.com>
-# Toolchains by Suhail aka skyinfo <sh.skyinfo@gmail.com>
+# Toolchains by JonasCArdoso aka JonasCardoso <jonascard60@gmail.com>
 # Rashed for the base of zip making
 # And the internet for filling in else where
 
-# You need to download https://github.com/JonasCardoso/Toolchain
+# You need to download https://bitbucket.org/jonascardoso/toolchain_aarch64
 # Clone in the same folder as the kernel to choose a toolchain and not specify a location
 
 # Main Process - Start
