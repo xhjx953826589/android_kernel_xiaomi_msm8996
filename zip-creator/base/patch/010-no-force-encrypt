@@ -20,23 +20,32 @@ abort() {
 	exit 1
 }
 
-. "$env"
+enabled=false
+if [ "$enabled" = true ] ; then
+{
+	. "$env"
 
-temp=/tmp/anykernel/ramdisk/
+	temp=/tmp/anykernel/ramdisk/
 
-print "Disabling forced encryption in the fstab..."
-found_fstab=false
+	print "Disabling forced encryption in the fstab..."
+	found_fstab=false
 
-for fstab in fstab.qcom; do
-	[ -f $temp/$fstab ] || continue
-	print "Found fstab: $fstab"
-	sed -i "
-		s/\b\(forceencrypt\|forcefdeorfbe\)=/encryptable=/g
-	" "$temp/$fstab"
-	found_fstab=true
-	print "Script finished"
-done
+	for fstab in fstab.qcom; do
+		[ -f $temp/$fstab ] || continue
+		print "Found fstab: $fstab"
+		sed -i "
+			s/\b\(forceencrypt\|forcefdeorfbe\)=/encryptable=/g
+		" "$temp/$fstab"
+		found_fstab=true
+		print "Script finished"
+	done
 
-$found_fstab || print "Unable to find the fstab!" && print ""
+	$found_fstab || print "Unable to find the fstab!" && print ""
+}
+else
+{
+	print "Script disabled by default" && print ""
+}
+fi
 
 exit 0
