@@ -39,6 +39,7 @@ static bool enable_wlan_wake_ws = true;
 static bool enable_bluedroid_timer_ws = true;
 static bool enable_bluetooth_timer_ws = false;
 static bool enable_alarmtimer_ws = false;
+static bool enable_qbt_wake_source_ws = true;
 
 module_param(enable_qcom_rx_wakelock_ws, bool, 0644);
 module_param(enable_wlan_extscan_wl_ws, bool, 0644);
@@ -59,6 +60,7 @@ module_param(enable_wlan_wake_ws, bool, 0644);
 module_param(enable_bluedroid_timer_ws, bool, 0644);
 module_param(enable_bluetooth_timer_ws, bool, 0644);
 module_param(enable_alarmtimer_ws, bool, 0644);
+module_param(enable_qbt_wake_source_ws, bool, 0644);
 
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
@@ -589,6 +591,8 @@ static bool wakeup_source_blocker(struct wakeup_source *ws)
 				!strncmp(ws->name, "bluetooth_timer", wslen)) ||
 			(!enable_alarmtimer_ws &&
 				!strncmp(ws->name, "alarmtimer", wslen)) ||
+			(!enable_qbt_wake_source_ws &&
+				!strncmp(ws->name, "qbt_wake_source", wslen)) ||
                         (!enable_netlink_ws &&
                                 !strncmp(ws->name, "NETLINK", wslen))) {
 
