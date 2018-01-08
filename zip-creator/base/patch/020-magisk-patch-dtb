@@ -23,16 +23,16 @@ abort() {
 enabled=true
 if [ "$enabled" = true ] ; then
 {
-	temp=/tmp/anykernel/
-	MAGISKBIN=/temp/anykernel/tools/
+	temp=/tmp/anykernel
+	MAGISKBIN=/tmp/anykernel/tools/magiskboot
 
 	print "Disabling avb-verity in the fstab..."
 
-	if [ -f $temp/dtb ]; then
+	if [ -f $temp/dtb ] && [ -f $MAGISKBIN ] ; then
 	{
 		print "Found dtbo image: dtb"
-		$MAGISKBIN/magiskboot --dtb-patch $temp/dtb
-		print "Script finished"
+		$MAGISKBIN --dtb-patch $temp/dtb
+		print "Script finished" && print ""
 	}
 	else
 	{

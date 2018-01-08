@@ -46,7 +46,7 @@ if [ "$enabled" = true ] ; then
 {
 	. "$env"
 
-	temp=/tmp/anykernel/ramdisk/
+	temp=/tmp/anykernel/ramdisk
 
 	print "Disabling dm-verity in the fstab..."
 	found_fstab=false
