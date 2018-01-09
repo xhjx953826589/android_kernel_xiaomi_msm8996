@@ -20,7 +20,7 @@ abort() {
 	exit 1
 }
 
-enabled=true
+enabled=false
 if [ "$enabled" = true ] ; then
 {
 	. "$env"
