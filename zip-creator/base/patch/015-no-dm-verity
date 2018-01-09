@@ -34,7 +34,7 @@ replace_file() {
 setprop() {
 	$found_prop || return
 	if grep -q "^[[:space:]]*$1[[:space:]]*=" "$temp/default.prop"; then
-		sed -i "s/^[[:space:]]*$1[[:space:]]*=.*$/$1=$2/g" "$temp/$default.prop"
+		sed -i "s/^[[:space:]]*$1[[:space:]]*=.*$/$1=$2/g" "$temp/default.prop"
 	else
 		echo "$1=$2" >> "$temp/default.prop"
 	fi
