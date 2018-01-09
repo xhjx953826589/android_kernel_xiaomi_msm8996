@@ -50,7 +50,7 @@ env:
 before_script:
 # Print build info that binary is compiled with.
   - echo $TRAVIS_COMMIT
-  - echo $TRAVIS_TAGnethunter-installer
+  - echo $TRAVIS_TAG
   - echo $TRAVIS_BRANCH
   - echo $TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_REPO_SLUG
