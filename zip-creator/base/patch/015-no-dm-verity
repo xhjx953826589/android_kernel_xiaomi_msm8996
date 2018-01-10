@@ -27,17 +27,16 @@ replace_file() {
 	rm -f "$2"
 }
 
-found_prop=false
-[ -f "$temp/$default_prop" ] && found_prop=true
+[ -f "$temp/default.prop" ]
 
 # set a prop value in default.prop
 # setprop <prop> <value>
 setprop() {
 	$found_prop || return
-	if grep -q "^[[:space:]]*$1[[:space:]]*=" "$temp/$default_prop"; then
-		sed -i "s/^[[:space:]]*$1[[:space:]]*=.*$/$1=$2/g" "$temp/$default_prop"
+	if grep -q "^[[:space:]]*$1[[:space:]]*=" "$temp/default.prop"; then
+		sed -i "s/^[[:space:]]*$1[[:space:]]*=.*$/$1=$2/g" "$temp/default.prop"
 	else
-		echo "$1=$2" >> "$temp/$default_prop"
+		echo "$1=$2" >> "$temp/default.prop"
 	fi
 }
 
@@ -46,7 +45,7 @@ if [ "$enabled" = true ] ; then
 {
 	. "$env"
 
-	temp=/tmp/anykernel/ramdisk/
+	temp=/tmp/anykernel/ramdisk
 
 	print "Disabling dm-verity in the fstab..."
 	found_fstab=false
@@ -75,13 +74,13 @@ if [ "$enabled" = true ] ; then
 		' "$temp/$fstab" > "$temp/$fstab-"
 		replace_file "$temp/$fstab" "$temp/$fstab-"
 		found_fstab=true
+		setprop ro.config.dmverity false
+		rm -f verity_key sbin/firmware_key.cer
 		print "Script finished"
 	done
 
 	$found_fstab || print "Unable to find the fstab!" && print ""
 
-	setprop ro.config.dmverity false
-	rm -f verity_key sbin/firmware_key.cer
 }
 else
 {

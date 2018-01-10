@@ -1,0 +1,86 @@
+#!/sbin/sh
+
+console=$(cat /tmp/console)
+[ "$console" ] || console=/proc/$$/fd/1
+
+print() {
+	if [ "$1" ]; then
+		echo "ui_print - $1" > "$console"
+	else
+		echo "ui_print  " > "$console"
+	fi
+	echo
+}
+
+abort() {
+	[ "$1" ] && {
+		print "Error: $1!"
+		print "Aborting..."
+	}
+	exit 1
+}
+
+# replace_file <old file> <new file> (preserving metadata)
+# replace a file, preserving metadata (using cat)
+replace_file() {
+	cat "$2" > "$1" || return
+	rm -f "$2"
+}
+
+found_prop=false
+[ -f "/system/build.prop" ] && found_prop=true
+
+# set a prop value in build.prop
+# setprop <prop> <value>
+setprop() {
+	$found_prop || return
+	if grep -q "^[[:space:]]*$1[[:space:]]*=" "/system/build.prop"; then
+		sed -i "s/^[[:space:]]*$1[[:space:]]*=.*$/$1=$2/g" "/system/build.prop"
+	else
+		echo "$1=$2" >> "/system/build.prop"
+	fi
+}
+
+enabled=false
+if [ "$enabled" = true ] ; then
+{
+	print "Forcing deepsleep in the build.prop..."
+	bp="/system/build.prop"
+
+	mount -o rw,remount -t auto /system;
+
+	if [ -f /system/build.prop.bak ]; 
+	  then
+	    print "Found prop file: build.prop"
+	    rm -rf $bp
+	    cp $bp.bak $bp
+	  else
+	    cp $bp $bp.bak
+	fi
+
+	setprop pm.sleep_mode 1
+	setprop ro.ril.disable.power.collapse 1
+	setprop wifi.supplicant_scan_interval 180
+	setprop ro.config.hw_fast_dormancy 1
+	setprop ro.config.hw_quickpoweron true
+	setprop persist.sys.shutdown.mode hibernate
+	setprop o.config.hw_power_saving true
+	setprop ro.max.fling_velocity 20000
+	setprop ro.min.fling_velocity 18000
+	setprop debug.performance.tuning 1
+	setprop debug.kill_allocating_task 0
+	setprop debug.overlayui.enable 1
+	setprop hw3d.force 1
+	setprop hw2d.force 1
+	setprop persist.sys.ui.hw 1
+	setprop o.debuggable 1
+	setprop ro.config.disable.hw_accel false
+	print "Script finished" && print ""
+}
+else
+{
+	print "Script disabled by default" && print ""
+}
+fi
+
+exit 0
