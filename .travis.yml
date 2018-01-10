@@ -66,24 +66,26 @@ script:
 #
 # ${nclean} = Clean zip "1" and "2" is "Clean Kernel" 
 - nclean="12"
-# ${ntoolchain} = "4" is "Toolchain Choice", "7" is your Toolchain Choice Google
-#- ntoolchain="47"
 # "o" is to disable/enable output when building kernel
 - noutput="o"
 # "3" is "Device Choice"
-- ndevice="3"
+#- ndevice="3"
+# ${ntoolchain} = "4" is "Toolchain Choice", "7" is your Toolchain Choice Google
+#- ntoolchain="47"
 # ${nbuild} = "5" is "Build Kernel" and "6" is "Zip the kernel and Modules"
 - nbuild="56"
+# ${nimage} = "7" is "Compressed image on/off"
+- nimage="7"
 # Last "q" is to Exit of Script
 # ${ndevicechoice} is "Number of Choice under Device Choice"
-- export nbasebuildsh="${nclean}${ntoolchain}${ndevice}${ndevicechoice}${nbuild}q"
+- export nbasebuildsh="${nclean}${ntoolchain}${ndevice}${ndevicechoice}${nimage}${nbuild}q"
 - source build.sh <<< "${nbasebuildsh}"
 - export zipfile0="${zipfile}"
 before_deploy:
 # Set up git user name and tag this commit
 - git config --local user.name "jonascardoso"
 - git config --local user.email "jonascard60@gmail.com"
-- git tag "${customkernel}-$(date +'%d/%m/%Y')-HMP" --force
+- git tag "${customkernel}-$(date +'%d/%m/%Y')-Miui" --force
 #  - git tag "$(date +'%d/%m/%Y')-$(git log --format=%h -1)"
 #  - git tag "$(date +'%d/%m/%Y-%Hh%Mm%Ss')-$(git log --format=%h -1)"
 deploy:
@@ -96,5 +98,4 @@ deploy:
     - "zip-creator/${zipfile0}"
   on:
     repo: JonasCardoso/android_kernel_xiaomi_msm8996
-    branch: cm-14.1
-
+    branch: miui
