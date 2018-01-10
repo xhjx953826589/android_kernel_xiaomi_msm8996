@@ -172,16 +172,9 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
 
-mount -o rw,remount -t auto /cache;
-rm -f /cache/*;
-rm -f /data/dalvik-cache/arm/*;
-rm -f /data/dalvik-cache/arm64/*;
-ui_print " "
-ui_print "Wiped cache and dalvik cache";
-ui_print " "
-
 umount /system;
 umount /data 2>/dev/null;
+ui_print " ";
 ui_print "Kernel has been successfully loaded on your device!";
 ui_print "FEEL THE POWER AND ENJOY!";
 ui_print " ";
