@@ -15,7 +15,7 @@
 
 #include <linux/cpu.h>
 #include <linux/cpufreq.h>
-#include <linux/fb.h>
+#include <linux/state_notifier.h>
 #include <linux/input.h>
 #include <linux/slab.h>
 
@@ -30,10 +30,9 @@
 
 /* Available bits for boost_policy state */
 #define DRIVER_ENABLED	(1U << 0)
-#define SCREEN_AWAKE	(1U << 1)
-#define WAKE_BOOST	(1U << 2)
-#define INPUT_BOOST	(1U << 3)
-#define INPUT_REBOOST	(1U << 4)
+#define WAKE_BOOST            (1U << 1)
+#define INPUT_BOOST           (1U << 2)
+#define INPUT_REBOOST         (1U << 3)
 
 /* The duration in milliseconds for the wake boost */
 #define FB_BOOST_MS (3000)
@@ -96,6 +95,8 @@ static void set_boost_bit(struct boost_policy *b, uint32_t state);
 static void clear_boost_bit(struct boost_policy *b, uint32_t state);
 static void unboost_all_cpus(struct ib_config *ib);
 static void update_online_cpu_policy(void);
+
+static struct notifier_block notif;
 
 static void ib_boost_main(struct work_struct *work)
 {
@@ -269,36 +270,28 @@ static struct notifier_block do_cpu_boost_nb = {
 	.notifier_call = do_cpu_boost,
 };
 
-static int fb_notifier_callback(struct notifier_block *nb,
+static int state_notifier_callback(struct notifier_block *nb,
 		unsigned long action, void *data)
 {
 	struct boost_policy *b = boost_policy_g;
 	struct ib_config *ib = &b->ib;
 	struct fb_policy *fb = &b->fb;
-	struct fb_event *evdata = data;
-	int *blank = evdata->data;
 	uint32_t state;
-
-	/* Parse framebuffer events as soon as they occur */
-	if (action != FB_EARLY_EVENT_BLANK)
-		return NOTIFY_OK;
 
 	state = get_boost_state(b);
 
 	/* Only boost for unblank (i.e. when the screen turns on) */
-	switch (*blank) {
-	case FB_BLANK_UNBLANK:
-		/* Keep track of screen state */
-		set_boost_bit(b, SCREEN_AWAKE);
-		break;
-	default:
-		/* Unboost CPUs when the screen turns off */
-		if (state & INPUT_BOOST || state & WAKE_BOOST) {
-			clear_boost_bit(b, WAKE_BOOST);
-			unboost_all_cpus(ib);
-		}
-		clear_boost_bit(b, SCREEN_AWAKE);
-		return NOTIFY_OK;
+	switch (action) {
+		case STATE_NOTIFIER_SUSPEND:
+			/* Unboost CPUs when the screen turns off */
+			if (state & INPUT_BOOST || state & WAKE_BOOST) {
+				clear_boost_bit(b, WAKE_BOOST);
+				unboost_all_cpus(ib);
+			}
+			return NOTIFY_OK;
+			break;
+		default:
+			break;
 	}
 
 	/* Driver is disabled, so don't boost */
@@ -314,11 +307,6 @@ static int fb_notifier_callback(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
-static struct notifier_block fb_notifier_callback_nb = {
-	.notifier_call	= fb_notifier_callback,
-	.priority	= INT_MAX,
-};
-
 static void cpu_ib_input_event(struct input_handle *handle, unsigned int type,
 		unsigned int code, int value)
 {
@@ -329,7 +317,7 @@ static void cpu_ib_input_event(struct input_handle *handle, unsigned int type,
 	state = get_boost_state(b);
 
 	if (!(state & DRIVER_ENABLED) ||
-		!(state & SCREEN_AWAKE) ||
+		!(state & !state_suspended) ||
 		(state & WAKE_BOOST) ||
 		(state & INPUT_REBOOST))
 		return;
@@ -702,7 +690,12 @@ static int __init cpu_ib_init(void)
 
 	INIT_WORK(&b->fb.boost_work, fb_boost_main);
 
-	fb_register_client(&fb_notifier_callback_nb);
+	notif.notifier_call = state_notifier_callback;
+	ret = state_register_client(&notif);
+	if (ret) {
+		pr_err("Failed to register state notifier, err: %d\n", ret);
+		goto free_mem;
+	}
 
 	for_each_possible_cpu(cpu) {
 		struct ib_pcpu *pcpu = per_cpu_ptr(b->ib.boost_info, cpu);
