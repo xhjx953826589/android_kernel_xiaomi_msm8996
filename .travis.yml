@@ -110,5 +110,5 @@ deploy:
     - "zip-creator/${zipfile0}"
   on:
     repo: JonasCardoso/android_kernel_xiaomi_msm8996
-    branch: cm-14.1
+    branch: lineage-14.1
 
