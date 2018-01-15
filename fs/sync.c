@@ -18,6 +18,7 @@
 #include <linux/backing-dev.h>
 #include <linux/fsync.h>
 #include "internal.h"
+
 #ifdef CONFIG_ASYNC_FSYNC
 #include <linux/statfs.h>
 #endif
@@ -260,7 +261,7 @@ int vfs_fsync(struct file *file, int datasync)
 EXPORT_SYMBOL(vfs_fsync);
 
 #ifdef CONFIG_ASYNC_FSYNC
-extern int emmc_perf_degr(void);
+//extern int emmc_perf_degr(void);
 #define LOW_STORAGE_THRESHOLD   786432
 int async_fsync(struct file *file, int fd)
 {
@@ -271,8 +272,8 @@ int async_fsync(struct file *file, int fd)
         if ((sb->fsync_flags & FLAG_ASYNC_FSYNC) == 0)
                 return 0;
 
-        if (!emmc_perf_degr())
-                return 0;
+        /*if (!emmc_perf_degr())
+                return 0;*/
 
         if (fd_statfs(fd, &st))
                 return 0;
@@ -476,12 +477,13 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
 	loff_t endbyte;			/* inclusive */
 	umode_t i_mode;
 
+	if (!fsync_enabled)
+		return 0;
+
 #ifdef CONFIG_DYNAMIC_FSYNC
 	if (likely(dyn_fsync_active && suspend_active))
 		return 0;
 #endif
-	if (!fsync_enabled)
-		return 0;
 
 	ret = -EINVAL;
 	if (flags & ~VALID_FLAGS)

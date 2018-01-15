@@ -5236,3 +5236,4 @@ int msm_vidc_comm_s_parm(struct msm_vidc_inst *inst, struct v4l2_streamparm *a)
 exit:
 	return rc;
 }
+

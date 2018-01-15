@@ -5,7 +5,6 @@
 #include <asm/setup.h>
 
 static char new_command_line[COMMAND_LINE_SIZE];
-
 static int cmdline_proc_show(struct seq_file *m, void *v)
 {
 	seq_printf(m, "%s\n", new_command_line);
@@ -48,6 +47,7 @@ static void remove_safetynet_flags(char *cmd)
 
 static int __init proc_cmdline_init(void)
 {
+	char *offset_addr, *cmd = new_command_line;
 	strcpy(new_command_line, saved_command_line);
 
 	/*
@@ -71,7 +71,7 @@ static int __init proc_cmdline_init(void)
                 memmove(offset_addr, &cmd[offset + i + 1], len - i - offset);
         }
  
- 
+
 	proc_create("cmdline", 0, NULL, &cmdline_proc_fops);
 	return 0;
 }
