@@ -483,7 +483,14 @@ config CPU_INPUT_BOOST
 	  Boosts the CPU on touchscreen and touchpad input. Boost frequencies and
 	  durations are calculated automatically.
  
- config FINGERPRINT_BOOST
+config LAZYPLUG
+	bool "Conservative hotplugging for generic devices"
+	default n
+	help
+	  This enables the conservative hotplugging, lazyplug by arter97
+	  based on intelli_plug. Refer to the comments for more info.
+
+config FINGERPRINT_BOOST
 	bool "Fingerprint Boost"
 	default y
 	help
