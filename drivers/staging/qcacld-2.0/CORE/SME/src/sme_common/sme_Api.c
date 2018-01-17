@@ -9765,54 +9765,36 @@ eHalStatus sme_WakeReasonIndCallback (tHalHandle hHal, void* pMsg)
 eHalStatus sme_SetMaxTxPowerPerBand(eCsrBand band, v_S7_t dB,
                   tHalHandle hal)
 {
-	vos_msg_t msg;
-	eHalStatus status;
-	tSmeCmd *set_max_tx_pwr_per_band;
-	tpAniSirGlobal mac_ctx = PMAC_STRUCT(hal);
+    vos_msg_t msg;
+    tpMaxTxPowerPerBandParams pMaxTxPowerPerBandParams = NULL;
 
-        if (mac_ctx->max_power_cmd_pending) {
-           smsLog(mac_ctx, LOG1,
-                 FL("set max tx power already in progress"));
-           return eHAL_STATUS_RESOURCES;
-        }
+    pMaxTxPowerPerBandParams = vos_mem_malloc(sizeof(tMaxTxPowerPerBandParams));
+    if (NULL == pMaxTxPowerPerBandParams)
+    {
+        VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                  "%s:Not able to allocate memory for pMaxTxPowerPerBandParams",
+                  __func__);
+        return eHAL_STATUS_FAILURE;
+    }
 
-	smsLog(mac_ctx, LOG1,
-		  FL("band : %d power %d dB"),
-		  band, dB);
+    pMaxTxPowerPerBandParams->power = dB;
+    pMaxTxPowerPerBandParams->bandInfo = band;
 
-	MTRACE(vos_trace(VOS_MODULE_ID_SME,
-			TRACE_CODE_SME_TX_WDA_MSG, NO_SESSION, msg.type));
+    msg.type = WDA_SET_MAX_TX_POWER_PER_BAND_REQ;
+    msg.reserved = 0;
+    msg.bodyptr = pMaxTxPowerPerBandParams;
+    MTRACE(vos_trace(VOS_MODULE_ID_SME, TRACE_CODE_SME_TX_WDA_MSG, NO_SESSION,
+                                                          msg.type));
+    if (VOS_STATUS_SUCCESS != vos_mq_post_message(VOS_MODULE_ID_WDA, &msg))
+    {
+        VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                  "%s:Not able to post WDA_SET_MAX_TX_POWER_PER_BAND_REQ",
+                  __func__);
+        vos_mem_free(pMaxTxPowerPerBandParams);
+        return eHAL_STATUS_FAILURE;
+    }
 
-	status = sme_AcquireGlobalLock(&mac_ctx->sme);
-	if (HAL_STATUS_SUCCESS(status)) {
-		set_max_tx_pwr_per_band = csrGetCommandBuffer(mac_ctx);
-		if (set_max_tx_pwr_per_band) {
-			set_max_tx_pwr_per_band->command =
-					eSmeCommandSetMaxTxPowerPerBand;
-			set_max_tx_pwr_per_band->u.
-				set_tx_max_pwr_per_band.band = band;
-			set_max_tx_pwr_per_band->u.
-				set_tx_max_pwr_per_band.power = dB;
-                        mac_ctx->max_power_cmd_pending = true;
-			status = csrQueueSmeCommand(mac_ctx,
-						set_max_tx_pwr_per_band,
-						eANI_BOOLEAN_TRUE);
-			if (!HAL_STATUS_SUCCESS(status)) {
-				smsLog(mac_ctx, LOGE,
-					FL("fail to send msg status = %d"),
-						status);
-				csrReleaseCommand(mac_ctx,
-						set_max_tx_pwr_per_band);
-                                mac_ctx->max_power_cmd_pending = false;
-			}
-		} else {
-			smsLog(mac_ctx, LOGE,
-				FL("can not obtain a common buffer"));
-			status = eHAL_STATUS_RESOURCES;
-		}
-	sme_ReleaseGlobalLock(&mac_ctx->sme);
-	}
-	return status;
+    return eHAL_STATUS_SUCCESS;
 }
 
 /**

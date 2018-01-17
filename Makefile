@@ -405,7 +405,11 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
+		   -Wno-packed-not-aligned \
 		   -Wno-implicit-function-declaration \
+		   -Wno-stringop-overflow \
+		   -Wno-duplicate-decl-specifier \
+		   -Wno-memset-elt-size \
 		   -std=gnu89
 
 KBUILD_AFLAGS_KERNEL :=
