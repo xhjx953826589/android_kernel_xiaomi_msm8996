@@ -468,6 +468,7 @@ elif [ -e build.sh ]; then
 	# Main Variables
 	customkernel=FloppyKernel
 	romversion=MIUI
+	androidversion=Nougat
 	export ARCH=arm64
 
 	while true
@@ -534,7 +535,7 @@ elif [ -e build.sh ]; then
 		release=$(date +%d""%m""%Y)
 		releasewithbar=$(date +%d"/"%m"/"%Y)
 		build=$(cat .version)
-		export zipfile="${customkernel}-${name}-${variant}-${release}-${ToolchainName}-${romversion}.zip"
+		export zipfile="${customkernel}-${name}-${variant}-${release}-${ToolchainName}-${androidversion}-${romversion}.zip"
 		buildsh
 	done
 else
