@@ -464,7 +464,7 @@ elif [ -e build.sh ]; then
 	# Main Variables
 	customkernel=FloppyKernel
 	romversion=HMP
-	androidversion=Nougat
+	androidversion=Oreo
 	export ARCH=arm64
 
 	while true
