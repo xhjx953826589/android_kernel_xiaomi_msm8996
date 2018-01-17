@@ -74,7 +74,8 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.devicecheck)" == 1 ]; then
     if [ "$(getprop ro.product.device)" == "$testname" ] || [ "$(getprop ro.build.product)" == "$testname" ] || [ "$(getprop ro.build.name)" == "$testname" ] || [ "$(getprop ro.build.model)" == "$testname" ]; then
       ui_print "You device are $testname";
       customkernelname="$(file_getprop /tmp/anykernel/device.prop customkernel)"
-      ui_print "You are installing $customkernelname";
+      androidversion="$(file_getprop /tmp/anykernel/device.prop androidversion)"
+      ui_print "You are installing $customkernelname for $androidversion";
       releasewithbar="$(file_getprop /tmp/anykernel/device.prop releasewithbar)"
       ui_print "The date of this version is $releasewithbar";
       ToolchainName="$(file_getprop /tmp/anykernel/device.prop ToolchainName)"
