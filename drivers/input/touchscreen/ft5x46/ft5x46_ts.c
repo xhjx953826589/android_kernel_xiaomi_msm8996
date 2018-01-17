@@ -1738,9 +1738,9 @@ static irqreturn_t ft5x46_interrupt(int irq, void *dev_id)
 
 	if (ft5x46->wakeup_mode && ft5x46->in_suspend) {
 		error = ft5x46_read_byte(ft5x46, 0xD0, &val);
-		if (error)
-			dev_err(ft5x46->dev, "Error reading register 0xD0\n");
-		else
+		if (error){
+			dev_err(ft5x46->dev, "Error reading register 0xD0\n");}
+		else{
 			if (val == 1) {
 				error = ft5x46_read_gesture(ft5x46);
 				if (error)
@@ -1748,7 +1748,7 @@ static irqreturn_t ft5x46_interrupt(int irq, void *dev_id)
 			} else
 				dev_err(ft5x46->dev, "Chip is in suspend, but wakeup gesture is not enabled.\n");
 
-			goto out;
+			goto out;}
 	}
 
 	error = ft5x46_read_touchdata(ft5x46);
