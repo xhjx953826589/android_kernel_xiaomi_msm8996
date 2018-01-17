@@ -268,6 +268,7 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 		echo "releasewithbar=${releasewithbar}" >> ${zipdirout}/device.prop
 		echo "ToolchainName=${ToolchainName}" >> ${zipdirout}/device.prop
 		echo "romversion=${romversion}" >> ${zipdirout}/device.prop
+		echo "androidversion=${androidversion}" >> ${zipdirout}/device.prop
 		echo "name1=${name1}" >> ${zipdirout}/device.prop
 		echo "name2=${name2}" >> ${zipdirout}/device.prop
 		echo "name3=${name3}" >> ${zipdirout}/device.prop
