@@ -19,13 +19,13 @@ _variant=${variant}
 _defconfig=${defconfig}
 unset name variant defconfig
 clear
-echo "0) ${bldred}Xiaomi Mi5${txtrst} | Lite/Prime/Pro | Gemini"
+echo "0) ${bldred}Xiaomi Mi5${txtrst}       | Lite/Prime/Pro | Gemini"
 echo
-echo "1) ${bldyel}Xiaomi Mi5S${txtrst} | Lite/Prime/Pro | Capricorn"
+echo "1) ${bldyel}Xiaomi Mi5S${txtrst}      | Lite/Prime/Pro | Capricorn"
 echo
-echo "2) ${bldcya}Xiaomi Mi5S Plus${txtrst} | Prime/Pro | Natrium"
+echo "2) ${bldcya}Xiaomi Mi5S Plus${txtrst} | Prime/Pro      | Natrium"
 echo
-echo "3) ${bldgrn}Xiaomi Mi Mix${txtrst} | Prime/Pro | Lithium"
+echo "3) ${bldgrn}Xiaomi Mi Mix${txtrst}    | Prime/Pro      | Lithium"
 echo
 echo "4) ${bldmag}Xiaomi Mi Note 2${txtrst} | Lite/Prime/Pro | Scorpio"
 echo
