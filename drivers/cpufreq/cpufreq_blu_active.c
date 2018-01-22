@@ -78,7 +78,7 @@ struct cpufreq_blu_active_tunables {
 	/* Hi speed to bump to from lo speed when load burst (default max) */
 	unsigned int hispeed_freq;
 	/* Go to hi speed when CPU load at or above this value. */
-#define DEFAULT_GO_HISPEED_LOAD 99
+#define DEFAULT_GO_HISPEED_LOAD 90
 	unsigned long go_hispeed_load;
 	/* Target load. Lower values result in higher CPU speeds. */
 	spinlock_t target_loads_lock;
@@ -88,7 +88,7 @@ struct cpufreq_blu_active_tunables {
 	 * The minimum amount of time to spend at a frequency before we can ramp
 	 * down.
 	 */
-#define DEFAULT_MIN_SAMPLE_TIME (90 * USEC_PER_MSEC)
+#define DEFAULT_MIN_SAMPLE_TIME (80 * USEC_PER_MSEC)
 	unsigned long min_sample_time;
 	/*
 	 * The sample rate of the timer used to increase frequency
@@ -128,14 +128,14 @@ static struct attribute_group *get_sysfs_attr(void);
 static u64 round_to_nw_start(u64 jif,
 			     struct cpufreq_blu_active_tunables *tunables)
 {
-	unsigned long step = usecs_to_jiffies(tunables->timer_rate);
+	unsigned long step = tunables->timer_rate;
 	u64 ret;
 
 	if (tunables->align_windows) {
 		do_div(jif, step);
 		ret = (jif + 1) * step;
 	} else {
-		ret = jiffies + usecs_to_jiffies(tunables->timer_rate);
+		ret = jiffies + tunables->timer_rate;
 	}
 
 	return ret;
@@ -161,7 +161,7 @@ static void cpufreq_blu_active_timer_resched(
 
 	if (tunables->timer_slack_val >= 0 &&
 	    pcpu->target_freq > pcpu->policy->min) {
-		expires += usecs_to_jiffies(tunables->timer_slack_val);
+		expires += tunables->timer_slack_val;
 		mod_timer_pinned(&pcpu->cpu_slack_timer, expires);
 	}
 
@@ -183,7 +183,7 @@ static void cpufreq_blu_active_timer_start(
 	add_timer_on(&pcpu->cpu_timer, cpu);
 	if (tunables->timer_slack_val >= 0 &&
 	    pcpu->target_freq > pcpu->policy->min) {
-		expires += usecs_to_jiffies(tunables->timer_slack_val);
+		expires += tunables->timer_slack_val;
 		pcpu->cpu_slack_timer.expires = expires;
 		add_timer_on(&pcpu->cpu_slack_timer, cpu);
 	}
@@ -837,7 +837,7 @@ static ssize_t store_min_sample_time(struct cpufreq_blu_active_tunables
 static ssize_t show_timer_rate(struct cpufreq_blu_active_tunables *tunables,
 		char *buf)
 {
-	return sprintf(buf, "%lu\n", tunables->timer_rate);
+	return sprintf(buf, "%u\n", jiffies_to_usecs(tunables->timer_rate));
 }
 
 static ssize_t store_timer_rate(struct cpufreq_blu_active_tunables *tunables,
@@ -855,14 +855,14 @@ static ssize_t store_timer_rate(struct cpufreq_blu_active_tunables *tunables,
 		pr_warn("timer_rate not aligned to jiffy. Rounded up to %lu\n",
 			val_round);
 
-	tunables->timer_rate = val_round;
+	tunables->timer_rate = usecs_to_jiffies(val_round);
 	return count;
 }
 
 static ssize_t show_timer_slack(struct cpufreq_blu_active_tunables *tunables,
 		char *buf)
 {
-	return sprintf(buf, "%d\n", tunables->timer_slack_val);
+	return sprintf(buf, "%u\n", jiffies_to_usecs(tunables->timer_slack_val));
 }
 
 static ssize_t store_timer_slack(struct cpufreq_blu_active_tunables *tunables,
@@ -875,7 +875,7 @@ static ssize_t store_timer_slack(struct cpufreq_blu_active_tunables *tunables,
 	if (ret < 0)
 		return ret;
 
-	tunables->timer_slack_val = val;
+	tunables->timer_slack_val = usecs_to_jiffies(val);
 	return count;
 }
 
@@ -894,6 +894,9 @@ static ssize_t store_io_is_busy(struct cpufreq_blu_active_tunables *tunables,
 	ret = kstrtoul(buf, 0, &val);
 	if (ret < 0)
 		return ret;
+	/* Prevent setting 1 here */
+	if (val == 1)
+		val = 0;
 	tunables->io_is_busy = val;
 	return count;
 }
@@ -1127,10 +1130,10 @@ static struct cpufreq_blu_active_tunables *alloc_tunable(
 	tunables->target_loads = default_target_loads;
 	tunables->ntarget_loads = ARRAY_SIZE(default_target_loads);
 	tunables->min_sample_time = DEFAULT_MIN_SAMPLE_TIME;
-	tunables->timer_rate = DEFAULT_TIMER_RATE;
-	tunables->timer_slack_val = DEFAULT_TIMER_SLACK;
-	tunables->fastlane = false;
-	tunables->fastlane_threshold = 50;
+	tunables->timer_rate = usecs_to_jiffies(DEFAULT_TIMER_RATE);
+	tunables->timer_slack_val = usecs_to_jiffies(DEFAULT_TIMER_SLACK);
+	tunables->fastlane = true;
+	tunables->fastlane_threshold = 40;
 
 	spin_lock_init(&tunables->target_loads_lock);
 	spin_lock_init(&tunables->above_hispeed_delay_lock);
@@ -1167,7 +1170,8 @@ static int cpufreq_governor_blu_active(struct cpufreq_policy *policy,
 	else
 		tunables = common_tunables;
 
-	WARN_ON(!tunables && (event != CPUFREQ_GOV_POLICY_INIT));
+	if (WARN_ON(!tunables && (event != CPUFREQ_GOV_POLICY_INIT)))
+		return -EINVAL;
 
 	switch (event) {
 	case CPUFREQ_GOV_POLICY_INIT:
@@ -1187,6 +1191,9 @@ static int cpufreq_governor_blu_active(struct cpufreq_policy *policy,
 		}
 
 		tunables->usage_count = 1;
+#ifdef CONFIG_ARCH_MSM8996
+		tunables->hispeed_freq = 1286400;
+#endif
 		policy->governor_data = tunables;
 		if (!have_governor_per_policy()) {
 			common_tunables = tunables;
