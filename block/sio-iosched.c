@@ -50,17 +50,17 @@ struct sio_data {
 };
 
 static void
-sio_merged_requests(struct request_queue *q, struct request *req,
+sio_merged_requests(struct request_queue *q, struct request *rq,
 		    struct request *next)
 {
 	/*
 	 * If next expires before rq, assign its expire time to rq
 	 * and move into next position (next will be deleted) in fifo.
 	 */
-	if (!list_empty(&req->queuelist) && !list_empty(&next->queuelist)) {
- 		if (time_before(next->fifo_time, req->fifo_time)) {
- 			list_move(&req->queuelist, &next->queuelist);
- 			req->fifo_time = next->fifo_time;
+	if (!list_empty(&rq->queuelist) && !list_empty(&next->queuelist)) {
+		if (time_before(next->fifo_time, rq->fifo_time)) {
+			list_move(&rq->queuelist, &next->queuelist);
+			rq->fifo_time = next->fifo_time;
 		}
 	}
 
@@ -409,4 +409,3 @@ MODULE_AUTHOR("Miguel Boton");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Simple IO scheduler");
 MODULE_VERSION("0.2");
-
