@@ -1606,19 +1606,6 @@ int xhci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 		xhci_urb_free_priv(xhci, urb_priv);
 		return ret;
 	}
-	if ((xhci->xhc_state & XHCI_STATE_DYING) ||
-			(xhci->xhc_state & XHCI_STATE_HALTED)) {
-		xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
-				"Ep 0x%x: URB %pK to be canceled on "
-				"non-responsive xHCI host.",
-				urb->ep->desc.bEndpointAddress, urb);
-		/* Let the stop endpoint command watchdog timer (which set this
-		 * state) finish cleaning up the endpoint TD lists.  We must
-		 * have caught it in the middle of dropping a lock and giving
-		 * back an URB.
-		 */
-		goto done;
-	}
 
 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
 	ep = &xhci->devs[urb->dev->slot_id]->eps[ep_index];
@@ -1697,8 +1684,7 @@ int xhci_drop_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 	if (ret <= 0)
 		return ret;
 	xhci = hcd_to_xhci(hcd);
-	if ((xhci->xhc_state & XHCI_STATE_DYING) ||
-		(xhci->xhc_state & XHCI_STATE_REMOVING))
+	if (xhci->xhc_state & XHCI_STATE_DYING)
 		return -ENODEV;
 
 	xhci_dbg(xhci, "%s called for udev %pK\n", __func__, udev);
@@ -2842,6 +2828,11 @@ int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
 	xhci_dbg(xhci, "New Input Control Context:\n");
 	xhci_dbg_ctx(xhci, virt_dev->in_ctx,
 		     LAST_CTX_TO_EP_NUM(le32_to_cpu(slot_ctx->dev_info)));
+
+	xhci_warn(xhci, "hcd->state:%d\n",hcd->state);
+	if(hcd->state == HC_STATE_QUIESCING){
+		goto command_cleanup;
+	}
 
 	ret = xhci_configure_endpoint(xhci, udev, command,
 			false, false);

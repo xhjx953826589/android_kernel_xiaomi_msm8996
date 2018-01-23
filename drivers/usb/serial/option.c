@@ -618,6 +618,11 @@ static const struct option_blacklist_info zte_1255_blacklist = {
 	.reserved = BIT(3) | BIT(4),
 };
 
+static const struct option_blacklist_info telit_me910_blacklist = {
+	.sendsetup = BIT(0),
+	.reserved = BIT(1) | BIT(3),
+};
+
 static const struct option_blacklist_info telit_le910_blacklist = {
 	.sendsetup = BIT(0),
 	.reserved = BIT(1) | BIT(2),
@@ -1188,6 +1193,20 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
+	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
+		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg0 },
+	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG1),
+		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
+	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG2),
+		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
+	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG3),
+		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG5, 0xff),
+		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg0 },
+	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+		.driver_info = (kernel_ulong_t)&telit_me910_blacklist },
+	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+		.driver_info = (kernel_ulong_t)&telit_me910_dual_modem_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
 		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),

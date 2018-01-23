@@ -289,6 +289,14 @@ static void free_firmware(struct xc2028_data *priv)
 	priv->state = XC2028_NO_FIRMWARE;
 	memset(&priv->cur_fw, 0, sizeof(priv->cur_fw));
 
+	/* free allocated f/w string */
+	if (priv->fname != firmware_name)
+		kfree(priv->fname);
+	priv->fname = NULL;
+
+	priv->state = XC2028_NO_FIRMWARE;
+	memset(&priv->cur_fw, 0, sizeof(priv->cur_fw));
+
 	if (!priv->firm)
 		return;
 
@@ -1401,7 +1409,28 @@ static int xc2028_set_config(struct dvb_frontend *fe, void *priv_cfg)
 	/*
 	 * Copy the config data.
 	 */
+<<<<<<<
+<<<<<<<
+=======
+	kfree(priv->ctrl.fname);
+	priv->ctrl.fname = NULL;
+>>>>>>>
+=======
+>>>>>>>
 	memcpy(&priv->ctrl, p, sizeof(priv->ctrl));
+<<<<<<<
+<<<<<<<
+=======
+	if (p->fname) {
+		priv->ctrl.fname = kstrdup(p->fname, GFP_KERNEL);
+		if (priv->ctrl.fname == NULL) {
+			rc = -ENOMEM;
+			goto unlock;
+		}
+	}
+>>>>>>>
+=======
+>>>>>>>
 
 	/*
 	 * If firmware name changed, frees firmware. As free_firmware will
@@ -1419,6 +1448,11 @@ static int xc2028_set_config(struct dvb_frontend *fe, void *priv_cfg)
 			priv->fname = kstrdup(p->fname, GFP_KERNEL);
 		else
 			priv->fname = firmware_name;
+
+		if (!priv->fname) {
+			rc = -ENOMEM;
+			goto unlock;
+		}
 
 		if (!priv->fname) {
 			rc = -ENOMEM;

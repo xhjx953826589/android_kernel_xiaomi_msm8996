@@ -1842,6 +1842,14 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
 		return 1;
 	}
 
+	/* check log blocks per segment */
+	if (le32_to_cpu(raw_super->log_blocks_per_seg) != 9) {
+		f2fs_msg(sb, KERN_INFO,
+			"Invalid log blocks per segment (%u)\n",
+			le32_to_cpu(raw_super->log_blocks_per_seg));
+		return 1;
+	}
+
 	/* Currently, support 512/1024/2048/4096 bytes sector size */
 	if (le32_to_cpu(raw_super->log_sectorsize) >
 				F2FS_MAX_LOG_SECTOR_SIZE ||
@@ -1934,6 +1942,30 @@ int sanity_check_ckpt(struct f2fs_sb_info *sbi)
 		f2fs_msg(sbi->sb, KERN_ERR, "A bug case: need to run fsck");
 		return 1;
 	}
+
+	/* check reserved ino info */
+	if (le32_to_cpu(raw_super->node_ino) != 1 ||
+		le32_to_cpu(raw_super->meta_ino) != 2 ||
+		le32_to_cpu(raw_super->root_ino) != 3) {
+		f2fs_msg(sb, KERN_INFO,
+			"Invalid Fs Meta Ino: node(%u) meta(%u) root(%u)",
+			le32_to_cpu(raw_super->node_ino),
+			le32_to_cpu(raw_super->meta_ino),
+			le32_to_cpu(raw_super->root_ino));
+		return 1;
+	}
+
+	if (le32_to_cpu(raw_super->segment_count) > F2FS_MAX_SEGMENT) {
+		f2fs_msg(sb, KERN_INFO,
+			"Invalid segment count (%u)",
+			le32_to_cpu(raw_super->segment_count));
+		return 1;
+	}
+
+	/* check CP/SIT/NAT/SSA/MAIN_AREA area boundary */
+	if (sanity_check_area_boundary(sb, raw_super))
+		return 1;
+
 	return 0;
 }
 
