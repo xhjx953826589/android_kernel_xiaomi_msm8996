@@ -42,12 +42,50 @@ static bool __initdata can_use_brk_pgt = true;
  *
  *    279b706 x86,xen: introduce x86_init.mapping.pagetable_reserve
  *
+<<<<<<<
  * for detailed information.
+=======
+ * On x86, access has to be given to the first megabyte of RAM because that
+ * area traditionally contains BIOS code and data regions used by X, dosemu,
+ * and similar apps. Since they map the entire memory range, the whole range
+ * must be allowed (for mapping), but any areas that would otherwise be
+ * disallowed are flagged as being "zero filled" instead of rejected.
+ * Access has to be given to non-kernel-ram areas as well, these contain the
+ * PCI mmio resources as well as potential bios/acpi data regions.
+>>>>>>>
  */
 __ref void *alloc_low_pages(unsigned int num)
 {
+<<<<<<<
 	unsigned long pfn;
 	int i;
+=======
+	if (page_is_ram(pagenr)) {
+		/*
+		 * For disallowed memory regions in the low 1MB range,
+		 * request that the page be shown as all zeros.
+		 */
+		if (pagenr < 256)
+			return 2;
+
+		return 0;
+	}
+
+	/*
+	 * This must follow RAM test, since System RAM is considered a
+	 * restricted resource under CONFIG_STRICT_IOMEM.
+	 */
+	if (iomem_is_exclusive(pagenr << PAGE_SHIFT)) {
+		/* Low 1MB bypasses iomem restrictions. */
+		if (pagenr < 256)
+			return 1;
+
+		return 0;
+	}
+
+	return 1;
+}
+>>>>>>>
 
 	if (after_bootmem) {
 		unsigned int order;
