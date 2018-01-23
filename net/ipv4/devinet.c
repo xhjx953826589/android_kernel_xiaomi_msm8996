@@ -338,6 +338,9 @@ static void __inet_del_ifa(struct in_device *in_dev, struct in_ifaddr **ifap,
 	if (in_dev->dead)
 		goto no_promotions;
 
+	if (in_dev->dead)
+		goto no_promotions;
+
 	/* 1. Deleting primary ifaddr forces deletion all secondaries
 	 * unless alias promotion is set
 	 **/

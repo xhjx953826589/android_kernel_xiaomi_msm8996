@@ -159,7 +159,7 @@ int sch_direct_xmit(struct sk_buff *skb, struct Qdisc *q,
 	if (validate)
 		skb = validate_xmit_skb_list(skb, dev);
 
-	if (skb) {
+	if (likely(skb)) {
 		HARD_TX_LOCK(dev, txq, smp_processor_id());
 		if (!netif_xmit_frozen_or_stopped(txq)) {
 			if (unlikely(skb->fast_forwarded))

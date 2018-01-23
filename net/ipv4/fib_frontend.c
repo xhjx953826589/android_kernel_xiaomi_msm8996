@@ -818,6 +818,9 @@ void fib_del_ifaddr(struct in_ifaddr *ifa, struct in_ifaddr *iprim)
 	if (in_dev->dead)
 		goto no_promotions;
 
+	if (in_dev->dead)
+		goto no_promotions;
+
 	/* Deletion is more complicated than add.
 	 * We should take care of not to delete too much :-)
 	 *
