@@ -2952,6 +2952,9 @@ static void l2cap_add_conf_opt(void **ptr, u8 type, u8 len, unsigned long val, s
 	if (size < L2CAP_CONF_OPT_SIZE + len)
 		return;
 
+	if (size < L2CAP_CONF_OPT_SIZE + len)
+		return;
+
 	opt->type = type;
 	opt->len  = len;
 
