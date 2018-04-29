@@ -618,7 +618,7 @@ all: vmlinux
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS	+= -Os
+KBUILD_CFLAGS  += -Os
 endif
 ifdef CONFIG_CC_OPTIMIZE_DEFAULT
 KBUILD_CFLAGS  += -O2
@@ -642,12 +642,14 @@ KBUILD_CFLAGS   += $(call cc-disable-warning,format-truncation,)
 # Disable attributes warnings
 KBUILD_CFLAGS   += $(call cc-disable-warning,attributes,)
 
+# Disable Wint-in-bool-context  warnings
+KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
+
 # Needed to unbreak GCC 7.x and above
 KBUILD_CFLAGS   += $(call cc-option,-fno-store-merging,)
-
-KBUILD_CFLAGS += $(call cc-disable-warning,array-bounds)
-KBUILD_CFLAGS += $(call cc-disable-warning,unused-function)
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
+KBUILD_CFLAGS   += $(call cc-disable-warning,array-bounds)
+KBUILD_CFLAGS   += $(call cc-disable-warning,unused-function)
+KBUILD_CFLAGS   += $(call cc-disable-warning, unused-variable)
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
