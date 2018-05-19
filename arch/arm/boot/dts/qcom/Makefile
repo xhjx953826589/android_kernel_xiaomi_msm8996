@@ -21,9 +21,26 @@ dtb-$(CONFIG_MACH_XIAOMI_GEMINI) += \
     Gemini-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
     Gemini-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_CAPRICORN) += \
-	capricorn-msm8996-v3-pmi8996-mtp.dtb \
-	capricorn-msm8996-v3.0-pmi8996-mtp.dtb \
-	capricorn-msm8996pro-pmi8996-mtp.dtb
+    Capricorn-MSM-8996pro-PMI8994-MTP-0x1f.dtb \
+    Capricorn-MSM-8996pro-PMI8994-MTP-0x20.dtb \
+    Capricorn-MSM-8996pro-PMI8994-MTP-0x21.dtb \
+    Capricorn-MSM-8996pro-PMI8996-MTP-0x2f.dtb \
+    Capricorn-MSM-8996pro-PMI8996-MTP-0x22.dtb \
+    Capricorn-MSM-8996pro-PMI8996-MTP-0x25.dtb \
+    Capricorn-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Capricorn-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Capricorn-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Capricorn-MSM-8996-v3.0-PMI8994-MTP-0x1f.dtb \
+    Capricorn-MSM-8996-v3.0-PMI8994-MTP-0x20.dtb \
+    Capricorn-MSM-8996-v3.0-PMI8996-MTP-0x2f.dtb \
+    Capricorn-MSM-8996-v3.0-PMI8996-MTP-0x22.dtb \
+    Capricorn-MSM-8996-v3.0-PMI8996-MTP-0x25.dtb \
+    Capricorn-MSM-8996-v3.0-PMI8996-MTP-0x26.dtb \
+    Capricorn-MSM-8996-v3-PMI8994-MTP-0x1f.dtb \
+    Capricorn-MSM-8996-v3-PMI8994-MTP-0x20.dtb \
+    Capricorn-MSM-8996-v3-PMI8996-MTP-0x21.dtb \
+    Capricorn-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
+    Capricorn-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_NATRIUM) += \
 	natrium-msm8996-v3.0-pmi8996-mtp.dtb \
 	natrium-msm8996pro-pmi8996-mtp.dtb
