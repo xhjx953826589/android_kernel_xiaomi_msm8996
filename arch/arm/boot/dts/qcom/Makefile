@@ -28,8 +28,8 @@ dtb-$(CONFIG_MACH_XIAOMI_CAPRICORN) += \
     Capricorn-MSM-8996pro-PMI8996-MTP-0x22.dtb \
     Capricorn-MSM-8996pro-PMI8996-MTP-0x25.dtb \
     Capricorn-MSM-8996pro-PMI8996-MTP-0x26.dtb \
-    Capricorn-MSM-8996pro-PMI8996-MTP-0x26.dtb \
-    Capricorn-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Capricorn-MSM-8996-v2-PMI8994-MTP-0x1f.dtb \
+    Capricorn-MSM-8996-v3.0-MI8996-MTP-0x21.dtb \
     Capricorn-MSM-8996-v3.0-PMI8994-MTP-0x1f.dtb \
     Capricorn-MSM-8996-v3.0-PMI8994-MTP-0x20.dtb \
     Capricorn-MSM-8996-v3.0-PMI8996-MTP-0x2f.dtb \
