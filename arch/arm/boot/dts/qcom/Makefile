@@ -1,12 +1,25 @@
 ifeq ($(CONFIG_MACH_XIAOMI_MSM8996),y)
 dtb-$(CONFIG_MACH_XIAOMI_GEMINI) += \
-	gemini-msm8996-v2-pmi8994-mtp.dtb \
-	gemini-msm8996-v3-pmi8994-mtp.dtb \
-	gemini-msm8996-v3.0-pmi8994-mtp.dtb \
-	gemini-msm8996pro-pmi8994-mtp.dtb \
-	gemini2-msm8996-v3-pmi8994-mtp.dtb \
-	gemini2-msm8996-v3.0-pmi8994-mtp.dtb \
-	gemini2-msm8996pro-pmi8994-mtp.dtb
+    Gemini-MSM-8996pro-PMI8994-MTP-0x1f.dtb \
+    Gemini-MSM-8996pro-PMI8994-MTP-0x20.dtb \
+    Gemini-MSM-8996pro-PMI8996-MTP-0x2f.dtb \
+    Gemini-MSM-8996pro-PMI8996-MTP-0x21.dtb \
+    Gemini-MSM-8996pro-PMI8996-MTP-0x22.dtb \
+    Gemini-MSM-8996pro-PMI8996-MTP-0x25.dtb \
+    Gemini-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Gemini-MSM-8996-v2-PMI8994-MTP-0x1f.dtb \
+    Gemini-MSM-8996-v3.0-PMI8994-MTP-0x1f.dtb \
+    Gemini-MSM-8996-v3.0-PMI8994-MTP-0x20.dtb \
+    Gemini-MSM-8996-v3.0-PMI8996-MTP-0x2f.dtb \
+    Gemini-MSM-8996-v3.0-PMI8996-MTP-0x21.dtb \
+    Gemini-MSM-8996-v3.0-PMI8996-MTP-0x22.dtb \
+    Gemini-MSM-8996-v3.0-PMI8996-MTP-0x25.dtb \
+    Gemini-MSM-8996-v3.0-PMI8996-MTP-0x26.dtb \
+    Gemini-MSM-8996-v3-PMI8994-MTP-0x1f.dtb \
+    Gemini-MSM-8996-v3-PMI8994-MTP-0x20.dtb \
+    Gemini-MSM-8996-v3-PMI8996-MTP-0x21.dtb \
+    Gemini-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
+    Gemini-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_CAPRICORN) += \
 	capricorn-msm8996-v3-pmi8996-mtp.dtb \
 	capricorn-msm8996-v3.0-pmi8996-mtp.dtb \
