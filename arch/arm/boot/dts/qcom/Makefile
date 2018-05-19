@@ -63,8 +63,26 @@ dtb-$(CONFIG_MACH_XIAOMI_NATRIUM) += \
     Natrium-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
     Natrium-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_LITHIUM) += \
-	lithium-msm8996-v3.0-pmi8996-mtp.dtb \
-	lithium-msm8996pro-pmi8996-mtp.dtb
+    Lithium-MSM-8996pro-PMI8994-MTP-0x1f.dtb \
+    Lithium-MSM-8996pro-PMI8994-MTP-0x20.dtb \
+    Lithium-MSM-8996pro-PMI8996-MTP-0x2f.dtb \
+    Lithium-MSM-8996pro-PMI8996-MTP-0x21.dtb \
+    Lithium-MSM-8996pro-PMI8996-MTP-0x22.dtb \
+    Lithium-MSM-8996pro-PMI8996-MTP-0x25.dtb \
+    Lithium-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Lithium-MSM-8996-v2-PMI8994-MTP-0x1f.dtb \
+    Lithium-MSM-8996-v3.0-PMI8994-MTP-0x1f.dtb \
+    Lithium-MSM-8996-v3.0-PMI8994-MTP-0x20.dtb \
+    Lithium-MSM-8996-v3.0-PMI8996-MTP-0x2f.dtb \
+    Lithium-MSM-8996-v3.0-PMI8996-MTP-0x21.dtb \
+    Lithium-MSM-8996-v3.0-PMI8996-MTP-0x22.dtb \
+    Lithium-MSM-8996-v3.0-PMI8996-MTP-0x25.dtb \
+    Lithium-MSM-8996-v3.0-PMI8996-MTP-0x26.dtb \
+    Lithium-MSM-8996-v3-PMI8994-MTP-0x1f.dtb \
+    Lithium-MSM-8996-v3-PMI8994-MTP-0x20.dtb \
+    Lithium-MSM-8996-v3-PMI8996-MTP-0x21.dtb \
+    Lithium-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
+    Lithium-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_SCORPIO) += \
 	scorpio-msm8996-v3-pmi8996-mtp.dtb \
 	scorpio-msm8996-v3.0-pmi8996-mtp.dtb \
