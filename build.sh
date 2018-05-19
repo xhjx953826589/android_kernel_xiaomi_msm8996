@@ -247,7 +247,7 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 				cp arch/${ARCH}/boot/Image.xz-dtb ${zipdirout}/zImage
 
 			elif [ -f arch/${ARCH}/boot/Image.lzo-dtb ]; then
-				cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
+				cp arch/${ARCH}/boot/Image.lzo-dtb ${zipdirout}/zImage
 
 			elif [ -f arch/${ARCH}/boot/Image.lz4-dtb ]; then
 				cp arch/${ARCH}/boot/Image.lz4-dtb ${zipdirout}/zImage
