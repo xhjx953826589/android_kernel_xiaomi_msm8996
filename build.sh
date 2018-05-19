@@ -234,23 +234,23 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 		if [ "${compressedimage}" == "${bldyel}ON${txtrst}" ];
 		then
 
-			if [ -f arch/${ARCH}/boot/Image.gz ]; then
-				cp arch/${ARCH}/boot/Image.gz ${zipdirout}/zImage
+			if [ -f arch/${ARCH}/boot/Image.gz-dtb ]; then
+				cp arch/${ARCH}/boot/Image.gz-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.lzma ]; then
-				cp arch/${ARCH}/boot/Image.lzma ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lzma-dtb ]; then
+				cp arch/${ARCH}/boot/Image.lzma-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.bz2 ]; then
-				cp arch/${ARCH}/boot/Image.bz2 ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.bz2-dtb ]; then
+				cp arch/${ARCH}/boot/Image.bz2-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.xz ]; then
-				cp arch/${ARCH}/boot/Image.xz ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.xz-dtb ]; then
+				cp arch/${ARCH}/boot/Image.xz-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.lzo ]; then
+			elif [ -f arch/${ARCH}/boot/Image.lzo-dtb ]; then
 				cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.lz4 ]; then
-				cp arch/${ARCH}/boot/Image.lz4 ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lz4-dtb ]; then
+				cp arch/${ARCH}/boot/Image.lz4-dtb ${zipdirout}/zImage
 
 			fi
 
