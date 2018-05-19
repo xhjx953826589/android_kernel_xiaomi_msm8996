@@ -42,8 +42,26 @@ dtb-$(CONFIG_MACH_XIAOMI_CAPRICORN) += \
     Capricorn-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
     Capricorn-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_NATRIUM) += \
-	natrium-msm8996-v3.0-pmi8996-mtp.dtb \
-	natrium-msm8996pro-pmi8996-mtp.dtb
+    Natrium-MSM-8996pro-PMI8994-MTP-0x1f.dtb \
+    Natrium-MSM-8996pro-PMI8994-MTP-0x20.dtb \
+    Natrium-MSM-8996pro-PMI8996-MTP-0x2f.dtb \
+    Natrium-MSM-8996pro-PMI8996-MTP-0x21.dtb \
+    Natrium-MSM-8996pro-PMI8996-MTP-0x22.dtb \
+    Natrium-MSM-8996pro-PMI8996-MTP-0x25.dtb \
+    Natrium-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Natrium-MSM-8996-v2-PMI8994-MTP-0x1f.dtb \
+    Natrium-MSM-8996-v3.0-PMI8994-MTP-0x1f.dtb \
+    Natrium-MSM-8996-v3.0-PMI8994-MTP-0x20.dtb \
+    Natrium-MSM-8996-v3.0-PMI8996-MTP-0x2f.dtb \
+    Natrium-MSM-8996-v3.0-PMI8996-MTP-0x21.dtb \
+    Natrium-MSM-8996-v3.0-PMI8996-MTP-0x22.dtb \
+    Natrium-MSM-8996-v3.0-PMI8996-MTP-0x25.dtb \
+    Natrium-MSM-8996-v3.0-PMI8996-MTP-0x26.dtb \
+    Natrium-MSM-8996-v3-PMI8994-MTP-0x1f.dtb \
+    Natrium-MSM-8996-v3-PMI8994-MTP-0x20.dtb \
+    Natrium-MSM-8996-v3-PMI8996-MTP-0x21.dtb \
+    Natrium-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
+    Natrium-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_LITHIUM) += \
 	lithium-msm8996-v3.0-pmi8996-mtp.dtb \
 	lithium-msm8996pro-pmi8996-mtp.dtb
