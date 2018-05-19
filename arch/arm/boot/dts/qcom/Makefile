@@ -84,12 +84,26 @@ dtb-$(CONFIG_MACH_XIAOMI_LITHIUM) += \
     Lithium-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
     Lithium-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 dtb-$(CONFIG_MACH_XIAOMI_SCORPIO) += \
-	scorpio-msm8996-v3-pmi8996-mtp.dtb \
-	scorpio-msm8996-v3.0-pmi8996-mtp.dtb \
-	scorpio-msm8996pro-pmi8996-mtp.dtb \
-	scorpio-p1-msm8996-v3-pmi8996-mtp.dtb \
-	scorpio-p1-msm8996-v3.0-pmi8996-mtp.dtb \
-	scorpio-p1-msm8996pro-pmi8996-mtp.dtb
+    Scorpio-MSM-8996pro-PMI8994-MTP-0x1f.dtb \
+    Scorpio-MSM-8996pro-PMI8994-MTP-0x20.dtb \
+    Scorpio-MSM-8996pro-PMI8996-MTP-0x2f.dtb \
+    Scorpio-MSM-8996pro-PMI8996-MTP-0x21.dtb \
+    Scorpio-MSM-8996pro-PMI8996-MTP-0x22.dtb \
+    Scorpio-MSM-8996pro-PMI8996-MTP-0x25.dtb \
+    Scorpio-MSM-8996pro-PMI8996-MTP-0x26.dtb \
+    Scorpio-MSM-8996-v2-PMI8994-MTP-0x1f.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8994-MTP-0x1f.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8994-MTP-0x20.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8996-MTP-0x2f.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8996-MTP-0x21.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8996-MTP-0x22.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8996-MTP-0x25.dtb \
+    Scorpio-MSM-8996-v3.0-PMI8996-MTP-0x26.dtb \
+    Scorpio-MSM-8996-v3-PMI8994-MTP-0x1f.dtb \
+    Scorpio-MSM-8996-v3-PMI8994-MTP-0x20.dtb \
+    Scorpio-MSM-8996-v3-PMI8996-MTP-0x21.dtb \
+    Scorpio-MSM-8996-v3-PMI8996-MTP-0x22.dtb \
+    Scorpio-MSM-8996-v3-PMI8996-MTP-0x25.dtb 
 else
 dtb-$(CONFIG_ARCH_MSM8996) += msm8996-v2-pmi8994-cdp.dtb \
 	msm8996-v2-pmi8994-mtp.dtb \
