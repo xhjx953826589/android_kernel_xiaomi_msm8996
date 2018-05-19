@@ -85,7 +85,7 @@ script:
 # ${nbuild} = "5" is "Build Kernel" and "6" is "Zip the kernel and Modules"
 - nbuild="56"
 # ${nimage} = "7" is "Compressed image on/off"
-- nimage="7"
+#- nimage="7"
 # Last "q" is to Exit of Script
 # ${ndevicechoice} is "Number of Choice under Device Choice"
 - export nbasebuildsh="${nclean}${ntoolchain}${ndevice}${ndevicechoice}${nimage}${nbuild}q"
