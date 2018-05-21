@@ -289,6 +289,14 @@ static void free_firmware(struct xc2028_data *priv)
 	priv->state = XC2028_NO_FIRMWARE;
 	memset(&priv->cur_fw, 0, sizeof(priv->cur_fw));
 
+	/* free allocated f/w string */
+	if (priv->fname != firmware_name)
+		kfree(priv->fname);
+	priv->fname = NULL;
+
+	priv->state = XC2028_NO_FIRMWARE;
+	memset(&priv->cur_fw, 0, sizeof(priv->cur_fw));
+
 	if (!priv->firm)
 		return;
 

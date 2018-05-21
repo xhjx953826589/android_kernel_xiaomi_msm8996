@@ -19,13 +19,13 @@ _variant=${variant}
 _defconfig=${defconfig}
 unset name variant defconfig
 clear
-echo "0) ${bldred}Xiaomi Mi5${txtrst} | Lite/Prime/Pro | Gemini"
+echo "0) ${bldred}Xiaomi Mi5${txtrst}       | Lite/Prime/Pro | Gemini"
 echo
-echo "1) ${bldyel}Xiaomi Mi5S${txtrst} | Lite/Prime/Pro | Capricorn"
+echo "1) ${bldyel}Xiaomi Mi5S${txtrst}      | Lite/Prime/Pro | Capricorn"
 echo
-echo "2) ${bldcya}Xiaomi Mi5S Plus${txtrst} | Prime/Pro | Natrium"
+echo "2) ${bldcya}Xiaomi Mi5S Plus${txtrst} | Prime/Pro      | Natrium"
 echo
-echo "3) ${bldgrn}Xiaomi Mi Mix${txtrst} | Prime/Pro | Lithium"
+echo "3) ${bldgrn}Xiaomi Mi Mix${txtrst}    | Prime/Pro      | Lithium"
 echo
 echo "4) ${bldmag}Xiaomi Mi Note 2${txtrst} | Lite/Prime/Pro | Scorpio"
 echo
@@ -234,23 +234,23 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 		if [ "${compressedimage}" == "${bldyel}ON${txtrst}" ];
 		then
 
-			if [ -f arch/${ARCH}/boot/Image.gz ]; then
-				cp arch/${ARCH}/boot/Image.gz ${zipdirout}/zImage
+			if [ -f arch/${ARCH}/boot/Image.gz-dtb ]; then
+				cp arch/${ARCH}/boot/Image.gz-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.lzma ]; then
-				cp arch/${ARCH}/boot/Image.lzma ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lzma-dtb ]; then
+				cp arch/${ARCH}/boot/Image.lzma-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.bz2 ]; then
-				cp arch/${ARCH}/boot/Image.bz2 ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.bz2-dtb ]; then
+				cp arch/${ARCH}/boot/Image.bz2-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.xz ]; then
-				cp arch/${ARCH}/boot/Image.xz ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.xz-dtb ]; then
+				cp arch/${ARCH}/boot/Image.xz-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.lzo ]; then
-				cp arch/${ARCH}/boot/Image.lzo ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lzo-dtb ]; then
+				cp arch/${ARCH}/boot/Image.lzo-dtb ${zipdirout}/zImage
 
-			elif [ -f arch/${ARCH}/boot/Image.lz4 ]; then
-				cp arch/${ARCH}/boot/Image.lz4 ${zipdirout}/zImage
+			elif [ -f arch/${ARCH}/boot/Image.lz4-dtb ]; then
+				cp arch/${ARCH}/boot/Image.lz4-dtb ${zipdirout}/zImage
 
 			fi
 
@@ -259,7 +259,7 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 	
 		fi
 
-		cp arch/${ARCH}/boot/dt.img ${zipdirout}/dtb
+		#cp arch/${ARCH}/boot/dt.img ${zipdirout}/dtb
 
 		echo "customkernel=${customkernel}" >> ${zipdirout}/device.prop
 		echo "name=${name}" >> ${zipdirout}/device.prop
@@ -268,6 +268,7 @@ if [ -f arch/${ARCH}/boot/Image.gz ] || [ -f arch/${ARCH}/boot/Image.lzma ] || [
 		echo "releasewithbar=${releasewithbar}" >> ${zipdirout}/device.prop
 		echo "ToolchainName=${ToolchainName}" >> ${zipdirout}/device.prop
 		echo "romversion=${romversion}" >> ${zipdirout}/device.prop
+		echo "androidversion=${androidversion}" >> ${zipdirout}/device.prop
 		echo "name1=${name1}" >> ${zipdirout}/device.prop
 		echo "name2=${name2}" >> ${zipdirout}/device.prop
 		echo "name3=${name3}" >> ${zipdirout}/device.prop
@@ -335,7 +336,7 @@ clear
 buildsh() {
 #clear
 echo "Simple Linux Kernel ${kernelversion}.${kernelpatchlevel}.${kernelsublevel} Build Script ($(date +%d"/"%m"/"%Y))"
-echo "${customkernel}-${romversion} Release $(date +%d"/"%m"/"%Y) Build #${build}"
+echo "${customkernel}-${androidversion}-${romversion} Release $(date +%d"/"%m"/"%Y) Build #${build}"
 echo "-${bldred}Clean Menu${txtrst}-"
 echo "1) Zip Packages      | ${bldred}${cleanzipcheck}${txtrst}"
 echo "2) Kernel            | ${bldred}${cleankernelcheck}${txtrst}"

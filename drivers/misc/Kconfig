@@ -433,7 +433,7 @@ config ARM_CHARLCD
 	  still useful.
 
 config BMP085
-	bool
+	tristate
 	depends on SYSFS
 
 config BMP085_I2C
@@ -585,12 +585,6 @@ config QPNP_MISC
 config TSPDRV
 	tristate "TouchSense driver support"
 	default y
-
-config FORCE_FAST_CHARGE
-	bool "Force faster charge rate for USB"
-	default n
-	help
-	  This allows users to override default charge rate for USB
 
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"

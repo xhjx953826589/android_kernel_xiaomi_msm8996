@@ -542,7 +542,7 @@ static struct throtl_grp *throtl_lookup_create_tg(struct throtl_data *td,
 		/* if %NULL and @q is alive, fall back to root_tg */
 		if (!IS_ERR(blkg))
 			tg = blkg_to_tg(blkg);
-		else
+		else if (!blk_queue_dying(q))
 			tg = td_root_tg(td);
 	}
 
@@ -1512,11 +1512,10 @@ bool blk_throtl_bio(struct request_queue *q, struct bio *bio)
 	 * IO group
 	 */
 	spin_lock_irq(q->queue_lock);
-
-	if (unlikely(blk_queue_bypass(q)))
+	tg = throtl_lookup_create_tg(td, blkcg);
+	if (unlikely(!tg))
 		goto out_unlock;
 
-	tg = throtl_lookup_create_tg(td, blkcg);
 	sq = &tg->service_queue;
 
 	while (true) {

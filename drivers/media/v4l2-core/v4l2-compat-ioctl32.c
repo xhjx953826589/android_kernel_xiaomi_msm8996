@@ -778,11 +778,10 @@ static int get_v4l2_ext_controls32(struct v4l2_ext_controls __user *kp, struct
 	compat_caddr_t p;
 
 	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_ext_controls32)) ||
-		convert_in_user(&up->ctrl_class, &kp->ctrl_class) ||
-		get_user(count, &up->count) ||
-		put_user(count, &kp->count) ||
-		convert_in_user(&up->error_idx, &kp->error_idx) ||
-		copy_in_user(kp->reserved, up->reserved, sizeof(kp->reserved)))
+		get_user(kp->ctrl_class, &up->ctrl_class) ||
+		get_user(kp->count, &up->count) ||
+		get_user(kp->error_idx, &up->error_idx) ||
+		copy_from_user(kp->reserved, up->reserved, sizeof(kp->reserved)))
 			return -EFAULT;
 	if (count == 0)
 		return put_user(NULL, &kp->controls);
