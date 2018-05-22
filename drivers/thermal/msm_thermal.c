@@ -4855,8 +4855,8 @@ static __refdata struct kobj_attribute cpus_offlined_attr =
 __ATTR(cpus_offlined, 0644, show_cpus_offlined, store_cpus_offlined);
 
 static __refdata struct attribute *cc_attrs[] = {
-	&cc_enabled_attr.attr = 0,
-	&cpus_offlined_attr.attr = 0,
+	&cc_enabled_attr.attr,
+	&cpus_offlined_attr.attr,
 	NULL,
 };
 
@@ -6407,7 +6407,7 @@ static int probe_cc(struct device_node *node, struct msm_thermal_data *data,
 	int ret = 0;
 
 	if (num_possible_cpus() > 1) {
-		core_control_enabled = 1;
+		core_control_enabled = 0;
 		hotplug_enabled = 1;
 	}
 
