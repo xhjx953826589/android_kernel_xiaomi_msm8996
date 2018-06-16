@@ -568,8 +568,8 @@ enum Tfa98xx_Error tfa98xx_compare_features(Tfa98xx_handle_t handle, int feature
 		 error = tfa_dsp_cmd_id_write_read(handle, MODULE_FRAMEWORK,
 				FW_PAR_ID_GET_FEATURE_INFO, sizeof(bytes), bytes);
 	if (error != Tfa98xx_Error_Ok)
-		return error; /* old ROM code may respond with Tfa98xx_Error_RpcParamId */
-		tfa98xx_convert_bytes2data(sizeof(bytes), bytes, &features_from_MTP[1]);
+		{return error; /* old ROM code may respond with Tfa98xx_Error_RpcParamId */
+		tfa98xx_convert_bytes2data(sizeof(bytes), bytes, &features_from_MTP[1]);}
 
 		/* check if feature bits from MTP match feature bits from cnt file: */
 		get_hw_features_from_cnt(handle, &features_from_cnt[0]);
@@ -1420,10 +1420,11 @@ enum Tfa98xx_Error tfa_dsp_msg_status(Tfa98xx_handle_t handle, int *pRpcStatus)
 	return error;
 }
 
+const char *p_id_str;
+
 const char *tfa98xx_get_i2c_status_id_string(int status)
 {
-	const char *p_id_str;
-	char latest_errorstr[64];
+    char latest_errorstr[64];
 
 	switch (status) {
 	case Tfa98xx_DSP_Not_Running:
