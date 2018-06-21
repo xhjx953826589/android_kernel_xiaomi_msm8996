@@ -366,11 +366,13 @@ choice
 
 config MSM_XPU_ERR_FATAL
 	bool "Configure XPU violations as fatal errors"
+    default n
 	help
 	 Select if XPU violations have to be configured as fatal errors.
 
 config MSM_XPU_ERR_NONFATAL
 	bool "Configure XPU violations as non-fatal errors"
+    default n
 	help
 	 Select if XPU violations have to be configured as non-fatal errors.
 
