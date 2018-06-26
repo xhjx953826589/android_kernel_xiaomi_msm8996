@@ -614,11 +614,8 @@ all: vmlinux
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
-<<<<<<< HEAD
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
 
-=======
->>>>>>> d9c4f8d... gcc: add Compiler optimizations config options
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 endif
