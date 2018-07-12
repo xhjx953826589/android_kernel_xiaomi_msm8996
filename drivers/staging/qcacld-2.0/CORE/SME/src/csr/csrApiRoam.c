@@ -18501,13 +18501,13 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
             pRequestBuf->ConnectedNetwork.ChannelCache[num_channels++] =
                 *ChannelList;
 
-            if (*ChannelList)
+            if (*ChannelList){
                   VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_DEBUG,
                        "DFSRoam=%d, ChnlState=%d, Chnl=%d, num_ch=%d",
                        pMac->roam.configParam.allowDFSChannelRoam,
                        vos_nv_getChannelEnabledState(*ChannelList),
                        *ChannelList,
-                       num_channels);
+                       num_channels);}
               ChannelList++;
         }
         pRequestBuf->ConnectedNetwork.ChannelCount = num_channels;
@@ -19696,6 +19696,12 @@ tANI_U32 csrGetdot11Mode(tHalHandle hHal, tANI_U32 sessionId,
     eHalStatus status;
     tDot11fBeaconIEs *ies_local = NULL;
     tANI_U32 dot11mode = 0;
+
+    if (!pSession)
+    {
+        smsLog( pMac, LOGE, FL( "  Session does not exist for session id %d" ), sessionId);
+        return 0;
+    }
 
     smsLog(pMac, LOG1, FL("phyMode %d"), pSession->pCurRoamProfile->phyMode);
 
