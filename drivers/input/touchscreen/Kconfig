@@ -106,6 +106,17 @@ config TOUCHSCREEN_AR1021_I2C
 	  To compile this driver as a module, choose M here: the
 	  module will be called ar1021_i2c.
 
+config TOUCHSCREEN_ST_FTS
+	tristate "ST FTS I2C Touchscreen"
+	depends on I2C
+	help
+	  Say Y here if you have ST FTS series I2C touchscreen.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ST FTS.
+
 config TOUCHSCREEN_ATMEL_MXT
 	tristate "Atmel mXT I2C Touchscreen"
 	depends on I2C
@@ -118,17 +129,6 @@ config TOUCHSCREEN_ATMEL_MXT
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called atmel_mxt_ts.
-
-config TOUCHSCREEN_ST_FTS
-	tristate "ST FTS I2C Touchscreen"
-	depends on I2C
-	help
-	  Say Y here if you have ST FTS series I2C touchscreen.
-
-	  If unsure, say N.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called ST FTS.
 
 config TOUCHSCREEN_ATMEL_MAXTOUCH_TS
 	tristate "Atmel Maxtouch Touchscreen Family"
@@ -1018,11 +1018,20 @@ config TOUCHSCREEN_FT5X06_GESTURE
 
          If unsure, say N.
 
+config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE_EXTRA_SYSFS
+	bool "Synaptics DSX firmware update extra sysfs attributes"
+	depends on TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE
+	help
+	  Say Y here to enable support for extra sysfs attributes
+	  supporting firmware update in a development environment.
+	  This does not affect the core or other subsystem attributes.
+
+	  If unsure, say N.
 
 config SECURE_TOUCH
 	bool "Secure Touch"
 	depends on (TOUCHSCREEN_SYNAPTICS_I2C_RMI4 || \
-	  TOUCHSCREEN_SYNAPTICS_DSX_I2C_v21 || TOUCHSCREEN_ATMEL_MXT || \
+	  TOUCHSCREEN_SYNAPTICS_DSX_I2C || TOUCHSCREEN_ATMEL_MXT || \
 	  TOUCHSCREEN_ATMEL_MAXTOUCH_TS)
 	help
 	  Say Y here to enable Secure Touch in supported drivers.
@@ -1102,6 +1111,21 @@ config TOUCHSCREEN_SYNAPTICS_DSX_RMI4_DEV
 	  To compile this driver as a module, choose M here: the
 	  module will be called synaptics_dsx_rmi4_dev.
 
+config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE
+	tristate "Synaptics I2C touchscreen firmware update"
+	depends on TOUCHSCREEN_SYNAPTICS_I2C_RMI4
+	help
+	  This enables support for firmware update for Synaptics RMI4
+	  touchscreens.
+
+	  Say Y here if you have a Synaptics DSX I2C touchscreen
+	  connected to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called synaptics_dsx_fw_update.
+
 config TOUCHSCREEN_GT9XX
 	bool "Goodix touchpanel GT9xx series"
 	depends on I2C
@@ -1124,8 +1148,8 @@ config TOUCHSCREEN_MAXIM_STI
 	  To compile this driver as a module, choose M here: the
 	  module will be called maxim_sti.
 
-source "drivers/input/touchscreen/gt9xx/Kconfig"
-
 source "drivers/input/touchscreen/ft5x46/Kconfig"
+
+source "drivers/input/touchscreen/gt9xx/Kconfig"
 
 endif

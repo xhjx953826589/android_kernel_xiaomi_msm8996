@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
  * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,10 +42,6 @@
 #include "synaptics_dsx_core.h"
 
 #define SYSFS_FOLDER_NAME "video"
-
-/*
-#define RMI_DCS_SUSPEND_RESUME
-*/
 
 static ssize_t video_sysfs_dcs_write_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count);

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2011 XiaoMi, Inc.
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,7 +14,6 @@
 
 #include <linux/input/ft5x46_ts.h>
 #include "ft8716_pramboot.h"
-#include <linux/input/touch_common_info.h>
 
 
 #define FT5X46_APK_DEBUG_CHANNEL
@@ -85,6 +83,12 @@
 
 /* ft8716 firmware upgrade definition */
 #define FT8716_FIRMWARE_VERION		0x10e
+
+#ifdef CONFIG_TOUCHSCREEN_FT8716_DISABLE_FW_UPDATE
+#define FT8716_DISABLE_FW_UPDATE	1
+#else
+#define FT8716_DISABLE_FW_UPDATE	0
+#endif
 
 /* ft5x0x firmware upgrade definition */
 #define FT5X0X_FIRMWARE_TAIL		(-8) /* base on the end of firmware */
@@ -183,7 +187,6 @@
 #define FT5X46_INPUT_EVENT_END				5
 
 #define LEN_FLASH_ECC_MAX		0xFFFE
-
 
 static unsigned char proc_operate_mode = FT5X46_PROC_UPGRADE;
 static struct proc_dir_entry *ft5x46_proc_entry;
@@ -1237,7 +1240,6 @@ static int ft8716_load_firmware(struct ft5x46_data *ft5x46,
 	u32 check_off = 0x20;
 	u32 start_addr = 0x00;
 	u8 packet_buf[16 + FT5X0X_PACKET_LENGTH];
-	u8 *tp_maker = NULL;
 
 	const struct firmware *fw;
 	int packet_num;
@@ -1275,14 +1277,6 @@ static int ft8716_load_firmware(struct ft5x46_data *ft5x46,
 		if (error) {
 			ft8716_reset_firmware(ft5x46);
 			return error;
-		}
-		tp_maker = kzalloc(20, GFP_KERNEL);
-		if (tp_maker == NULL)
-			dev_err(ft5x46->dev, "fail to alloc vendor name memory\n");
-		else {
-			strlcpy(tp_maker, update_hw_component_touch_module_info(ft5x46->lockdown_info[0]), 20);
-			kfree(tp_maker);
-			tp_maker = NULL;
 		}
 		ft5x46->lockdown_info_acquired = true;
 		wake_up(&ft5x46->lockdown_info_acquired_wq);
@@ -1334,7 +1328,7 @@ static int ft8716_load_firmware(struct ft5x46_data *ft5x46,
 
 	/* step 1: check firmware id is different */
 
-	if (id == firmware->data[FT8716_FIRMWARE_VERION]) {
+	if (id == firmware->data[FT8716_FIRMWARE_VERION] || FT8716_DISABLE_FW_UPDATE) {
 		ft8716_reset_firmware(ft5x46);
 		return 0;
 	}
@@ -1687,7 +1681,6 @@ static int ft5x46_read_gesture(struct ft5x46_data *ft5x46)
 {
 	unsigned char buf[FT5X46_GESTURE_POINTS_HEADER] = { 0 };
 	int error;
-	char ch[64] = {0x0,};
 
 	error = ft5x46_read_block(ft5x46, 0xD3, buf,
 			FT5X46_GESTURE_POINTS_HEADER);
@@ -1705,8 +1698,6 @@ static int ft5x46_read_gesture(struct ft5x46_data *ft5x46)
 		input_sync(ft5x46->input);
 		input_event(ft5x46->input, EV_KEY, KEY_WAKEUP, 0);
 		input_sync(ft5x46->input);
-		ft5x46->dbclick_count++;
-		snprintf(ch, sizeof(ch), "%d", ft5x46->dbclick_count);
 	}
 
 	return 0;
@@ -1756,13 +1747,12 @@ static irqreturn_t ft5x46_interrupt(int irq, void *dev_id)
 		if (error)
 			dev_err(ft5x46->dev, "Error reading register 0xD0\n");
 		else
-			{if (val == 1) 
-            {
+			if (val == 1) {
 				error = ft5x46_read_gesture(ft5x46);
 				if (error)
 					dev_err(ft5x46->dev, "Failed to read wakeup gesture\n");
 			} else
-				dev_err(ft5x46->dev, "Chip is in suspend, but wakeup gesture is not enabled.\n");}
+				dev_err(ft5x46->dev, "Chip is in suspend, but wakeup gesture is not enabled.\n");
 
 			goto out;
 	}
@@ -2726,6 +2716,40 @@ static const struct attribute_group ft5x46_attr_group = {
 	.attrs = ft5x46_attrs
 };
 
+static int ft5x46_proc_init(struct kernfs_node *sysfs_node_parent)
+{
+	int ret = 0;
+	char *buf, *path = NULL;
+	char *double_tap_sysfs_node;
+	struct proc_dir_entry *proc_entry_tp = NULL;
+	struct proc_dir_entry *proc_symlink_tmp  = NULL;
+
+	buf = kzalloc(PATH_MAX, GFP_KERNEL);
+	if (buf)
+		path = kernfs_path(sysfs_node_parent, buf, PATH_MAX);
+
+	proc_entry_tp = proc_mkdir("touchpanel", NULL);
+	if (proc_entry_tp == NULL) {
+		ret = -ENOMEM;
+		pr_err("%s: Couldn't create touchpanel\n", __func__);
+	}
+
+	double_tap_sysfs_node = kzalloc(PATH_MAX, GFP_KERNEL);
+	if (double_tap_sysfs_node)
+		sprintf(double_tap_sysfs_node, "/sys%s/%s", path, "wakeup_mode");
+	proc_symlink_tmp = proc_symlink("double_tap_enable",
+			proc_entry_tp, double_tap_sysfs_node);
+	if (proc_symlink_tmp == NULL) {
+		ret = -ENOMEM;
+		pr_err("%s: Couldn't create double_tap_enable symlink\n", __func__);
+	}
+
+	kfree(buf);
+	kfree(double_tap_sysfs_node);
+
+	return ret;
+}
+
 static int ft5x46_power_on(struct ft5x46_data *data, bool on)
 {
 	static bool status;
@@ -2953,7 +2977,7 @@ static int fb_notifier_cb(struct notifier_block *self,
 	if (evdata && evdata->data && ft5x46 && mdss_panel_is_prim(evdata->info)) {
 		if (event == FB_EVENT_BLANK) {
 			blank = evdata->data;
-			if (*blank == FB_BLANK_UNBLANK) {
+			if (*blank == FB_BLANK_UNBLANK || *blank == FB_BLANK_NORMAL) {
 				dev_dbg(ft5x46->dev, "##### UNBLANK SCREEN #####\n");
 				ft5x46_input_enable(ft5x46->input);
 				ft5x46_power_on(ft5x46, true);
@@ -3311,7 +3335,6 @@ static void ft5x46_switch_mode_work(struct work_struct *work)
 	struct ft5x46_mode_switch *ms = container_of(work, struct ft5x46_mode_switch, switch_mode_work);
 	struct ft5x46_data *ft5x46 = ms->data;
 	u8 value = ms->mode;
-	char ch[16] = {0x0,};
 
 	if (value == FT5X46_INPUT_EVENT_WAKUP_MODE_ON || value == FT5X46_INPUT_EVENT_WAKUP_MODE_OFF) {
 		if (ft5x46) {
@@ -3320,7 +3343,6 @@ static void ft5x46_switch_mode_work(struct work_struct *work)
 			if (ft5x46->in_suspend)
 				ft5x46_wakeup_reconfigure(ft5x46,
 					(bool)(value - FT5X46_INPUT_EVENT_WAKUP_MODE_OFF));
-			snprintf(ch, sizeof(ch), "%s", ft5x46->wakeup_mode ? "enabled" : "disabled");
 		}
 	}
 
@@ -3440,10 +3462,10 @@ static ssize_t ft5x46_apk_debug_write(struct file *file, const char __user *buff
 	case FT5X46_PROC_UPGRADE:
 		memset(upgrade_file_name, 0, FT5X46_MAX_FIRMWARE_LENGTH);
 		snprintf(upgrade_file_name, FT5X46_MAX_FIRMWARE_LENGTH,
-				"%s", writebuf + 1);
+			"%s", writebuf + 1);
 		upgrade_file_name[buflen - 1] = '\0';
 		dev_info(ft5x46->dev, "%s: upgrade file name: %s\n",
-				__func__, upgrade_file_name);
+			__func__, upgrade_file_name);
 		ret = ft5x46_updatefw_with_filename(ft5x46, upgrade_file_name, NULL);
 		if (ret < 0) {
 			dev_err(ft5x46->dev, "%s: upgrade failed\n",
@@ -3454,7 +3476,7 @@ static ssize_t ft5x46_apk_debug_write(struct file *file, const char __user *buff
 
 	case FT5X46_PROC_READ_REGISTER:
 		dev_info(ft5x46->dev, "%s: read register from %d\n",
-				__func__, writebuf[1]);
+			__func__, writebuf[1]);
 		ret = ft5x46_send_byte(ft5x46, 1, writebuf[1]);
 		if (ret < 0) {
 			dev_err(ft5x46->dev, "%s: read register failed\n", __func__);
@@ -3464,7 +3486,7 @@ static ssize_t ft5x46_apk_debug_write(struct file *file, const char __user *buff
 
 	case FT5X46_PROC_WRITE_REGISTER:
 		dev_info(ft5x46->dev, "%s: write to register %d: %d\n",
-				__func__, writebuf[1], writebuf[2]);
+			__func__, writebuf[1], writebuf[2]);
 		ret = ft5x46_write_byte(ft5x46, writebuf[1], writebuf[2]);
 		if (ret < 0) {
 			dev_err(ft5x46->dev, "%s: write register failed\n", __func__);
@@ -3906,6 +3928,8 @@ struct ft5x46_data *ft5x46_probe(struct device *dev,
 		goto err_free_irq;
 	}
 
+	ft5x46_proc_init(dev->kobj.sd);
+
 	error = ft5x46_configure_sleep(ft5x46, true);
 	if (error) {
 		dev_err(dev, "Failed to configure sleep\n");
@@ -3955,7 +3979,6 @@ struct ft5x46_data *ft5x46_probe(struct device *dev,
 	ft5x46->hw_is_ready = false;
 	init_waitqueue_head(&ft5x46->lockdown_info_acquired_wq);
 	schedule_work(&ft5x46->work);
-	ft5x46->dbclick_count = 0;
 	return ft5x46;
 
 #ifdef FT5X46_APK_DEBUG_CHANNEL

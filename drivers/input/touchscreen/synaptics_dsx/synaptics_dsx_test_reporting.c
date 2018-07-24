@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
  * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -214,7 +214,7 @@
 #define TEST_TYPE_20_333X	"20"
 #define TEST_TYPE_25_333X	"25"
 #define TEST_TYPE_26_333X	"26"
-#define TEST_TYPE_03		"3"
+
 
 #define CHIP_ID_OFFSET	11
 
@@ -1325,7 +1325,6 @@ struct f55_control_43 {
 struct synaptics_rmi4_f55_handle {
 	bool amp_sensor;
 	bool extended_amp;
-	bool extended_amp_btn;
 	bool has_force;
 	unsigned char size_of_column2mux;
 	unsigned char afe_mux_offset;
@@ -1405,20 +1404,6 @@ static struct attribute *attrs[] = {
 static struct attribute_group attr_group = {
 	.attrs = attrs,
 };
-/*
-static ssize_t test_sysfs_data_read(struct file *data_file,
-		struct kobject *kobj, struct bin_attribute *attributes,
-		char *buf, loff_t pos, size_t count);
-
-static struct bin_attribute test_report_data = {
-	.attr = {
-		.name = "report_data",
-		.mode = S_IRUGO,
-	},
-	.size = 0,
-	.read = test_sysfs_data_read,
-};
-*/
 static struct synaptics_rmi4_f54_handle *f54;
 static struct synaptics_rmi4_f55_handle *f55;
 
@@ -2391,11 +2376,6 @@ static ssize_t test_sysfs_get_report_store(struct device *dev,
 	f54->status = STATUS_BUSY;
 	f54->report_size = 0;
 	f54->data_pos = 0;
-/*
-	hrtimer_start(&f54->watchdog,
-			ktime_set(GET_REPORT_TIMEOUT_S, 0),
-			HRTIMER_MODE_REL);
-*/
 	retval = count;
 
 exit:
@@ -3487,10 +3467,6 @@ static int tddi_amp_open_data_testing(signed short *p_image)
 		goto exit;
 	}
 
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
-
 
 	if (f54->swap_sensor_side) {
 		p_data_16 = p_image;
@@ -3603,11 +3579,6 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 
 	if (setting != 1)
 		return -EINVAL;
-
-
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
 
 	if (td43xx_amp_open_data)
 		kfree(td43xx_amp_open_data);
@@ -3826,10 +3797,6 @@ static ssize_t test_sysfs_td43xx_amp_open_show(struct device *dev,
 
 	if (!td43xx_amp_open_data)
 		return -EINVAL;
-
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
 
 	for (i = 0; i < tx_num; i++) {
 		for (j = 0; j < rx_num; j++) {
@@ -5492,7 +5459,6 @@ static int test_f55_set_queries(void)
 		offset += 1;
 
 		f55->extended_amp = f55->query_33.has_extended_amp_pad;
-		f55->extended_amp_btn = f55->query_33.has_extended_amp_btn;
 	}
 
 	return 0;
@@ -5809,7 +5775,7 @@ static ssize_t open_test_333x(void)
 	int val, tx, rx, num = 0;
 	char *pos;
 
-	retval = test_sysfs_read_report_store(NULL, NULL, TEST_TYPE_03, strlen(TEST_TYPE_03));
+	retval = test_sysfs_read_report_store(NULL, NULL, TEST_TYPE_20_333X, strlen(TEST_TYPE_20_333X));
 	if (retval < 0)
 		goto out;
 
@@ -5829,8 +5795,8 @@ static ssize_t open_test_333x(void)
 		if ((*pos == ' ') || (*pos == '\n'))
 			pos++;
 		else {
-			val = simple_strtol(pos, NULL, 10);
-			if (((val > 0) && (val < 100)) || (val < 0)) {
+			val = simple_strtoul(pos, NULL, 10);
+			if ((val > 0) && (val < 100)) {
 				f54->result_type = TEST_FAILED;
 				goto out;
 			}
@@ -5947,8 +5913,6 @@ static ssize_t syna_selftest_write(struct file *file, const char __user *buf, si
 			retval = i2c_test();
 
 out:
-	if (retval >= 0)
-		retval = count;
 
 	return retval;
 }

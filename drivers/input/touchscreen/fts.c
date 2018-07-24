@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2012, 2013 STMicroelectronics Limited.
  * Authors: AMS(Analog Mems Sensor)
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -58,7 +58,7 @@
 #endif
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
-	#include <linux/earlysuspend.h>
+#include <linux/earlysuspend.h>
 #endif
 
 #ifdef CONFIG_EXYNOS_TOUCH_DAEMON
@@ -110,7 +110,7 @@ unsigned char tune_version_same = 0x0;
 
 
 static void fts_interrupt_enable(struct fts_ts_info *info);
-static int fts_fw_upgrade(struct fts_ts_info *info, int mode, int fw_forceupdate , int crc_err);
+static int fts_fw_upgrade(struct fts_ts_info *info, int mode, int fw_forceupdate, int crc_err);
 static int fts_init_hw(struct fts_ts_info *info);
 static int fts_init_flash_reload(struct fts_ts_info *info);
 static int fts_command(struct fts_ts_info *info, unsigned char cmd);
@@ -140,7 +140,7 @@ static int fts_write_reg(struct fts_ts_info *info, unsigned char *reg,
 	xfer_msg[0].flags = 0;
 	xfer_msg[0].buf = reg;
 
-	return i2c_transfer(info->client->adapter, xfer_msg, 1) != 1;
+	return (i2c_transfer(info->client->adapter, xfer_msg, 1) != 1);
 }
 
 static int fts_read_reg(struct fts_ts_info *info, unsigned char *reg, int cnum,
@@ -158,7 +158,7 @@ static int fts_read_reg(struct fts_ts_info *info, unsigned char *reg, int cnum,
 	xfer_msg[1].flags = I2C_M_RD;
 	xfer_msg[1].buf = buf;
 
-	return i2c_transfer(info->client->adapter, xfer_msg, 2) != 2;
+	return (i2c_transfer(info->client->adapter, xfer_msg, 2) != 2);
 }
 
 static inline void fts_set_sensor_mode(struct fts_ts_info *info, int mode)
@@ -416,42 +416,6 @@ static ssize_t fts_glove_control_store(struct device *dev, struct device_attribu
 	return count;
 }
 
-#if 0
-static ssize_t fts_hover_control_show(struct device *dev, struct device_attribute *attr,
-				char *buf)
-{
-	struct i2c_client *client = to_i2c_client(dev);
-	struct fts_ts_info *info = i2c_get_clientdata(client);
-
-	return scnprintf(buf, PAGE_SIZE, "%04x\n", info->hover_bit);
-}
-
-static ssize_t fts_hover_control_store(struct device *dev, struct device_attribute *attr,
-				const char *buf, size_t count)
-{
-	int ret;
-	struct i2c_client *client = to_i2c_client(dev);
-	struct fts_ts_info *info = i2c_get_clientdata(client);
-
-	/* reading out firmware upgrade mode */
-	sscanf(buf, "%d", &info->hover_bit);
-
-	if (info->hover_bit) {
-		if (info->glove_bit) {
-			info->glove_bit = 0;
-			fts_command(info, GLOVE_OFF);
-		}
-		ret = fts_command(info, HOVER_ON);
-		fts_set_sensor_mode(info, MODE_HOVER);
-	} else {
-		ret = fts_command(info, HOVER_OFF);
-		fts_set_sensor_mode(info, MODE_NORMAL);
-	}
-
-	return count;
-}
-#endif
-
 static ssize_t fts_cover_control_show(struct device *dev, struct device_attribute *attr,
 				char *buf)
 {
@@ -638,7 +602,7 @@ int read_compensation_event(struct fts_ts_info *info, unsigned int compensation_
 			msleep(10);
 			if (retry == READ_CNT) {
 				if (debug_mode)
-					tp_log("FTS %s : TIMEOUT , Cannot read completion event\n", __func__);
+					tp_log("FTS %s : TIMEOUT ,Cannot read completion event\n", __func__);
 				ret = -1;
 			}
 		}
@@ -722,42 +686,42 @@ static int fts_ito_test(struct fts_ts_info *info)
 				case ERR_ITO_PANEL_OPEN_FORCE:
 					if (debug_mode)
 						tp_log("ITO Test result : Force channel [%d] open.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_PANEL_OPEN_SENSE:
 					if (debug_mode)
 						tp_log("ITO Test result : Sense channel [%d] open.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_F2G:
 					if (debug_mode)
 						tp_log("ITO Test result : Force channel [%d] short to GND.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_S2G:
 					if (debug_mode)
 						tp_log("ITO Test result : Sense channel [%d] short to GND.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_F2VDD:
 					if (debug_mode)
 						tp_log("ITO Test result : Force channel [%d] short to VDD.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_S2VDD:
 					if (debug_mode)
 						tp_log("ITO Test result : Sense channel [%d] short to VDD.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_P2P_FORCE:
 					if (debug_mode)
 						tp_log("ITO Test result : Force channel [%d] ,Pin to Pin short.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_P2P_SENSE:
 					if (debug_mode)
 						tp_log("ITO Test result : Sense channel [%d] Pin to Pin short.\n",
-							data[3]);
+						data[3]);
 					break;
 				default:
 					break;
@@ -767,7 +731,8 @@ static int fts_ito_test(struct fts_ts_info *info)
 		} else {
 			msleep(5);
 			if (retry == READ_CNT_ITO)
-				if (debug_mode)tp_log("Time over - wait for result of ITO test\n");
+				if (debug_mode)
+					tp_log("Time over - wait for result of ITO test\n");
 		}
 	}
 
@@ -855,7 +820,7 @@ static int fts_mutual_tune_data_test(struct fts_ts_info *info)
 	{
 		int hrzErrCnt = 0;
 		int vrtErrCnt = 0;
-		int node1 , node2 , threshold, delta;
+		int node1, node2, threshold, delta;
 
 		for (j = 0; j < tx_num; j++) {
 			for (i = 0 ; i < rx_num-1 ; i++) {
@@ -917,13 +882,13 @@ static int fts_mutual_tune_data_test(struct fts_ts_info *info)
 				if (mutual_cx_data[(j * rx_num) + i] < cx2_min_thres[(j * rx_num) + i])	{
 					minErrCnt++;
 					if (debug_mode)
-						tp_log("FTS %s:Error Min error tx = %d Rx = %d mutual_cx_data= %04X cx2_min_thres = %04X \n", __func__, j, i, mutual_cx_data[(j*rx_num)+i] , cx2_min_thres[(j*rx_num)+i]);
+						tp_log("FTS %s:Error Min error tx = %d Rx = %d mutual_cx_data= %04X cx2_min_thres = %04X \n", __func__, j, i, mutual_cx_data[(j*rx_num)+i], cx2_min_thres[(j*rx_num)+i]);
 				}
 
 				if (mutual_cx_data[(j * rx_num) + i] > cx2_max_thres[(j * rx_num) + i]) {
 					maxErrCnt++;
 					if (debug_mode)
-						tp_log("FTS %s:Error Max error tx = %d Rx = %d mutual_cx_data= %04X cx2_max_thres = %04X \n", __func__, j, i, mutual_cx_data[(j*rx_num)+i] , cx2_min_thres[(j*rx_num)+i]);
+						tp_log("FTS %s:Error Max error tx = %d Rx = %d mutual_cx_data= %04X cx2_max_thres = %04X \n", __func__, j, i, mutual_cx_data[(j*rx_num)+i], cx2_min_thres[(j*rx_num)+i]);
 				}
 			}
 		}
@@ -1016,7 +981,7 @@ static int fts_self_tune_data_test(struct fts_ts_info *info)
 		int minErrCnt = 0;
 		int maxErrCnt = 0;
 
-		for (i = 0; i < tx_num ; i++)
+		for (i = 0; i < tx_num; i++)
 			s_ix_force[i] = K_COFF * f_ix1_num +  L_COFF * self_tune_data[1+i];
 
 		for (i = 0; i < rx_num; i++)
@@ -1062,7 +1027,7 @@ static int fts_self_tune_data_test(struct fts_ts_info *info)
 				tp_log("FTS %s: self tune data test Passes\n", __func__);
 	}
 
-    fts_interrupt_set(info, INT_ENABLE);
+	fts_interrupt_set(info, INT_ENABLE);
 	fts_command(info, SENSEON);
 #ifdef PHONE_KEY
 	fts_command(info, KEYON);
@@ -1276,7 +1241,7 @@ static int fts_self_raw_data_test(struct fts_ts_info *info)
 	if ((minErrCnt + maxErrCnt) != 0) {
 		if (debug_mode)
 			tp_log("FTS %s: Test Failed :self raw min/max error\n", __func__);
-		return -1;
+		return -EPERM;
 	}
 
 	return 0;
@@ -1503,13 +1468,13 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 		if ((configData[i] == 0xAA) && (configData[i+1] == 0x55)) {
 			i = i + 2;
 			if (debug_mode)
-				tp_log("%s, 0xaa0x55 configData[i] = %d\n", __func__, configData[i]);
+				tp_log("%s,0xaa0x55 configData[i] = %d\n", __func__, configData[i]);
 			switch (configData[i++]) {
 			case 0x00:
 				tx_num = configData[i++];
 				rx_num = configData[i++];
 				if (debug_mode)
-					tp_log("%s, 0xaa0x55 00 configData[i] = %d\n", __func__, configData[i]);
+					tp_log("%s,0xaa0x55 00 configData[i] = %d\n", __func__, configData[i]);
 				break;
 			case 0x01:
 				{
@@ -1519,13 +1484,11 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 					rx = configData[i++];
 					cx2_h_thres_size = tx * rx;
 					cx2_h_thres = (unsigned char *)kmalloc(cx2_h_thres_size, GFP_KERNEL);
-
 					while (cx2_h_thres_index < cx2_h_thres_size)
 						cx2_h_thres[cx2_h_thres_index++] = configData[i];
-
-					i++;
+						i++;
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 01 configData[i] = %d\n", __func__, configData[i]);
+					tp_log("%s,0xaa0x55 01 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1543,7 +1506,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 
 					i++;
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 02 configData[i] = %d\n", __func__, configData[i]);
+						tp_log("%s,0xaa0x55 02 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1558,7 +1521,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 
 					i++;
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 03 configData[i] = %d\n", __func__, configData[i]);
+						tp_log("%s,0xaa0x55 03 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1573,7 +1536,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 
 					i++;
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 04 configData[i] = %d\n", __func__, configData[i]);
+						tp_log("%s,0xaa0x55 04 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1593,7 +1556,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 
 					i = i + 2;
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 05 configData[i] = %d\n", __func__, configData[i]);
+						tp_log("%s,0xaa0x55 05 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1613,7 +1576,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 
 					i = i + 2;
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 06 configData[i] = %d\n", __func__, configData[i]);
+						tp_log("%s,0xaa0x55 06 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1632,7 +1595,8 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 						self_cx2_min[self_cx2_min_index++] = configData[i]<<8|configData[i+1];
 
 					i = i + 2;
-					if (debug_mode)tp_log("%s, 0xaa0x55 07 configData[i] = %d\n", __func__, configData[i]);
+					if (debug_mode)
+						tp_log("%s,0xaa0x55 07 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
@@ -1653,14 +1617,14 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 					i = i + 2;
 
 					if (debug_mode)
-						tp_log("%s, 0xaa0x55 08 configData[i] = %d\n", __func__, configData[i]);
+						tp_log("%s,0xaa0x55 08 configData[i] = %d\n", __func__, configData[i]);
 
 					break;
 				}
 			}
 
 			if (debug_mode)
-				tp_log("%s, 0xaa0x55 switch exit configData[i] = %d\n", __func__, configData[i]);
+				tp_log("%s,0xaa0x55 switch exit configData[i] = %d\n", __func__, configData[i]);
 		} else if ((configData[i] == 0xAA) && (configData[i+1] == 0x56)) {
 			i = i + 2;
 			if (debug_mode)
@@ -1701,7 +1665,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 			int tx, rx;
 			i = i + 2;
 			if (debug_mode)
-				tp_log("%s, 0xaa0x57 configData[i] \n", __func__);
+				tp_log("%s,0xaa0x57 configData[i] \n", __func__);
 			tx = configData[i++];
 			rx = configData[i++];
 			sp_cx2_gap_node_count = configData[i++];
@@ -1714,7 +1678,7 @@ static ssize_t fts_production_test_show(struct device *dev, struct device_attrib
 		} else {
 			i++;
 			if (debug_mode)
-				tp_log("%s, Data not matching %d\n", __func__, configData[i]);
+				tp_log("%s,Data not matching %d\n", __func__, configData[i]);
 		}
 	}
 
@@ -1916,35 +1880,35 @@ static ssize_t fts_ito_test_show(struct device *dev, struct device_attribute *at
 				switch (data[2]) {
 				case ERR_ITO_PANEL_OPEN_FORCE:
 					dev_err(info->dev, "ITO Test result : Force channel [%d] open.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_PANEL_OPEN_SENSE:
 					dev_err(info->dev, "ITO Test result : Sense channel [%d] open.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_F2G:
 					dev_err(info->dev, "ITO Test result : Force channel [%d] short to GND.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_S2G:
 					dev_err(info->dev, "ITO Test result : Sense channel [%d] short to GND.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_F2VDD:
 					dev_err(info->dev, "ITO Test result : Force channel [%d] short to VDD.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_S2VDD:
 					dev_err(info->dev, "ITO Test result : Sense channel [%d] short to VDD.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_P2P_FORCE:
 					dev_err(info->dev, "ITO Test result : Force channel [%d] ,Pin to Pin short.\n",
-							data[3]);
+						data[3]);
 					break;
 				case ERR_ITO_P2P_SENSE:
 					dev_err(info->dev, "ITO Test result : Sense channel [%d] Pin to Pin short.\n",
-							data[3]);
+						data[3]);
 					break;
 				default:
 					break;
@@ -1967,7 +1931,7 @@ static ssize_t fts_ito_test_show(struct device *dev, struct device_attribute *at
 	fts_command(info, FLUSHBUFFER);
 	fts_interrupt_set(info, INT_ENABLE);
 
-	snprintf(buff, sizeof(buff), "%02X",0xAA);
+	snprintf(buff, sizeof(buff), "%02X", 0xAA);
 	strncat(all_strbuff, buff, size);
 
 	snprintf(buff, sizeof(buff), "%02X", ito_check_status);
@@ -2611,218 +2575,6 @@ static ssize_t fts_read_self_strength_show(struct device *dev, struct device_att
 
 }
 
-#if 0
-static ssize_t fts_read_mskey_tune_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	struct i2c_client *client = to_i2c_client(dev);
-	struct fts_ts_info *info = i2c_get_clientdata(client);
-	unsigned char *all_strbuff = NULL;
-	unsigned char *mutual_key_data = NULL;
-	unsigned char cx1_num = 0;
-	char buff[CMD_STR_LEN] = {0};
-	unsigned char regAdd[8];
-	unsigned char buff_read[17];
-	unsigned char data[FTS_EVENT_SIZE];
-	unsigned int rx_num, tx_num, mskeyNum = 0;
-	int count = 0;
-	int j = 0;
-	int error = 0;
-	int address_offset = 0;
-	int start_tx_offset = 0;
-	int retry = 0;
-	int size = 0;
-
-	fts_interrupt_set(info, INT_DISABLE);
-	fts_command(info, SENSEOFF);
-#ifdef PHONE_KEY
-	fts_command(info, KEYOFF);
-#endif
-	fts_command(info, FLUSHBUFFER);
-
-	regAdd[0] = 0xB8;
-	regAdd[1] = 0x10;
-	regAdd[2] = 0x00;
-	fts_write_reg(info, regAdd, 3);
-
-	for (retry = 0; retry <= READ_CNT; retry++) {
-		regAdd[0] = READ_ONE_EVENT;
-		error = fts_read_reg(info, regAdd, 1, data, FTS_EVENT_SIZE);
-		if (error)
-			return -ENODEV;
-
-		if ((data[0] == EVENTID_COMP_DATA_READ) && (data[1] == 0x10))
-			break;
-		else {
-			msleep(10);
-			if(retry == READ_CNT)
-				tp_log("fts_read_mutual_tune_show : TIMEOUT ,Cannot read completion event\n");
-		}
-	}
-
-	regAdd[0] = 0xD0;
-	regAdd[1] = 0x00;
-	regAdd[2] = 0x50;
-	fts_read_reg(info, regAdd, 3, &buff_read[0], 4);
-
-	start_tx_offset = ((buff_read[2] << 8) | buff_read[1]);
-	address_offset = start_tx_offset + 0x10;
-
-	regAdd[0] = 0xD0;
-	regAdd[1] = (unsigned char)((start_tx_offset & 0xFF00) >> 8);
-	regAdd[2] = (unsigned char)(start_tx_offset & 0xFF);
-	fts_read_reg(info, regAdd, 3, &buff_read[0], 17);
-
-	tx_num = data[4];
-	rx_num = data[5];
-	cx1_num = buff_read[10];
-
-	if (tx_num > rx_num)
-		mskeyNum = tx_num;
-	else
-		mskeyNum = rx_num;
-
-	size = ((mskeyNum + 4) * 2);
-	all_strbuff = (unsigned char *)kmalloc(size, GFP_KERNEL);
-	mutual_key_data = (unsigned char *)kmalloc((mskeyNum+1), GFP_KERNEL);
-
-	memset(all_strbuff, 0, sizeof(char) * size);
-
-	snprintf(buff, sizeof(buff), "%02X", 0xAA);
-	strncat(all_strbuff, buff, size);
-
-	snprintf(buff, sizeof(buff), "%02X", mskeyNum);
-	strncat(all_strbuff, buff, size);
-
-	snprintf(buff, sizeof(buff), "%02X", cx1_num);
-	strncat(all_strbuff, buff, size);
-
-	regAdd[0] = 0xD0;
-	regAdd[1] = (unsigned char)((address_offset & 0xFF00) >> 8);
-	regAdd[2] = (unsigned char)(address_offset & 0xFF);
-	fts_read_reg(info, regAdd, 3, mutual_key_data, (mskeyNum + 1));
-
-	for (j = 1; j < ((mskeyNum)+1); j++) {
-			snprintf(buff, sizeof(buff), "%02X", mutual_key_data[j]);
-			strncat(all_strbuff, buff, size);
-	}
-
-	snprintf(buff, sizeof(buff), "%02X", 0xBB);
-	strncat(all_strbuff, buff, size);
-
-	fts_interrupt_set(info, INT_ENABLE);
-	fts_command(info, SENSEON);
-#ifdef PHONE_KEY
-	fts_command(info, KEYON);
-#endif
-	count = snprintf(buf, TSP_BUF_SIZE, "%s\n", all_strbuff);
-	kfree(all_strbuff);
-	kfree(mutual_key_data);
-	return count;
-}
-
-static ssize_t fts_read_mskey_raw_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	struct i2c_client *client = to_i2c_client(dev);
-	struct fts_ts_info *info = i2c_get_clientdata(client);
-	unsigned char *all_strbuff = NULL;
-	unsigned char *mskey_raw_data = NULL;
-	char buff[CMD_STR_LEN] = {0};
-	unsigned char regAdd[8];
-	unsigned char buff_read[17];
-	unsigned char data[FTS_EVENT_SIZE];
-	unsigned int rx_num, tx_num, mskeyNum = 0;
-	int count = 0;
-	int j = 0;
-	int error = 0;
-	int address_offset = 0;
-	int retry = 0;
-	int size = 0;
-	int size_hex = 0;
-
-	fts_interrupt_set(info, INT_DISABLE);
-	fts_command(info, SENSEON);
-#ifdef PHONE_KEY
-	fts_command(info, KEYON);
-#endif
-	fts_command(info, FLUSHBUFFER);
-
-	regAdd[0] = 0xB8;
-	regAdd[1] = 0x10;
-	regAdd[2] = 0x00;
-	fts_write_reg(info, regAdd, 3);
-
-	for (retry = 0; retry <= READ_CNT; retry++) {
-		regAdd[0] = READ_ONE_EVENT;
-		error = fts_read_reg(info, regAdd, 1, data, FTS_EVENT_SIZE);
-		if (error) {
-			tp_log("fts_read_mutual_raw_show : I2c READ ERROR : Cannot read device info\n");
-			return -ENODEV;
-		}
-
-		printk("FTS fts status event: %02X %02X %02X %02X %02X %02X %02X %02X\n",
-				data[0], data[1], data[2], data[3],
-				data[4], data[5], data[6], data[7]);
-
-		if ((data[0] == EVENTID_COMP_DATA_READ) && (data[1] == 0x10))
-			break;
-		else {
-			msleep(10);
-			if(retry == READ_CNT)
-				tp_log("fts_read_mutual_raw_show : TIMEOUT ,Cannot read completion event\n");
-		}
-	}
-
-	tx_num = data[4];
-	rx_num = data[5];
-
-	if (tx_num > rx_num)
-		mskeyNum = tx_num;
-	else
-		mskeyNum = rx_num;
-
-	size = ((mskeyNum * 2 + 3) * 2);
-	size_hex = mskeyNum * 2;
-
-	regAdd[0] = 0xD0;
-	regAdd[1] = 0x00;
-	regAdd[2] = 0x32;
-	fts_read_reg(info, regAdd, 3, &buff_read[0], 4);
-
-	address_offset = ((buff_read[2] << 8) | buff_read[1]) + (rx_num * 2);
-
-	all_strbuff = (unsigned char *)kmalloc(size, GFP_KERNEL);
-	mskey_raw_data = (unsigned char *)kmalloc((size_hex + 1), GFP_KERNEL);
-
-	memset(all_strbuff, 0, sizeof(char)*size);
-
-	snprintf(buff, sizeof(buff), "%02X", 0xAA);
-	strncat(all_strbuff, buff, size);
-
-	snprintf(buff, sizeof(buff), "%02X", mskeyNum);
-	strncat(all_strbuff, buff, size);
-
-	regAdd[0] = 0xD0;
-	regAdd[1] = (unsigned char)((address_offset & 0xFF00) >> 8);
-	regAdd[2] = (unsigned char)(address_offset & 0xFF);
-	fts_read_reg(info, regAdd, 3, mskey_raw_data, (size_hex + 1));
-
-	for (j = 1; j < (size_hex + 1); j++) {
-		snprintf(buff, sizeof(buff), "%02X", mskey_raw_data[j]);
-		strncat(all_strbuff, buff, size);
-	}
-
-	snprintf(buff, sizeof(buff), "%02X", 0xBB);
-	strncat(all_strbuff, buff, size);
-
-	fts_interrupt_set(info, INT_ENABLE);
-	count = snprintf(buf, TSP_BUF_SIZE, "%s\n", all_strbuff);
-
-	kfree(all_strbuff);
-	kfree(mskey_raw_data);
-	return count;
-}
-#endif
-
 static DEVICE_ATTR(fwupdate, (S_IRUGO|S_IWUSR|S_IWGRP), fts_sysfs_fwupdate_show, fts_fw_control_store);
 /**/
 static DEVICE_ATTR(gesture_control, (S_IRUGO|S_IWUSR|S_IWGRP), fts_gesture_control_show, fts_gesture_control_store);
@@ -2865,10 +2617,6 @@ static struct attribute *fts_attr_group[] = {
 	&dev_attr_read_self_raw.attr,
 	&dev_attr_read_mutual_strength.attr,
 	&dev_attr_read_self_strength.attr,
-#if 0
-	&dev_attr_read_mskey_tune.attr,
-	&dev_attr_read_mskey_raw.attr,
-#endif
 	&dev_attr_prod_test.attr,
 	NULL,
 };
@@ -3171,7 +2919,7 @@ static int fts_get_fw_version(struct fts_ts_info *info)
 		return -ENODEV;
 	} else {
 		info->config_id = (val[3] << 8) | val[4];
-		pr_err("!!!read 0xAA result: val[0]:%x, val[1]:%x, val[2]:%x, val[3]:%x, val[4]:%x, val[5]:%x, val[6]:%x, val[7]:%x \n", val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]);
+		pr_err("!!!read 0xAA result: val[0]:%x,val[1]:%x,val[2]:%x,val[3]:%x,val[4]:%x,val[5]:%x,val[6]:%x,val[7]:%x \n", val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]);
 	}
 
 	fts_interrupt_set(info, INT_ENABLE);
@@ -3618,85 +3366,8 @@ static unsigned char *fts_leave_pointer_event_handler(struct fts_ts_info *info,
 #define fts_motion_pointer_event_handler fts_enter_pointer_event_handler
 
 
-/* EventId : 0x07 */
-#if 0
-static unsigned char *fts_hover_enter_pointer_event_handler(
-			struct fts_ts_info *info, unsigned char *event)
-{
-	unsigned char touchId;
-	int x, y, z;
-
-
-	touchId = event[1] & 0x0F;
-
-	__set_bit(touchId, &info->touch_id);
-
-	x = (event[2] << 4) | (event[4] & 0xF0) >> 4;
-	y = (event[3] << 4) | (event[4] & 0x0F);
-#define HOVER_ENTER_Z_VALUE 0
-	z = HOVER_ENTER_Z_VALUE;
-
-	if (x == X_AXIS_MAX)
-		x--;
-
-	if (y == Y_AXIS_MAX)
-		y--;
-
-	input_mt_slot(info->input_dev, touchId);
-	input_report_abs(info->input_dev, ABS_MT_TRACKING_ID, touchId);
-	input_report_abs(info->input_dev, ABS_MT_POSITION_X, x);
-	input_report_abs(info->input_dev, ABS_MT_POSITION_Y, y);
-	input_report_abs(info->input_dev, ABS_MT_TOUCH_MAJOR, z);
-	input_report_abs(info->input_dev, ABS_MT_TOUCH_MINOR, z);
-	input_report_abs(info->input_dev, ABS_MT_PRESSURE, z);
-
-	return fts_next_event(event);
-}
-
-
-/* EventId : 0x08 */
-#define fts_hover_leave_pointer_event_handler   fts_leave_pointer_event_handler
-#endif
-
 /* EventId : 0x09 */
 #define fts_hover_motion_pointer_event_handler fts_hover_enter_pointer_event_handler
-
-#if 0
-/* EventId : 0x0B */
-static unsigned char *fts_proximity_enter_event_handler(
-			struct fts_ts_info *info, unsigned char *event)
-{
-	unsigned char touchId;
-	int x;
-	int y;
-	int z;
-
-	dev_dbg(info->dev, "Received event 0x%02x\n", event[0]);
-
-	touchId = event[1] & 0x0F;
-
-	__set_bit(touchId, &info->touch_id);
-
-	x = X_AXIS_MAX / 2;
-	y = Y_AXIS_MAX / 2;
-#define PROXIMITY_ENTER_Z_VALUE 0
-	z = PROXIMITY_ENTER_Z_VALUE;
-
-	input_mt_slot(info->input_dev, touchId);
-	input_report_abs(info->input_dev, ABS_MT_TRACKING_ID, touchId);
-	input_report_abs(info->input_dev, ABS_MT_POSITION_X, x);
-	input_report_abs(info->input_dev, ABS_MT_POSITION_Y, y);
-	input_report_abs(info->input_dev, ABS_MT_TOUCH_MAJOR, z);
-	input_report_abs(info->input_dev, ABS_MT_TOUCH_MINOR, z);
-	input_report_abs(info->input_dev, ABS_MT_PRESSURE, z);
-
-	return fts_next_event(event);
-}
-
-
-/* EventId : 0x0C */
-#define fts_proximity_leave_event_handler fts_leave_pointer_event_handler
-#endif
 
 /* EventId : 0x0E */
 static unsigned char *fts_button_status_event_handler(struct fts_ts_info *info,
@@ -3736,28 +3407,28 @@ static unsigned char *fts_error_event_handler(struct fts_ts_info *info,
 	dev_dbg(info->dev, "Received event 0x%02x\n", event[0]);
 
 	if (event[1] == 0x0a) {
-		 if (info->bus_reg) {
-		    error = regulator_disable(info->bus_reg);
-		    if (error < 0) {
-			    dev_err(info->dev,
-						"%s: Failed to enable bus pullup regulator\n", __func__);
-		    }
-	    }
-	    if (info->pwr_reg) {
-		    error = regulator_disable(info->pwr_reg);
-		    if (error < 0) {
-			    dev_err(info->dev,
-						"%s: Failed to enable power regulator\n", __func__);
-		    }
-	    }
+		if (info->bus_reg) {
+			error = regulator_disable(info->bus_reg);
+			if (error < 0) {
+				dev_err(info->dev,
+					"%s: Failed to enable bus pullup regulator\n", __func__);
+			}
+		}
+		if (info->pwr_reg) {
+			error = regulator_disable(info->pwr_reg);
+			if (error < 0) {
+				dev_err(info->dev,
+					"%s: Failed to enable power regulator\n", __func__);
+			}
+		}
 
-	    msleep(300);
+		msleep(300);
 		if (info->pwr_reg)
 		    error = regulator_enable(info->pwr_reg);
 
-	    if (info->bus_reg)
-		    error = regulator_enable(info->bus_reg);
-		 msleep(300);
+		if (info->bus_reg)
+			error = regulator_enable(info->bus_reg);
+		msleep(300);
 
 		for (i = 0; i < TOUCH_ID_MAX; i++) {
 			input_mt_slot(info->input_dev, i);
@@ -3832,77 +3503,6 @@ static unsigned char *fts_status_event_handler(
 
 /* EventId : 0x05 */
 #define fts_motion_pointer_event_handler fts_enter_pointer_event_handler
-
-
-/* EventId : 0x20 */
-#if 0
-static unsigned char *fts_gesture_event_handler(
-					 struct fts_ts_info *info, unsigned char *event)
-
-{
-	unsigned char touchId;
-
-	dev_dbg(info->dev, "%s Received event 0x%02x  event[1]  = %d\n", __func__, event[0], event[1]);
-
-	/* always use touchId zero */
-	touchId = 0;
-	__set_bit(touchId, &info->touch_id);
-
-
-	switch (event[1]) {
-	case 0x02:
-		info->gesture_value = UNICODE_O;
-		break;
-	case 0x03:
-		info->gesture_value = UNICODE_C;
-		break;
-	case 0x04:
-		info->gesture_value = UNICODE_M;
-		break;
-	case 0x05:
-		info->gesture_value = UNICODE_W;
-		break;
-	case 0x06:
-		info->gesture_value = UNICODE_E;
-		break;
-	case 0x0a:
-		info->gesture_value = SWIPE_Y_UP;
-		break;
-	case 0x09:
-		info->gesture_value = SWIPE_Y_DOWN;
-		break;
-	case 0x07:
-		info->gesture_value = SWIPE_X_RIGHT;
-			break;
-	case 0x08:
-		info->gesture_value = SWIPE_X_LEFT;
-			break;
-	case 0x01:
-		info->gesture_value = DOUBLE_TAP;
-		break;
-	case 0x0D:
-		info->gesture_value = UNICODE_V_DOWN;
-		break;
-	case 0x0F:
-		info->gesture_value = UNICODE_S;
-		break;
-	case 0x10:
-		info->gesture_value = UNICODE_Z;
-		break;
-	default:
-		return 0;
-	}
-
-	input_sync(info->input_dev);
-
-	/*
-	* Done with gesture event, clear bit.
-	*/
-	__clear_bit(touchId, &info->touch_id);
-
-	return fts_next_event(event);
-}
-#endif
 
 static unsigned char *fts_pen_enter_event_handler(
 			struct fts_ts_info *info, unsigned char *event)
@@ -4048,7 +3648,7 @@ static int cx_crc_check(struct fts_ts_info *info)
 	error = fts_read_reg(info, regAdd1, sizeof(regAdd1), val, sizeof(val));
 	if (error) {
 		dev_err(info->dev, "Cannot read crc status\n");
-		return -EPERM;
+		return -ENOENT;
 	}
 
 	crc_status = val[1] & 0x02;
@@ -4157,8 +3757,7 @@ static irqreturn_t fts_interrupt_handler(int irq, void *handle)
 
 static int fts_wait_controller_ready(struct fts_ts_info *info)
 {
-	unsigned int retry = 0,
-				error = 0;
+	unsigned int retry = 0, error = 0;
 
 	unsigned char regAdd[8];
 	unsigned char data[FTS_EVENT_SIZE];
@@ -4171,13 +3770,12 @@ static int fts_wait_controller_ready(struct fts_ts_info *info)
 			return -ENODEV;
 		}
 
-		if (data[0] == EVENTID_CONTROLLER_READY) {
+		if (data[0] == EVENTID_CONTROLLER_READY)
 			break;
-		} else {
+		else {
 			msleep(10);
-			if (retry == CNRL_RDY_CNT)
-			{
-				tp_log("%s : TIMEOUT , Cannot read controller ready event after system reset\n", __func__);
+			if (retry == CNRL_RDY_CNT) {
+				tp_log("%s : TIMEOUT ,Cannot read controller ready event after system reset\n", __func__);
 				return -ENODEV;
 			}
 		}
@@ -4206,13 +3804,6 @@ static int fts_interrupt_install(struct fts_ts_info *info)
 
 	install_handler(info, BUTTON_STATUS, button_status);
 
-#if 0
-	install_handler(info, HOVER_ENTER_POINTER, hover_enter_pointer);
-	install_handler(info, HOVER_LEAVE_POINTER, hover_leave_pointer);
-	install_handler(info, HOVER_MOTION_POINTER, hover_motion_pointer);
-	install_handler(info, PROXIMITY_ENTER, proximity_enter);
-	install_handler(info, PROXIMITY_LEAVE, proximity_leave);
-#endif
 	install_handler(info, ERROR, error);
 	install_handler(info, CONTROLLER_READY, controller_ready);
 	install_handler(info, STATUS, status);
@@ -4334,7 +3925,7 @@ static int fts_chip_powercycle(struct fts_ts_info *info)
 		gpio_set_value(info->bdata->reset_gpio, 1);
 		msleep(500);
 
-		//before reset clear all slot
+
 		for (i = 0; i < TOUCH_ID_MAX; i++) {
 			input_mt_slot(info->input_dev, i);
 			input_mt_report_slot_state(info->input_dev,
@@ -4475,8 +4066,8 @@ static int fts_get_init_status(struct fts_ts_info *info)
 			break;
 		else {
 			msleep(10);
-			if(retry == READ_CNT)
-				tp_log("%s : TIMEOUT , Cannot read completion event for SS Touch compensation \n", __func__);
+			if (retry == READ_CNT)
+				tp_log("%s : TIMEOUT ,Cannot read completion event for SS Touch compensation \n", __func__);
 		}
 	}
 

@@ -2,7 +2,7 @@
 /*
  * FocalTech TouchScreen driver.
  * Copyright (c) 2010-2016, FocalTech Systems, Ltd., all rights reserved.
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.

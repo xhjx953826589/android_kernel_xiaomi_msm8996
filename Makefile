@@ -622,6 +622,9 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
+# Disable all format-overflow warnings
+KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
+
 # Disable all maybe-uninitialized warnings
 KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
 

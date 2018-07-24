@@ -87,8 +87,8 @@ static int captouch_open(struct inode *inode, struct file *file)
 	int rc = 0;
 
 	struct captouch_drvdata *drvdata = container_of(inode->i_cdev,
-			struct captouch_drvdata,
-			captouch_cdev);
+						   struct captouch_drvdata,
+						   captouch_cdev);
 	file->private_data = drvdata;
 
 	return rc;
@@ -123,7 +123,7 @@ static long captouch_ioctl(struct file *file, unsigned cmd, unsigned long arg)
 
 	if (IS_ERR(priv_arg)) {
 		dev_err(drvdata->dev, "%s: invalid user space pointer %lu\n",
-				__func__, arg);
+			__func__, arg);
 		return -EINVAL;
 	}
 
@@ -171,7 +171,7 @@ static ssize_t captouch_read(struct file *filp, char __user *ubuf,
 	mutex_unlock(&drvdata->mutex);
 
 	wait_event_interruptible(drvdata->eventq,
-			(drvdata->event > CAPTOUCH_TYPE_NONE));
+				(drvdata->event > CAPTOUCH_TYPE_NONE));
 
 	mutex_lock(&drvdata->mutex);
 	retval = drvdata->event;
@@ -189,7 +189,7 @@ void captouch_timer_fn(unsigned long arg)
 	struct captouch_drvdata *drvdata = (struct captouch_drvdata *)arg;
 
 	dev_info(drvdata->dev, "%s: touch event timer fired. awakening the readers.\n",
-			__func__);
+		__func__);
 	drvdata->event = CAPTOUCH_TYPE_FINGER_DOWN;
 	drvdata->timer_scheduled = false;
 	wake_up_interruptible(&drvdata->eventq);
@@ -224,8 +224,6 @@ static ssize_t captouch_write(struct file *filp,
 	buf[cnt] = '\0';
 	cmp = strstrip(buf);
 
-
-
 	mutex_lock(&drvdata->mutex);
 	if (drvdata->timer_scheduled) {
 		dev_info(drvdata->dev, "%s: touch event already scheduled\n", __func__);
@@ -235,12 +233,12 @@ static ssize_t captouch_write(struct file *filp,
 		if (!strcmp(str, "wake") && str_running) {
 			if (kstrtol(str_running, 0, &timeout_secs)) {
 				dev_err(drvdata->dev, "%s: error parsing %s",
-						__func__, str_running);
+					__func__, str_running);
 				/* use 30 seconds default timeout */
 				timeout_secs = 30;
 			}
 			dev_info(drvdata->dev, "%s: scheduling touch event in %ld seconds\n",
-					__func__, timeout_secs);
+				__func__, timeout_secs);
 			captouch_schedule_touch_event(drvdata, timeout_secs);
 		}
 	}
@@ -305,7 +303,7 @@ static int captouch_dev_register(struct captouch_drvdata *drvdata)
 	ret = alloc_chrdev_region(&dev_no, 0, 1, drvdata->captouch_node);
 	if (ret) {
 		dev_err(drvdata->dev, "%s: alloc_chrdev_region failed %d\n",
-				__func__, ret);
+			__func__, ret);
 		goto err_alloc;
 	}
 
@@ -315,26 +313,26 @@ static int captouch_dev_register(struct captouch_drvdata *drvdata)
 	ret = cdev_add(&drvdata->captouch_cdev, dev_no, 1);
 	if (ret) {
 		dev_err(drvdata->dev, "%s: cdev_add failed %d\n", __func__,
-				ret);
+			ret);
 		goto err_cdev_add;
 	}
 
 	drvdata->captouch_class = class_create(THIS_MODULE,
-			drvdata->captouch_node);
+					   drvdata->captouch_node);
 	if (IS_ERR(drvdata->captouch_class)) {
 		ret = PTR_ERR(drvdata->captouch_class);
 		dev_err(drvdata->dev, "%s: class_create failed %d\n", __func__,
-				ret);
+			ret);
 		goto err_class_create;
 	}
 
 	device = device_create(drvdata->captouch_class, NULL,
-			drvdata->captouch_cdev.dev, drvdata,
-			drvdata->captouch_node);
+			       drvdata->captouch_cdev.dev, drvdata,
+			       drvdata->captouch_node);
 	if (IS_ERR(device)) {
 		ret = PTR_ERR(device);
 		dev_err(drvdata->dev, "%s: device_create failed %d\n",
-				__func__, ret);
+			__func__, ret);
 		goto err_dev_create;
 	}
 
@@ -355,7 +353,7 @@ bool captouch_get_status(void)
 	/*TODO: check SSC FD when resume*/
 
 	dev_info(g_drvdata->dev, "%s: homekey_enabled = %s\n",
-			__func__, g_drvdata->homekey_enabled ? "true":"false");
+		__func__, g_drvdata->homekey_enabled ? "true":"false");
 
 	return g_drvdata->homekey_enabled;
 }
@@ -410,8 +408,8 @@ static int captouch_probe(struct platform_device *pdev)
 	if (rc < 0)
 		goto end;
 
-	captouch_key_report_ptr = captouch_key_report;
-	captouch_get_status_ptr = captouch_get_status;
+//	captouch_key_report_ptr = captouch_key_report;
+//	captouch_get_status_ptr = captouch_get_status;
 	wake_lock_init(&drvdata->ttw_wl, WAKE_LOCK_SUSPEND, "captouch_ttw_wl");
 
 end:

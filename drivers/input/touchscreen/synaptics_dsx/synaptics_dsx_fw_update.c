@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
  * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,22 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
- * INFORMATION CONTAINED IN THIS DOCUMENT IS PROVIDED "AS-IS," AND SYNAPTICS
- * EXPRESSLY DISCLAIMS ALL EXPRESS AND IMPLIED WARRANTIES, INCLUDING ANY
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
- * AND ANY WARRANTIES OF NON-INFRINGEMENT OF ANY INTELLECTUAL PROPERTY RIGHTS.
- * IN NO EVENT SHALL SYNAPTICS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, PUNITIVE, OR CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN CONNECTION
- * WITH THE USE OF THE INFORMATION CONTAINED IN THIS DOCUMENT, HOWEVER CAUSED
- * AND BASED ON ANY THEORY OF LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * NEGLIGENCE OR OTHER TORTIOUS ACTION, AND EVEN IF SYNAPTICS WAS ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE. IF A TRIBUNAL OF COMPETENT JURISDICTION DOES
- * NOT PERMIT THE DISCLAIMER OF DIRECT DAMAGES OR ANY OTHER DAMAGES, SYNAPTICS'
- * TOTAL CUMULATIVE LIABILITY TO ANY PARTY SHALL NOT EXCEED ONE HUNDRED U.S.
- * DOLLARS.
  */
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -42,8 +27,6 @@
 #include <linux/platform_device.h>
 #include <linux/input/synaptics_dsx.h>
 #include "synaptics_dsx_core.h"
-#include <linux/hwinfo.h>
-#include <linux/input/touch_common_info.h>
 #define FW_IMAGE_NAME "synaptics/startup_fw_update.img"
 #define DO_STARTUP_FW_UPDATE
 
@@ -661,7 +644,6 @@ struct synaptics_rmi4_fwu_handle {
 	struct synaptics_rmi4_data *rmi4_data;
 	struct workqueue_struct *fwu_workqueue;
 	struct work_struct fwu_work;
-	bool hwinfo_acquired;
 };
 
 static struct bin_attribute dev_attr_data = {
@@ -1740,7 +1722,6 @@ static int fwu_read_f34_lockdown_data(void)
 	int retval = 0;
 	unsigned short block_count;
 	struct synaptics_rmi4_data *rmi4_data = fwu->rmi4_data;
-	u8 *tp_maker;
 
 	if (!fwu->has_lockdown_data)
 		return -EINVAL;
@@ -1767,21 +1748,6 @@ static int fwu_read_f34_lockdown_data(void)
 			fwu->read_config_buf[8], fwu->read_config_buf[9],
 			fwu->read_config_buf[10], fwu->read_config_buf[11]);
 
-	if (rmi4_data->lockdown_info[0] == 0x31)
-		update_hardware_info(TYPE_TP_MAKER, 1); /* Biel D1 */
-	else if (rmi4_data->lockdown_info[0] == 0x35)
-		update_hardware_info(TYPE_TP_MAKER, 4); /* Biel TPB */
-	if (!fwu->hwinfo_acquired) {
-		tp_maker = kzalloc(20, GFP_KERNEL);
-		if (tp_maker == NULL)
-			dev_err(rmi4_data->pdev->dev.parent, "%s: Failed to alloc vendor name memory\n", __func__);
-		else {
-			strlcpy(tp_maker, update_hw_component_touch_module_info(rmi4_data->lockdown_info[0]), 20);
-			fwu->hwinfo_acquired = true;
-			kfree(tp_maker);
-			tp_maker = NULL;
-		}
-	}
 	return retval;
 }
 
@@ -2297,7 +2263,6 @@ static int fwu_read_f34_guest_serialization_partition(void)
 	int retval = 0;
 	unsigned short block_count;
 	struct synaptics_rmi4_data *rmi4_data = fwu->rmi4_data;
-	char *tp_maker;
 
 	fwu->config_area = PM_CONFIG_AREA;
 	if (!fwu->flash_properties.has_pm_config) {
@@ -2338,22 +2303,6 @@ static int fwu_read_f34_guest_serialization_partition(void)
 			fwu->read_config_buf[2], fwu->read_config_buf[3],
 			fwu->read_config_buf[4], fwu->read_config_buf[5],
 			fwu->read_config_buf[6], fwu->read_config_buf[7]);
-
-	if (rmi4_data->lockdown_info[0] == 0x31)
-		update_hardware_info(TYPE_TP_MAKER, 1); /* Biel D1 */
-	else if (rmi4_data->lockdown_info[0] == 0x35)
-		update_hardware_info(TYPE_TP_MAKER, 4); /* Biel TPB */
-	if (!fwu->hwinfo_acquired) {
-		tp_maker = kzalloc(20, GFP_KERNEL);
-		if (tp_maker == NULL)
-			dev_err(rmi4_data->pdev->dev.parent, "%s: Failed to alloc vendor name memory\n", __func__);
-		else {
-			strlcpy(tp_maker, update_hw_component_touch_module_info(rmi4_data->lockdown_info[0]), 20);
-			fwu->hwinfo_acquired = true;
-			kfree(tp_maker);
-			tp_maker = NULL;
-		}
-	}
 
 	return retval;
 }

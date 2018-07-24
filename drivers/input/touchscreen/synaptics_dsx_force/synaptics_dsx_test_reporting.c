@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
  * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
- * Copyright (C) 2018 XiaoMi, Inc.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -223,10 +223,6 @@
 #define FULL_RAW_CAP_MIN_MAX_DATA_SIZE 4
 #define TRX_OPEN_SHORT_DATA_SIZE 7
 
-
-#define F54_POLLING_GET_REPORT
-
-
 #define TDDI_SHORT_LIMIT_B			150
 #define TDDI_NOISE_LIMIT			28
 
@@ -234,14 +230,8 @@
 #define TDDI_OPEN_TEST_INT_DUR_TWO		15
 #define TDDI_OPEN_TEST_LIMIT_PHASE2_LOWER	50
 
-#define TDDI_B7_OPEN_TEST_INT_DUR_ONE		23
-#define TDDI_B7_OPEN_TEST_INT_DUR_TWO		27
-#define TDDI_B7_OPEN_TEST_LIMIT_PHASE2_LOWER	0
-#define TDDI_B7_OPEN_TEST_LIMIT_PHASE2_UPPER   120
-
 #define ABS_0D_OPEN_FACTOR 8
-#define ABS_0D_OPEN_TEST_LIMIT_A7 30
-#define ABS_0D_OPEN_TEST_LIMIT_B7 45
+#define ABS_0D_OPEN_TEST_LIMIT 30
 
 #define TEST_INVALID	0
 #define TEST_FAILED	1
@@ -1157,7 +1147,6 @@ struct f54_control {
 struct synaptics_rmi4_f54_handle {
 	bool no_auto_cal;
 	bool skip_preparation;
-	bool dump_flags;
 	char *data;
 	unsigned char status;
 	unsigned char intr_mask;
@@ -1444,7 +1433,6 @@ show_store_prototype(td43xx_full_raw)
 show_store_prototype(td43xx_noise)
 show_store_prototype(td43xx_ee_short)
 show_store_prototype(td43xx_amp_open)
-show_store_prototype(td4722_b7_amp_open)
 show_store_prototype(abs_0d_open_w_autoservo)
 /* td43xx end */
 
@@ -1471,7 +1459,6 @@ static struct attribute *attrs[] = {
 	attrify(td43xx_noise),
 	attrify(td43xx_ee_short),
 	attrify(td43xx_amp_open),
-	attrify(td4722_b7_amp_open),
 	attrify(abs_0d_open_w_autoservo),
 	/* td43xx end */
 	NULL,
@@ -1733,9 +1720,6 @@ static int test_wait_for_command_completion(void)
 
 	timeout_count = 0;
 	do {
-		if (rmi4_data->suspend)
-			return -EINVAL;
-
 		retval = synaptics_rmi4_reg_read(rmi4_data,
 				f54->command_base_addr,
 				&value,
@@ -2436,81 +2420,6 @@ exit:
 	return retval;
 }
 
-/* tddi f54 test reporting + */
-#ifdef F54_POLLING_GET_REPORT
-static ssize_t test_sysfs_get_report_polling(void)
-{
-	int retval = 0;
-	unsigned char report_index[2];
-	struct synaptics_rmi4_data *rmi4_data = f54->rmi4_data;
-
-	retval = test_wait_for_command_completion();
-	if (retval < 0) {
-		retval = -EIO;
-		f54->status = STATUS_ERROR;
-		return retval;
-	}
-
-	test_set_report_size();
-	if (f54->report_size == 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Report data size = 0\n", __func__);
-		retval = -EIO;
-		f54->status = STATUS_ERROR;
-		return retval;
-	}
-
-	if (f54->data_buffer_size < f54->report_size) {
-		if (f54->data_buffer_size)
-			kfree(f54->report_data);
-		f54->report_data = kzalloc(f54->report_size, GFP_KERNEL);
-		if (!f54->report_data) {
-			dev_err(rmi4_data->pdev->dev.parent,
-					"%s: Failed to alloc mem for data buffer\n", __func__);
-			f54->data_buffer_size = 0;
-			retval = -EIO;
-			f54->status = STATUS_ERROR;
-			return retval;
-		}
-		f54->data_buffer_size = f54->report_size;
-	}
-
-	report_index[0] = 0;
-	report_index[1] = 0;
-
-	retval = synaptics_rmi4_reg_write(rmi4_data,
-			f54->data_base_addr + REPORT_INDEX_OFFSET,
-			report_index,
-			sizeof(report_index));
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to write report data index\n", __func__);
-		retval = -EIO;
-		f54->status = STATUS_ERROR;
-		return retval;
-	}
-
-	retval = synaptics_rmi4_reg_read(rmi4_data,
-			f54->data_base_addr + REPORT_DATA_OFFSET,
-			f54->report_data,
-			f54->report_size);
-
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to read report data\n",
-				__func__);
-		retval = -EIO;
-		f54->status = STATUS_ERROR;
-		return retval;
-	}
-
-	f54->status = STATUS_IDLE;
-	return retval;
-}
-#endif
-/* tddi f54 test reporting - */
-
-
 static ssize_t test_sysfs_get_report_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
@@ -2555,18 +2464,6 @@ static ssize_t test_sysfs_get_report_store(struct device *dev,
 		goto exit;
 	}
 
-/* tddi f54 test reporting + */
-#ifdef F54_POLLING_GET_REPORT
-
-	retval = test_sysfs_get_report_polling();
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to get report image\n",
-				__func__);
-		goto exit;
-	}
-
-#else
 	f54->status = STATUS_BUSY;
 	f54->report_size = 0;
 	f54->data_pos = 0;
@@ -2576,8 +2473,6 @@ static ssize_t test_sysfs_get_report_store(struct device *dev,
 			HRTIMER_MODE_REL);
 */
 	retval = count;
-
-#endif
 
 exit:
 	mutex_unlock(&f54->status_mutex);
@@ -2682,6 +2577,8 @@ static ssize_t test_sysfs_report_type_store(struct device *dev,
 		goto exit;
 	}
 
+	if (bdata->captouch_use && setting == 20)
+		setting = 8;
 #ifdef USE_RT8
 	if ((f54->report_type == F54_FULL_RAW_CAP_NO_RX_COUPLING) && do_once) {
 		rmi4_data->reset_device(rmi4_data, false);
@@ -3118,11 +3015,6 @@ static ssize_t test_sysfs_read_report_store(struct device *dev,
 	const char cmd[] = {'1', 0};
 	struct synaptics_rmi4_data *rmi4_data = f54->rmi4_data;
 
-	if (rmi4_data->suspend) {
-		retval = -EINVAL;
-		goto exit;
-	}
-
 	pr_err("%s\n", __func__);
 
 	pr_err("%s: f54->tx_assigned = %d\n", __func__, f54->tx_assigned);
@@ -3174,12 +3066,7 @@ static ssize_t test_sysfs_read_report_store(struct device *dev,
 
 	pr_err("%s: got report\n", __func__);
 
-	if (f54->dump_flags) {
-		retval = test_sysfs_resume_touch_store(dev, attr, cmd, 1);
-		if (retval < 0)
-			goto exit;
-	} else
-		rmi4_data->reset_device(rmi4_data, false);
+	rmi4_data->reset_device(rmi4_data, false);
 
 	pr_err("%s: exiting\n", __func__);
 
@@ -3799,10 +3686,6 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 	if (setting != 1)
 		return -EINVAL;
 
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
-
 	if (td43xx_amp_open_data)
 		kfree(td43xx_amp_open_data);
 	td43xx_amp_open_data = kzalloc(tx_num * rx_num, GFP_KERNEL);
@@ -3821,6 +3704,7 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 		retval = -ENOMEM;
 		goto exit;
 	}
+	memset(p_report_data_8, 0x00, tx_num * rx_num * 2);
 
 	p_rt92_delta_image = kzalloc(tx_num * rx_num * sizeof(signed short), GFP_KERNEL);
 	if (!p_rt92_delta_image) {
@@ -3830,6 +3714,7 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 		retval = -ENOMEM;
 		goto exit;
 	}
+	memset(p_rt92_delta_image, 0x00, tx_num * rx_num * sizeof(signed short));
 
 	p_rt92_image_1 = kzalloc(tx_num * rx_num * sizeof(signed short), GFP_KERNEL);
 	if (!p_rt92_image_1) {
@@ -3839,6 +3724,7 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 		retval = -ENOMEM;
 		goto exit;
 	}
+	memset(p_rt92_image_1, 0x00, tx_num * rx_num * sizeof(signed short));
 
 	p_rt92_image_2 = kzalloc(tx_num * rx_num * sizeof(signed short), GFP_KERNEL);
 	if (!p_rt92_image_2) {
@@ -3848,6 +3734,7 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 		retval = -ENOMEM;
 		goto exit;
 	}
+	memset(p_rt92_image_2, 0x00, tx_num * rx_num * sizeof(signed short));
 
 	if (f54->query.touch_controller_family != 2) {
 		dev_err(rmi4_data->pdev->dev.parent,
@@ -3898,7 +3785,6 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 		dev_err(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read report 92 in step 1. exit\n",
 				__func__);
-		g_flag_read_report_fail = 1;
 		retval = -EIO;
 		goto exit;
 	}
@@ -3946,7 +3832,6 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 		dev_err(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read report 92 in step 2. exit\n",
 				__func__);
-		g_flag_read_report_fail = 1;
 		retval = -EIO;
 		goto exit;
 	}
@@ -3973,7 +3858,7 @@ static ssize_t test_sysfs_td43xx_amp_open_store(struct device *dev,
 			sizeof(control.reg_99->data));
 	if (retval < 0) {
 		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to write the integration duration to f54_ctrl_99 in restore phase\n",
+				"%s: Failed to write the integration duration to f54_ctrl_99 in restore pahse\n",
 				__func__);
 		retval = -EIO;
 		goto exit;
@@ -4019,11 +3904,6 @@ static ssize_t test_sysfs_td43xx_amp_open_show(struct device *dev,
 	if (!td43xx_amp_open_data)
 		return -EINVAL;
 
-	if (1 == g_flag_read_report_fail) {
-		kfree(td43xx_amp_open_data);
-		td43xx_amp_open_data = NULL;
-		return snprintf(buf, PAGE_SIZE, "ERROR: Fail to read RT92 image\n");
-	}
 	for (i = 0; i < tx_num; i++) {
 		for (j = 0; j < rx_num; j++) {
 			if (td43xx_amp_open_data[i * rx_num + j] != 0) {
@@ -4032,504 +3912,6 @@ static ssize_t test_sysfs_td43xx_amp_open_show(struct device *dev,
 			}
 		}
 	}
-
-	kfree(td43xx_amp_open_data);
-	td43xx_amp_open_data = NULL;
-
-	return snprintf(buf, PAGE_SIZE, "%s\n", (result == 1) ? "PASS" : "FAIL");
-}
-
-static int tddi_amp_open_data_testing_b7(signed short *p_image,
-									unsigned char *p_result,
-									bool is_b7)
-{
-	int retval = 0;
-	int i, j;
-	int tx_num = f54->tx_assigned;
-	int rx_num = f54->rx_assigned;
-	unsigned char left_size = f54->left_mux_size;
-	unsigned char right_size = f54->right_mux_size;
-	signed short *p_data_16;
-	signed short *p_left_median = NULL;
-	signed short *p_right_median = NULL;
-	signed short *p_left_column_buf = NULL;
-	signed short *p_right_column_buf = NULL;
-	signed int temp;
-	struct synaptics_rmi4_data *rmi4_data = f54->rmi4_data;
-
-	if (!p_image) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Fail. p_image is null\n",
-				__func__);
-		retval = -EINVAL;
-		goto exit;
-	}
-
-	if (!p_result) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Fail. p_result is null\n",
-				__func__);
-		retval = -EINVAL;
-		goto exit;
-	}
-
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
-
-	/* allocate the buffer for the median calculation in left/right half */
-	p_right_median = (signed short *) kzalloc(rx_num * sizeof(short), GFP_KERNEL);
-	if (!p_right_median) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for right_median\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	p_left_median = (signed short *) kzalloc(rx_num * sizeof(short), GFP_KERNEL);
-	if (!p_left_median) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for left_median\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	p_right_column_buf = (signed short *) kzalloc(right_size * rx_num * sizeof(short), GFP_KERNEL);
-	if (!p_right_column_buf) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for left_column_buf\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	p_left_column_buf = (signed short *) kzalloc(left_size * rx_num * sizeof(short), GFP_KERNEL);
-	if (!p_left_column_buf) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for left_column_buf\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	if (f54->swap_sensor_side) {
-		/* first row is left side data */
-		p_data_16 = p_image;
-		for (i = 0; i < rx_num; i++) {
-			for (j = 0; j < left_size; j++) {
-				p_left_column_buf[i * left_size + j] = p_data_16[j * rx_num + i];
-			}
-		}
-		/* right side data */
-		p_data_16 = p_image + left_size * rx_num;
-		for (i = 0; i < rx_num; i++) {
-			for (j = 0; j < right_size; j++) {
-				p_right_column_buf[i * right_size + j] = p_data_16[j * rx_num + i];
-			}
-		}
-	} else {
-		/* first row is right side data */
-		p_data_16 = p_image;
-		for (i = 0; i < rx_num; i++) {
-			for (j = 0; j < right_size; j++) {
-				p_right_column_buf[i * right_size + j] = p_data_16[j * rx_num + i];
-			}
-		}
-		/* left side data */
-		p_data_16 = p_image + right_size * rx_num;
-		for (i = 0; i < rx_num; i++) {
-			for (j = 0; j < left_size; j++) {
-				p_left_column_buf[i * left_size + j] = p_data_16[j * rx_num + i];
-			}
-		}
-	}
-
-	/* calculate the median value from each column in right/left half */
-	for (i = 0; i < rx_num; i++) {
-		p_left_median[i] = FindMedian(p_left_column_buf + i * left_size, left_size);
-		p_right_median[i] = FindMedian(p_right_column_buf + i * right_size, right_size);
-	}
-
-
-	/* data testing algorithm */
-	for (i = 0; i < tx_num; i++) {
-		for (j = 0; j < rx_num; j++) {
-
-			if (f54->swap_sensor_side) {
-				/* first row is left side */
-				if (i < left_size) {
-					temp = (signed int) p_image[i * rx_num + j];
-					temp = temp * 100 / p_left_median[j];
-				} else {
-					temp = (signed int) p_image[i * rx_num + j];
-					temp = temp * 100 / p_right_median[j];
-				}
-			} else {
-				/* first row is right side */
-				if (i < right_size) {
-					temp = (signed int) p_image[i * rx_num + j];
-					temp = temp * 100 / p_right_median[j];
-				} else {
-					temp = (signed int) p_image[i * rx_num + j];
-					temp = temp * 100 / p_left_median[j];
-				}
-			}
-
-			p_result[i * rx_num + j] = 0;
-
-			/* phase 2 comparison */
-			/* the ratio should be within the ph2 lower and upper limit */
-			if (is_b7) {
-				dev_err(rmi4_data->pdev->dev.parent, "%s : data at (tx%-2d, rx%-2d), data = %d\n",
-						__func__, i, j, temp - TDDI_B7_OPEN_TEST_LIMIT_PHASE2_UPPER);
-				if ((temp < TDDI_B7_OPEN_TEST_LIMIT_PHASE2_LOWER) ||
-					(temp > TDDI_B7_OPEN_TEST_LIMIT_PHASE2_UPPER)) {
-						p_result[i * rx_num + j] = 1;
-
-						dev_err(rmi4_data->pdev->dev.parent, "%s : phase 2 failed at (tx%-2d, rx%-2d), data = %d\n",
-								__func__, i, j, temp);
-				}
-			} else {
-				 if (temp < TDDI_OPEN_TEST_LIMIT_PHASE2_LOWER) {
-					p_result[i * rx_num + j] = 1;
-
-					dev_err(rmi4_data->pdev->dev.parent, "%s : phase 2 failed at (tx%-2d, rx%-2d), data = %d\n",
-								__func__, i, j, temp);
-				 }
-			}
-		}
-	}
-
-exit:
-	kfree(p_right_median);
-	kfree(p_left_median);
-	kfree(p_right_column_buf);
-	kfree(p_left_column_buf);
-
-	return retval;
-}
-
-static ssize_t test_sysfs_td4722_b7_amp_open_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t count)
-{
-	int retval = 0;
-	int i, j, k;
-	int tx_num = f54->tx_assigned;
-	int rx_num = f54->rx_assigned;
-	struct synaptics_rmi4_data *rmi4_data = f54->rmi4_data;
-	unsigned long setting;
-	unsigned char original_data_f54_ctrl99[3] = {0x00, 0x00, 0x00};
-	struct f54_control control = f54->control;
-	unsigned char *p_report_data_8 = NULL;
-	signed short  *p_rt92_image_1 = NULL;
-	signed short  *p_rt92_image_2 = NULL;
-	unsigned char *p_result_1 = NULL;
-	unsigned char *p_result_2 = NULL;
-
-	retval = sstrtoul(buf, 10, &setting);
-	if (retval)
-		return retval;
-
-	if (setting != 1)
-		return -EINVAL;
-
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
-
-	if (td43xx_amp_open_data)
-		kfree(td43xx_amp_open_data);
-	td43xx_amp_open_data = kzalloc(tx_num * rx_num, GFP_KERNEL);
-	if (!td43xx_amp_open_data) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for td43xx_amp_open_data\n",
-				__func__);
-		return -ENOMEM;
-	}
-
-	/* allocate the buffer */
-	p_report_data_8 = kzalloc(tx_num * rx_num * 2, GFP_KERNEL);
-	if (!p_report_data_8) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for p_report_data_8\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	p_rt92_image_1 = kzalloc(tx_num * rx_num * sizeof(signed short), GFP_KERNEL);
-	if (!p_rt92_image_1) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for p_rt92_image_1\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	p_rt92_image_2 = kzalloc(tx_num * rx_num * sizeof(signed short), GFP_KERNEL);
-	if (!p_rt92_image_2) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for p_rt92_image_2\n",
-				__func__);
-		retval = -ENOMEM;
-		goto exit;
-	}
-
-	p_result_1 = kzalloc(tx_num * rx_num, GFP_KERNEL);
-	if (!p_result_1) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for p_result_1\n",
-				__func__);
-		return -ENOMEM;
-	}
-
-	p_result_2 = kzalloc(tx_num * rx_num, GFP_KERNEL);
-	if (!p_result_2) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to alloc mem for p_result_2\n",
-				__func__);
-		return -ENOMEM;
-	}
-
-
-	/* keep the original integration duration */
-	if (f54->query.touch_controller_family != 2) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: not support touch controller family = 0 or 1 \n",
-				__func__);
-		retval = -EINVAL;
-		goto exit;
-	}
-	/* touch controller family = 2 */
-	/* read the original integration duration */
-	retval = synaptics_rmi4_reg_read(rmi4_data,
-			control.reg_99->address,
-			original_data_f54_ctrl99,
-			sizeof(original_data_f54_ctrl99));
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to read integration duration\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-
-	g_flag_read_report_fail = 0;
-
-	/* step 1 */
-	/* set the in_iter_duration_1 setting */
-	/* and read the first rt92 image */
-	control.reg_99->integration_duration_lsb = TDDI_B7_OPEN_TEST_INT_DUR_ONE;
-	control.reg_99->integration_duration_msb = (TDDI_B7_OPEN_TEST_INT_DUR_ONE >> 8) & 0xff;
-	control.reg_99->reset_duration = original_data_f54_ctrl99[2];
-	retval = synaptics_rmi4_reg_write(rmi4_data,
-			control.reg_99->address,
-			control.reg_99->data,
-			sizeof(control.reg_99->data));
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to write the integration duration to f54_ctrl_99 in step 1\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-
-	dev_err(rmi4_data->pdev->dev.parent,
-				"%s: control.reg_99->address = %02x	conftol.reg_99->data0 = %d	conftol.reg_99->data1 = %d	conftol.reg_99->data2 = %d\n",
-				__func__, control.reg_99->address, control.reg_99->data[0], control.reg_99->data[1], control.reg_99->data[2]);
-
-	retval = test_do_command(COMMAND_FORCE_UPDATE);
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to do force update in step 1\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-	/* grep the report image 92 */
-	retval = test_sysfs_read_report_td43xx(dev, attr, "92", count,
-				false, false);
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to read report 92 in step 1. exit\n",
-				__func__);
-	  g_flag_read_report_fail = 1;
-		retval = -EIO;
-		goto exit;
-	}
-
-	secure_memcpy(p_report_data_8, tx_num * rx_num * 2,
-		f54->report_data, f54->report_size, f54->report_size);
-
-	/* normalize the rt92 image with 16-bit */
-	k = 0;
-	for (i = 0; i < tx_num; i++) {
-		for (j = 0; j < rx_num; j++) {
-			p_rt92_image_1[i * rx_num + j] =
-				(signed short)(f54->report_data[k] & 0xff) | (signed short)(f54->report_data[k + 1] << 8);
-
-			dev_err(rmi4_data->pdev->dev.parent,
-					"%s: i = %d	j = %d	data = %d\n",
-					__func__, i, j, p_rt92_image_1[i * rx_num + j]);
-
-			k += 2;
-		}
-	}
-
-	/* verified the data */
-	tddi_amp_open_data_testing_b7(p_rt92_image_1, p_result_1, true);
-
-	memset(p_report_data_8, 0x00, tx_num * rx_num * 2);
-
-	/* step 2 */
-	/* set the in_iter_duration_2 setting */
-	/* and read the second rt92 image */
-	control.reg_99->integration_duration_lsb = TDDI_B7_OPEN_TEST_INT_DUR_TWO;
-	control.reg_99->integration_duration_msb = (TDDI_B7_OPEN_TEST_INT_DUR_TWO >> 8) & 0xff;
-	control.reg_99->reset_duration = original_data_f54_ctrl99[2];
-	retval = synaptics_rmi4_reg_write(rmi4_data,
-			control.reg_99->address,
-			control.reg_99->data,
-			sizeof(control.reg_99->data));
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to write the integration duration to f54_ctrl_99 in step 2\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-	retval = test_do_command(COMMAND_FORCE_UPDATE);
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to do force update in step 2\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-	/* grep the report image 92 */
-	retval = test_sysfs_read_report_td43xx(dev, attr, "92", count,
-				false, false);
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to read report 92 in step 2. exit\n",
-				__func__);
-		g_flag_read_report_fail = 1;
-		retval = -EIO;
-		goto exit;
-	}
-
-	secure_memcpy(p_report_data_8, tx_num * rx_num * 2,
-		f54->report_data, f54->report_size, f54->report_size);
-
-	/* normalize the rt92 image with 16-bit */
-	k = 0;
-	for (i = 0; i < tx_num; i++) {
-		for (j = 0; j < rx_num; j++) {
-			p_rt92_image_2[i * rx_num + j] =
-				(signed short)(f54->report_data[k] & 0xff) | (signed short)(f54->report_data[k + 1] << 8);
-
-			dev_err(rmi4_data->pdev->dev.parent,
-					"%s: i = %d	j = %d	data = %d\n",
-					__func__, i, j, p_rt92_image_1[i * rx_num + j]);
-
-			k += 2;
-		}
-	}
-
-	/* verified the data */
-	tddi_amp_open_data_testing_b7(p_rt92_image_2, p_result_2, true);
-
-	/* restore the original settings */
-	control.reg_99->integration_duration_lsb = original_data_f54_ctrl99[0];
-	control.reg_99->integration_duration_msb = original_data_f54_ctrl99[1];
-	control.reg_99->reset_duration = original_data_f54_ctrl99[2];
-	retval = synaptics_rmi4_reg_write(rmi4_data,
-			control.reg_99->address,
-			control.reg_99->data,
-			sizeof(control.reg_99->data));
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to write the integration duration to f54_ctrl_99 in restore phase\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-	retval = test_do_command(COMMAND_FORCE_UPDATE);
-	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
-				"%s: Failed to do force update in restore phase\n",
-				__func__);
-		retval = -EIO;
-		goto exit;
-	}
-
-	/* step 3 */
-	/* check the result */
-	for (i = 0; i < tx_num; i++) {
-		for (j = 0; j < rx_num; j++) {
-
-			if ((1 == p_result_1[i * rx_num + j]) || (1 == p_result_2[i * rx_num + j]))
-				td43xx_amp_open_data[i * rx_num + j] = 1;
-			else
-				td43xx_amp_open_data[i * rx_num + j] = 0;
-		}
-	}
-
-	retval = count;
-
-
-exit:
-	/* release resource */
-	kfree(p_rt92_image_1);
-	kfree(p_rt92_image_2);
-	kfree(p_report_data_8);
-	kfree(p_result_1);
-	kfree(p_result_2);
-
-	pr_err("%s: resetting device\n", __func__);
-	rmi4_data->reset_device(rmi4_data, false);
-	pr_err("%s: done resetting device\n", __func__);
-
-	return count;
-}
-
-static ssize_t test_sysfs_td4722_b7_amp_open_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	int i, j;
-	int tx_num = f54->tx_assigned;
-	int rx_num = f54->rx_assigned;
-	int result = 0;
-
-	if (f55->extended_amp_btn) {
-		tx_num -= 1;
-	}
-
-	if (!td43xx_amp_open_data)
-		return -EINVAL;
-
-	/* check the special code if the failure of report image reading */
-	if (1 == g_flag_read_report_fail) {
-		kfree(td43xx_amp_open_data);
-		td43xx_amp_open_data = NULL;
-		return snprintf(buf, PAGE_SIZE, "ERROR: Fail to read RT92 image\n");
-	}
-	for (i = 0; i < tx_num; i++) {
-		for (j = 0; j < rx_num; j++) {
-			if (td43xx_amp_open_data[i * rx_num + j] != 0) {
-
-				result = 0;
-				goto out;
-			}
-		}
-	}
-
-out:
-
-	if ((i == tx_num) && (j == rx_num))
-		result = 1;
 
 	kfree(td43xx_amp_open_data);
 	td43xx_amp_open_data = NULL;
@@ -4547,8 +3929,6 @@ static ssize_t test_sysfs_abs_0d_open_w_autoservo_store(struct device *dev,
 	int tx_num = f54->tx_assigned;
 	int rx_num = f54->rx_assigned;
 	struct synaptics_rmi4_data *rmi4_data = f54->rmi4_data;
-	const struct synaptics_dsx_board_data *bdata =
-		f54->rmi4_data->hw_if->board_data;
 	struct f54_control control = f54->control;
 	unsigned long setting;
 
@@ -4743,17 +4123,10 @@ static ssize_t test_sysfs_abs_0d_open_w_autoservo_store(struct device *dev,
 		g_abs_0d_open_data_output[i] = abs(p_rt92_image_1[(tx_num-1)*rx_num + i] - p_rt92_image_2[(tx_num-1)*rx_num + i]);
 		g_abs_0d_open_data_output[i] = (g_abs_0d_open_data_output[i] * 100)/p_rt92_image_1[(tx_num-1)*rx_num + i];
 		printk(KERN_ERR "ref value is %d value1 is %d	value2 is %d\n", g_abs_0d_open_data_output[i], p_rt92_image_1[(tx_num-1)*rx_num + i], p_rt92_image_2[(tx_num-1)*rx_num + i]);
-		if (bdata->captouch_use) {
-			if (g_abs_0d_open_data_output[i] > ABS_0D_OPEN_TEST_LIMIT_A7)
-				g_abs_0d_open_data_output[i] =  1; /* fail */
-			else
-				g_abs_0d_open_data_output[i] =  0; /* pass */
-		} else {
-			if (g_abs_0d_open_data_output[i] < ABS_0D_OPEN_TEST_LIMIT_B7)
-				g_abs_0d_open_data_output[i] =  1; /* fail */
-			else
-				g_abs_0d_open_data_output[i] =  0; /* pass */
-		}
+		if (g_abs_0d_open_data_output[i] < ABS_0D_OPEN_TEST_LIMIT)
+			g_abs_0d_open_data_output[i] =  1; /* fail */
+		else
+			g_abs_0d_open_data_output[i] =  0; /* pass */
 	}
 
 exit:
@@ -6904,7 +6277,7 @@ static ssize_t open_test_333x(void)
 	int val, tx, rx, num = 0;
 	char *pos;
 
-	retval = test_sysfs_read_report_store(NULL, NULL, TEST_TYPE_03, strlen(TEST_TYPE_03));
+	retval = test_sysfs_read_report_store(NULL, NULL, TEST_TYPE_20_333X, strlen(TEST_TYPE_20_333X));
 	if (retval < 0)
 		goto out;
 
@@ -6924,8 +6297,8 @@ static ssize_t open_test_333x(void)
 		if ((*pos == ' ') || (*pos == '\n'))
 			pos++;
 		else {
-			val = simple_strtol(pos, NULL, 10);
-			if (((val > 0) && (val < 100)) || (val < 0)) {
+			val = simple_strtoul(pos, NULL, 10);
+			if ((val > 0) && (val < 100)) {
 				f54->result_type = TEST_FAILED;
 				goto out;
 			}
@@ -6950,31 +6323,15 @@ static ssize_t open_test_4x22(void)
 	int retval;
 	char buf[4];
 
-	struct synaptics_rmi4_data *rmi4_data = f54->rmi4_data;
-	const struct synaptics_dsx_board_data *bdata =
-		rmi4_data->hw_if->board_data;
+	retval = test_sysfs_td43xx_amp_open_store(NULL, NULL, "1", 1);
+	if (retval < 0)
+		goto out;
 
-	if (bdata->captouch_use) {
-		retval = test_sysfs_td43xx_amp_open_store(NULL, NULL, "1", 1);
-		if (retval < 0)
-			goto out;
+	msleep(100);
 
-		msleep(100);
-
-		retval = test_sysfs_td43xx_amp_open_show(NULL, NULL, buf);
-		if (retval < 0)
-			goto out;
-	} else {
-		retval = test_sysfs_td4722_b7_amp_open_store(NULL, NULL, "1", 1);
-		if (retval < 0)
-			goto out;
-
-		msleep(100);
-
-		retval = test_sysfs_td4722_b7_amp_open_show(NULL, NULL, buf);
-		if (retval < 0)
-			goto out;
-	}
+	retval = test_sysfs_td43xx_amp_open_show(NULL, NULL, buf);
+	if (retval < 0)
+		goto out;
 
 	if (!strncmp(buf, "PASS", 4))
 		f54->result_type = TEST_OK;
@@ -7058,8 +6415,6 @@ static ssize_t syna_selftest_write(struct file *file, const char __user *buf, si
 			retval = i2c_test();
 
 out:
-	if (retval >= 0)
-		retval = count;
 
 	return retval;
 }
@@ -7067,7 +6422,6 @@ out:
 static int syna_selftest_release(struct inode *inode, struct file *file)
 {
 	vfree(f54->data);
-	f54->data = NULL;
 
 	return 0;
 }
@@ -7082,7 +6436,6 @@ static const struct file_operations syna_selftest_ops = {
 static int syna_datadump_open(struct inode *inode, struct file *file)
 {
 	f54->data = vmalloc(PAGE_SIZE);
-	f54->dump_flags = true;
 
 	return 0;
 }
@@ -7094,11 +6447,6 @@ static ssize_t syna_datadump_read(struct file *file, char __user *buf, size_t co
 
 	if (*pos != 0)
 		return 0;
-
-	if (!f54->data) {
-		snprintf(buf, PAGE_SIZE, "data test error: buf is NULL\n");
-		goto out;
-	}
 
 	retval = test_sysfs_read_report_store(NULL, NULL, TEST_TYPE_02, strlen(TEST_TYPE_02));
 	if (retval < 0) {
@@ -7140,8 +6488,6 @@ out:
 static int syna_datadump_release(struct inode *inode, struct file *file)
 {
 	vfree(f54->data);
-	f54->data = NULL;
-	f54->dump_flags = false;
 
 	return 0;
 }
