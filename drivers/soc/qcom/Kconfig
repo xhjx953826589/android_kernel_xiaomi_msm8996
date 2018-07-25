@@ -818,12 +818,9 @@ config MSM_CAPTOUCH
 	help
 	  This driver is used to allow capacitive touch testing with qbt1000
 
-<<<<<<< HEAD
-=======
 config STATE_NOTIFIER
         bool "State Notifier"
  
->>>>>>> 5afb9bc... soc: Add state notifier driver
 source "drivers/soc/qcom/memshare/Kconfig"
 
 endif # ARCH_MSM
