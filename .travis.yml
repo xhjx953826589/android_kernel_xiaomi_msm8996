@@ -12,41 +12,41 @@ env:
     - ndevicechoice="0"
       ntoolchain="49"
 # Xiaomi Mi5S
-    - ndevicechoice="1"
-      ntoolchain="42"
-    - ndevicechoice="1"
-      ntoolchain="46"
-    - ndevicechoice="1"
-      ntoolchain="47"
-    - ndevicechoice="1"
-      ntoolchain="49"
+#    - ndevicechoice="1"
+#      ntoolchain="42"
+#    - ndevicechoice="1"
+#      ntoolchain="46"
+#    - ndevicechoice="1"
+#      ntoolchain="47"
+#    - ndevicechoice="1"
+#      ntoolchain="49"
 # Xiaomi Mi5S Plus
-    - ndevicechoice="2"
-      ntoolchain="42"
-    - ndevicechoice="2"
-      ntoolchain="46"
-    - ndevicechoice="2"
-      ntoolchain="47"
-    - ndevicechoice="2"
-      ntoolchain="49"
+#    - ndevicechoice="2"
+#      ntoolchain="42"
+#    - ndevicechoice="2"
+#      ntoolchain="46"
+#    - ndevicechoice="2"
+#      ntoolchain="47"
+#    - ndevicechoice="2"
+#      ntoolchain="49"
 # Xiaomi Mi Mix
-    - ndevicechoice="3"
-      ntoolchain="42"
-    - ndevicechoice="3"
-      ntoolchain="46"
-    - ndevicechoice="3"
-      ntoolchain="47"
-    - ndevicechoice="3"
-      ntoolchain="49"
+#    - ndevicechoice="3"
+#      ntoolchain="42"
+#    - ndevicechoice="3"
+#      ntoolchain="46"
+#    - ndevicechoice="3"
+#      ntoolchain="47"
+#    - ndevicechoice="3"
+#      ntoolchain="49"
 # Xiaomi Mi Note 2
-    - ndevicechoice="4"
-      ntoolchain="42"
-    - ndevicechoice="4"
-      ntoolchain="46"
-    - ndevicechoice="4"
-      ntoolchain="47"
-    - ndevicechoice="4"
-      ntoolchain="49"
+#    - ndevicechoice="4"
+#      ntoolchain="42"
+#    - ndevicechoice="4"
+#      ntoolchain="46"
+#    - ndevicechoice="4"
+#      ntoolchain="47"
+#    - ndevicechoice="4"
+#      ntoolchain="49"
 before_script:
 # Print build info that binary is compiled with.
   - echo $TRAVIS_COMMIT
@@ -95,9 +95,9 @@ before_deploy:
 # Set up git user name and tag this commit
 - git config --local user.name "jonascardoso"
 - git config --local user.email "jonascard60@gmail.com"
-- git tag "${customkernel}-$(date +'%d/%m/%Y')-Nougat-HMP" hmp-n --force
+- git tag "${customkernel}-$(date +'%d/%m/%Y')-Nougat-EAS" eas-n --force
 #  Force to use this tag
-- export TRAVIS_TAG="${customkernel}-$(date +'%d/%m/%Y')-Nougat-HMP"
+- export TRAVIS_TAG="${customkernel}-$(date +'%d/%m/%Y')-Nougat-EAS"
 #  - git tag "$(date +'%d/%m/%Y')-$(git log --format=%h -1)"
 #  - git tag "$(date +'%d/%m/%Y-%Hh%Mm%Ss')-$(git log --format=%h -1)"
 deploy:
@@ -110,5 +110,5 @@ deploy:
     - "zip-creator/${zipfile0}"
   on:
     repo: JonasCardoso/android_kernel_xiaomi_msm8996
-    branch: hmp-n
+    branch: eas-n
 
