@@ -139,10 +139,19 @@ on property:persist.spectrum.profile=0
 	#Disable BCL
 		write /sys/devices/soc/soc:qcom,bcl/mode "-n disable"
 
-	#Disable Core Control and Control VDD and MSM Thermal Throttling allowing for longer sustained performance
-		write /sys/module/msm_thermal/core_control/enabled 0
-		write /sys/module/msm_thermal/vdd_restriction/enabled 0	
-		write /sys/module/msm_thermal/parameters/enabled N
+    #Configuration Simple Thermal driver
+        write /sys/kernel/msm_thermal/enabled 0
+        write /sys/kernel/msm_thermal/zone0 "1401600 1785600 40 38"
+        write /sys/kernel/msm_thermal/zone1 "1324800 1555200 41 40"
+        write /sys/kernel/msm_thermal/zone2 "1228800 1478400 42 41"
+        write /sys/kernel/msm_thermal/zone3 "1228800 1401600 43 42"
+        write /sys/kernel/msm_thermal/zone4 "1190400 1324800 44 43"
+        write /sys/kernel/msm_thermal/zone5 "1190400 1248000 46 44"
+        write /sys/kernel/msm_thermal/zone6 "1113600 1190400 48 46"
+        write /sys/kernel/msm_thermal/zone7 "1036800 940800 53 50"
+        write /sys/kernel/msm_thermal/zone8 "729600 729600 65 60"
+        write /sys/kernel/msm_thermal/sampling_ms 8000
+        write /sys/kernel/msm_thermal/enabled 1
 
 	#Tweak HMP Scheduler to feed the Big cluster more tasks
 		#write /proc/sys/kernel/sched_window_stats_policy 2
@@ -328,10 +337,19 @@ on property:persist.spectrum.profile=1
 	#Disable BCL
 		write /sys/devices/soc/soc:qcom,bcl/mode "-n disable"
 
-	#Disable Core Control and Control VDD and MSM Thermal Throttling allowing for longer sustained performance
-		write /sys/module/msm_thermal/core_control/enabled 0
-		write /sys/module/msm_thermal/vdd_restriction/enabled 0	
-		write /sys/module/msm_thermal/parameters/enabled N
+    #Configuration Simple Thermal driver
+        write /sys/kernel/msm_thermal/enabled 0
+        write /sys/kernel/msm_thermal/zone0 "1401600 1785600 40 38"
+        write /sys/kernel/msm_thermal/zone1 "1324800 1555200 41 40"
+        write /sys/kernel/msm_thermal/zone2 "1228800 1478400 42 41"
+        write /sys/kernel/msm_thermal/zone3 "1228800 1401600 43 42"
+        write /sys/kernel/msm_thermal/zone4 "1190400 1324800 44 43"
+        write /sys/kernel/msm_thermal/zone5 "1190400 1248000 46 44"
+        write /sys/kernel/msm_thermal/zone6 "1113600 1190400 48 46"
+        write /sys/kernel/msm_thermal/zone7 "1036800 940800 53 50"
+        write /sys/kernel/msm_thermal/zone8 "729600 729600 65 60"
+        write /sys/kernel/msm_thermal/sampling_ms 8000
+        write /sys/kernel/msm_thermal/enabled 1
 
 	#Tweak HMP Scheduler to feed the Big cluster more tasks
 		write /proc/sys/kernel/sched_window_stats_policy 1
@@ -522,10 +540,19 @@ on property:persist.spectrum.profile=2
 	#Disable BCL
 		write /sys/devices/soc/soc:qcom,bcl/mode "-n disable"
 
-	#Disable Core Control and Control VDD and MSM Thermal Throttling allowing for longer sustained performance
-		write /sys/module/msm_thermal/core_control/enabled 0
-		write /sys/module/msm_thermal/vdd_restriction/enabled 0	
-		write /sys/module/msm_thermal/parameters/enabled N
+    #Configuration Simple Thermal driver
+        write /sys/kernel/msm_thermal/enabled 0
+        write /sys/kernel/msm_thermal/zone0 "1401600 1785600 40 38"
+        write /sys/kernel/msm_thermal/zone1 "1324800 1555200 41 40"
+        write /sys/kernel/msm_thermal/zone2 "1228800 1478400 42 41"
+        write /sys/kernel/msm_thermal/zone3 "1228800 1401600 43 42"
+        write /sys/kernel/msm_thermal/zone4 "1190400 1324800 44 43"
+        write /sys/kernel/msm_thermal/zone5 "1190400 1248000 46 44"
+        write /sys/kernel/msm_thermal/zone6 "1113600 1190400 48 46"
+        write /sys/kernel/msm_thermal/zone7 "1036800 940800 53 50"
+        write /sys/kernel/msm_thermal/zone8 "729600 729600 65 60"
+        write /sys/kernel/msm_thermal/sampling_ms 8000
+        write /sys/kernel/msm_thermal/enabled 1
 
 	#Tweak HMP Scheduler for correcting BIG Cluster utilization
 		write /proc/sys/kernel/sched_window_stats_policy 2
@@ -690,10 +717,19 @@ on property:persist.spectrum.profile=3
 	#Disable BCL
 		write /sys/devices/soc/soc:qcom,bcl/mode "-n disable"
 
-	#Disable Core Control and Control VDD and MSM Thermal Throttling allowing for longer sustained performance
-		write /sys/module/msm_thermal/core_control/enabled 0
-		write /sys/module/msm_thermal/vdd_restriction/enabled 0	
-		write /sys/module/msm_thermal/parameters/enabled N
+    #Configuration Simple Thermal driver
+        write /sys/kernel/msm_thermal/enabled 0
+        write /sys/kernel/msm_thermal/zone0 "1401600 1785600 46 44"
+        write /sys/kernel/msm_thermal/zone1 "1324800 1555200 47 46"
+        write /sys/kernel/msm_thermal/zone2 "1228800 1478400 48 47"
+        write /sys/kernel/msm_thermal/zone3 "1228800 1401600 49 48"
+        write /sys/kernel/msm_thermal/zone4 "1190400 1324800 50 49"
+        write /sys/kernel/msm_thermal/zone5 "1190400 1248000 52 50"
+        write /sys/kernel/msm_thermal/zone6 "1113600 1190400 54 52"
+        write /sys/kernel/msm_thermal/zone7 "1036800 940800 59 50"
+        write /sys/kernel/msm_thermal/zone8 "729600 729600 70 65"
+        write /sys/kernel/msm_thermal/sampling_ms 1000
+        write /sys/kernel/msm_thermal/enabled 1
 
 	#Tweaking HMP Scheduler for correcting BIG Cluster utilization
 		write /proc/sys/kernel/sched_window_stats_policy 2
