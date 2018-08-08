@@ -366,18 +366,15 @@ dtb-$(CONFIG_ARCH_MSM8909) += msm8909-pm8916-mtp.dtb \
 	apq8009-robot-rome.dtb \
 	apq8009-mtp-drone.dtb \
 	msm8909-mtp.dtb \
-<<<<<<< HEAD
-	msm8909-1gb-mtp.dtb
-
-endif
-=======
 	msm8909-1gb-mtp.dtb \
 	msm8909-1gb-rcm.dtb \
 	msm8909-pm8916-1gb-rcm.dtb \
 	msm8909-1gb-cdp.dtb \
 	apq8009-ext-codec-dragon.dtb \
-	apq8009-dragon.dtb
->>>>>>> LA.UM.6.5.r1-08900-8x96.0
+	apq8009-dragon.dtb \
+	msm8909-1gb-mtp.dtb
+endif
+
 
 ifeq ($(CONFIG_ARM64),y)
 always          := $(dtb-y)

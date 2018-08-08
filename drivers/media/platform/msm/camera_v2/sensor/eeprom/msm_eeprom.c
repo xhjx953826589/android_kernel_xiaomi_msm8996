@@ -1902,21 +1902,12 @@ static int msm_eeprom_i2c_probe(struct i2c_client *client,
 	power_info = &eb_info->power_info;
 	power_info->dev = &e_ctrl->i2c_client.client->dev;
 
-
-<<<<<<< HEAD
-	/*Get clocks information */
-	rc = msm_camera_i2c_dev_get_clk_info(
-		&e_ctrl->i2c_client.client->dev,
-		&e_ctrl->eboard_info->power_info.clk_info,
-		&e_ctrl->eboard_info->power_info.clk_ptr,
-		&e_ctrl->eboard_info->power_info.clk_info_size);
-=======
 	/*Get clocks information*/
 	rc = msm_camera_i2c_dev_get_clk_info(&e_ctrl->i2c_client.client->dev,
 		&power_info->clk_info,
 		&power_info->clk_ptr,
 		&power_info->clk_info_size);
->>>>>>> LA.UM.6.5.r1-08900-8x96.0
+
 	if (rc < 0) {
 		pr_err("failed: msm_camera_get_clk_info rc %d", rc);
 		goto board_free;
@@ -1931,12 +1922,6 @@ static int msm_eeprom_i2c_probe(struct i2c_client *client,
 	}
 	e_ctrl->subdev_id = cell_id;
 
-<<<<<<< HEAD
-	/*IMPLEMENT READING PART */
-	/* Initialize sub device */
-	v4l2_i2c_subdev_init(&e_ctrl->msm_sd.sd,
-		e_ctrl->i2c_client.client,
-=======
 	rc = of_property_read_string(of_node, "qcom,eeprom-name",
 		&eb_info->eeprom_name);
 	CDBG("%s qcom,eeprom-name %s, rc %d\n", __func__,
@@ -2007,7 +1992,6 @@ static int msm_eeprom_i2c_probe(struct i2c_client *client,
 		e_ctrl->is_supported = 1;
 	}
 	v4l2_subdev_init(&e_ctrl->msm_sd.sd,
->>>>>>> LA.UM.6.5.r1-08900-8x96.0
 		e_ctrl->eeprom_v4l2_subdev_ops);
 	v4l2_set_subdevdata(&e_ctrl->msm_sd.sd, e_ctrl);
 	e_ctrl->msm_sd.sd.internal_ops = &msm_eeprom_internal_ops;
