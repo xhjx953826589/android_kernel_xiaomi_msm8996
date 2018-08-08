@@ -187,22 +187,19 @@ config INPUT_KEYCOMBO
 	---help---
 	  Say Y here if you want to take action when some keys are pressed;
 
-<<<<<<< HEAD
-
 config LAST_TOUCH_EVENTS
 	bool "Last touch events"
 	default n
 	depends on INPUT
 	---help---
 	  Say Y here if you want to get last touch events.
-=======
+
 config SENSORS_HALL
 	bool "Hall sensor"
 	depends on INPUT
 	---help---
 	 Say y here if you want to use this hall sensor driver, it
 	 is like a switch. For example, lid.
->>>>>>> c9cadbf146ba2f153a7b947ad5821454b8ff939c
 
 comment "Input Device Drivers"
 
