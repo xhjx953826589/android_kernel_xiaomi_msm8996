@@ -465,7 +465,7 @@ elif [ -e build.sh ]; then
 	# Main Variables
 	customkernel=FloppyKernel
 	romversion=EAS
-	androidversion=Oreo
+	androidversion=Pie
 	export ARCH=arm64
 
 	while true

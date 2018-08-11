@@ -42,9 +42,9 @@ EXPORT_SYMBOL_GPL(init_uts_ns);
 /* FIXED STRINGS! Don't touch! */
 const char linux_banner[] =
 	"Linux version " UTS_RELEASE " (" "JonasCardoso" "@"
-	"FloppyKernel-EAS-O" ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
+	"FloppyKernel-EAS-P" ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
 
 const char linux_proc_banner[] =
 	"%s version %s"
-	" (" "JonasCardoso" "@" "FloppyKernel-EAS-O" ")"
+	" (" "JonasCardoso" "@" "FloppyKernel-EAS-P" ")"
 " (" LINUX_COMPILER ") %s\n";
