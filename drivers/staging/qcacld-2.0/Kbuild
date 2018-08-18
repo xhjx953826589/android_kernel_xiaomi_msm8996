@@ -349,6 +349,9 @@ CONFIG_STATICALLY_ADD_11P_CHANNELS := n
 #Enable thermal shutdown
 CONFIG_WLAN_THERMAL_SHUTDOWN := 0
 
+#Enable the Disable Channel Switch
+CONFIG_WLAN_DISABLE_CHANNEL_SWITCH := 1
+
 ifeq ($(CONFIG_CFG80211),y)
 HAVE_CFG80211 := 1
 else
@@ -1016,6 +1019,7 @@ CDEFINES :=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DWLAN_PERF \
 		-DPTT_SOCK_SVC_ENABLE \
 		-Wall\
+		-Werror\
 		-D__linux__ \
 		-DHAL_SELF_STA_PER_BSS=1 \
 		-DWLAN_FEATURE_VOWIFI_11R \
@@ -1708,30 +1712,19 @@ CDEFINES += -DFEATURE_WLAN_THERMAL_SHUTDOWN
 CDEFINES += -DFEATURE_WLAN_AUTO_SHUTDOWN
 endif
 
+ifeq ($(CONFIG_WLAN_DISABLE_CHANNEL_SWITCH), 1)
+CDEFINES += -DFEATURE_WLAN_DISABLE_CHANNEL_SWITCH
+endif
+
 ifeq ($(CONFIG_WLAN_WAPI_MODE_11AC_DISABLE), y)
 CDEFINES += -DWLAN_WAPI_MODE_11AC_DISABLE
 endif
 
 KBUILD_CPPFLAGS += $(CDEFINES)
 
-# Currently, for versions of gcc which support it, the kernel Makefile
-# is disabling the maybe-uninitialized warning.  Re-enable it for the
-# WLAN driver.  Note that we must use EXTRA_CFLAGS here so that it
-# will override the kernel settings.
-ifeq ($(call cc-option-yn, -Wmaybe-uninitialized),y)
-EXTRA_CFLAGS += -Wmaybe-uninitialized
+ifeq ($(call cc-option-yn, -Wheader-guard),y)
+EXTRA_CFLAGS += -Wheader-guard
 endif
-
-# Disable certain flags for Clang as they are spammy and I'm not fixing them :^)
-ifeq ($(cc-name),clang)
-EXTRA_CFLAGS += -Wno-shift-count-negative
-EXTRA_CFLAGS += -Wno-enum-conversion
-EXTRA_CFLAGS += -Wno-typedef-redefinition 
-EXTRA_CFLAGS += -Wno-shift-count-overflow
-EXTRA_CFLAGS += -Wno-non-literal-null-conversion
-EXTRA_CFLAGS += -Wno-logical-not-parentheses
-EXTRA_CFLAGS += -Wno-absolute-value
-endif 
 
 # If the module name is not "wlan", then the define MULTI_IF_NAME to be the
 # same a the QCA CHIP name. The host driver will then append MULTI_IF_NAME to
