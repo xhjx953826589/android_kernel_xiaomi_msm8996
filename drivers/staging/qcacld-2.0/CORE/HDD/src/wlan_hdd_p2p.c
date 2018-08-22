@@ -509,7 +509,7 @@ void wlan_hdd_remain_on_chan_timeout(void *data)
     hdd_cfg80211_state_t *cfgState;
 
     if ((NULL == pAdapter) || (WLAN_HDD_ADAPTER_MAGIC != pAdapter->magic)) {
-        hddLog(LOGE, FL("pAdapter is invalid %p !!!"), pAdapter);
+        hddLog(LOGE, FL("pAdapter is invalid %pK !!!"), pAdapter);
         return;
     }
 
@@ -648,12 +648,18 @@ static int wlan_hdd_execute_remain_on_channel(hdd_adapter_t *pAdapter,
             return -EINVAL;
         }
 
-        if (REMAIN_ON_CHANNEL_REQUEST == pRemainChanCtx->rem_on_chan_request) {
+        mutex_lock(&cfgState->remain_on_chan_ctx_lock);
+        pRemainChanCtx = cfgState->remain_on_chan_ctx;
+        if ((pRemainChanCtx)&&(REMAIN_ON_CHANNEL_REQUEST ==
+            pRemainChanCtx->rem_on_chan_request)) {
+            mutex_unlock(&cfgState->remain_on_chan_ctx_lock);
             if (eHAL_STATUS_SUCCESS != sme_RegisterMgmtFrame(
                                          WLAN_HDD_GET_HAL_CTX(pAdapter),
                                          sessionId, (SIR_MAC_MGMT_FRAME << 2) |
                                         (SIR_MAC_MGMT_PROBE_REQ << 4), NULL, 0))
                 hddLog(LOGE, FL("sme_RegisterMgmtFrame returned failure"));
+        } else {
+               mutex_unlock(&cfgState->remain_on_chan_ctx_lock);
         }
     }
     else if ( ( WLAN_HDD_SOFTAP== pAdapter->device_mode ) ||
@@ -938,7 +944,7 @@ static int wlan_hdd_request_remain_on_channel( struct wiphy *wiphy,
                 wlan_hdd_roc_request_enqueue(pAdapter, pRemainChanCtx);
                 schedule_delayed_work(&pHddCtx->rocReqWork,
                 msecs_to_jiffies(pHddCtx->cfg_ini->p2p_listen_defer_interval));
-                hddLog(LOG1, "Defer interval is %hu, pAdapter %p",
+                hddLog(LOG1, "Defer interval is %hu, pAdapter %pK",
                        pHddCtx->cfg_ini->p2p_listen_defer_interval, pAdapter);
                 return 0;
             }

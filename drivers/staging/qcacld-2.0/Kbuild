@@ -318,6 +318,9 @@ CONFIG_FEATURE_STATS_EXT := 1
 #for these channels has not yet been added to the kernel.
 CONFIG_STATICALLY_ADD_11P_CHANNELS := n
 
+#Enable thermal shutdown
+CONFIG_WLAN_THERMAL_SHUTDOWN := 0
+
 ifeq ($(CONFIG_CFG80211),y)
 HAVE_CFG80211 := 1
 else
@@ -407,6 +410,7 @@ HDD_OBJS := 	$(HDD_SRC_DIR)/wlan_hdd_assoc.o \
 		$(HDD_SRC_DIR)/wlan_hdd_main.o \
 		$(HDD_SRC_DIR)/wlan_hdd_memdump.o \
 		$(HDD_SRC_DIR)/wlan_hdd_oemdata.o \
+		$(HDD_SRC_DIR)/wlan_hdd_request_manager.o \
 		$(HDD_SRC_DIR)/wlan_hdd_scan.o \
 		$(HDD_SRC_DIR)/wlan_hdd_softap_tx_rx.o \
 		$(HDD_SRC_DIR)/wlan_hdd_tx_rx.o \
